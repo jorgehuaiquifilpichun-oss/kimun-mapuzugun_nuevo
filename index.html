@@ -135,11 +135,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 
    <div id="dictionaryCover" class="dictionary-cover">
      <img src="portada_diccionario.png" alt="Portada del Diccionario Mapuche">
-     <button class="dictionary-open-hotspot" type="button" onclick="showDictionaryPdf()" aria-label="Abrir diccionario"></button>
-   </div>
-
-   <div id="dictionaryViewer" class="dictionary-viewer">
-     <iframe class="pdf-frame" src="diccionario_mapuche.pdf" title="Diccionario Mapuche"></iframe>
+     <button class="dictionary-open-hotspot" type="button" onclick="openDictionaryPdf()" aria-label="Abrir diccionario"></button>
    </div>
  </div>
 </section>
@@ -234,21 +230,12 @@ function grammarBack(){
 
 function openDictionary(fromConsult){
  dictionaryOrigin=fromConsult ? "consult" : "home";
- resetDictionaryCover();
  openScreen("dictionary");
 }
 
 
-function showDictionaryPdf(){
- document.getElementById("dictionaryCover").style.display="none";
- document.getElementById("dictionaryViewer").classList.add("active");
-}
-
-function resetDictionaryCover(){
- const cover=document.getElementById("dictionaryCover");
- const viewer=document.getElementById("dictionaryViewer");
- if(cover) cover.style.display="block";
- if(viewer) viewer.classList.remove("active");
+function openDictionaryPdf(){
+ window.open("diccionario_mapuche.pdf","_blank");
 }
 
 function dictionaryBack(){
