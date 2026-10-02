@@ -115,6 +115,51 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 #dictionary .consult-return img{display:block;width:100%;height:auto}
 #dictionary .dictionary-open-hotspot{z-index:15}
 
+
+/* === ACTIVIDAD ESPECIAL: LLENA TU NHEWEN === */
+#nhewenScreen{background:#1b120c;overflow:hidden}
+.nhewen-stage{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:100%;max-width:480px;aspect-ratio:2/3;overflow:hidden;background:#1b120c;
+}
+.nhewen-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+.nhewen-hotspot{
+ position:absolute;transform:translate(-50%,-50%);width:9.4%;aspect-ratio:1/1;
+ border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer;z-index:5;
+}
+.nhewen-hotspot.done{background:rgba(58,168,77,.50);box-shadow:0 0 0 3px rgba(218,244,194,.55) inset}
+.nhewen-progress-dot{
+ position:absolute;bottom:4.95%;width:4.25%;aspect-ratio:1/1;border-radius:50%;
+ transform:translateX(-50%);background:transparent;z-index:4;pointer-events:none;
+}
+.nhewen-progress-dot.done{background:rgba(55,175,73,.90);box-shadow:0 0 5px rgba(32,92,39,.7)}
+.nhewen-complete-badge{
+ display:none;position:absolute;left:50%;bottom:8.25%;transform:translateX(-50%);
+ z-index:7;padding:.55% 4.5%;border-radius:999px;background:#d8ad63;
+ border:4px solid #27823a;color:#176d2c;font-weight:900;font-size:clamp(22px,7vw,34px);
+ line-height:1;letter-spacing:.5px;box-shadow:0 2px 5px rgba(0,0,0,.35);
+}
+.nhewen-complete-badge.show{display:block}
+#nhewenCelebration{
+ display:none;position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.48);
+ align-items:center;justify-content:center;padding:18px;
+}
+#nhewenCelebration.show{display:flex}
+.nhewen-scroll-wrap{position:relative;width:96%;max-width:460px}
+.nhewen-scroll-wrap>img{display:block;width:100%;height:auto}
+.nhewen-message{
+ position:absolute;left:28%;right:28%;top:29%;bottom:28%;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ color:#4b2a17;text-shadow:0 1px rgba(255,255,255,.45);
+}
+.nhewen-message strong{font-size:clamp(23px,6.7vw,34px);line-height:1.08}
+.nhewen-message span{margin-top:10px;font-size:clamp(15px,4.2vw,20px);font-weight:700}
+.nhewen-continue{
+ margin-top:15px;border:2px solid #6b3b1e;border-radius:999px;padding:10px 22px;
+ background:#b57a3c;color:#fff7e7;font-weight:900;box-shadow:0 3px 6px rgba(0,0,0,.25);
+ cursor:pointer;
+}
+
 </style>
 </head>
 <body>
@@ -129,6 +174,24 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
     </nav>
   </div>
 </section>
+
+<section id="nhewenScreen" class="screen" aria-label="Llena tu NHEWEN">
+  <div class="nhewen-stage" id="nhewenStage">
+    <img class="nhewen-base" src="actividad_nhewen_filu_v1.png" alt="Actividad Llena tu NHEWEN">
+    <div id="nhewenBadgeGreen" class="nhewen-complete-badge">NHEWEN</div>
+    <div id="nhewenCelebration" aria-live="polite">
+      <div class="nhewen-scroll-wrap">
+        <img src="overlay_nhewen_txegul_v1.png" alt="">
+        <div class="nhewen-message">
+          <strong>¡Completaste tu NHEWEN!</strong>
+          <span>Ahora comencemos.</span>
+          <button class="nhewen-continue" type="button" onclick="continueAfterNhewen()">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
@@ -170,6 +233,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <script>
 const lessons = [
  {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
+ {image:"__NHEWEN__", title:"Llena tu NHEWEN", requiresAnswers:true},
  {image:"actividad_numeros_01.png", title:"Números 1", requiresAnswers:false},
  {image:"actividad_numeros_02.png", title:"Números 2", requiresAnswers:false},
  {image:"actividad_numeros_03.png", title:"Números 3", requiresAnswers:false},
@@ -186,7 +250,16 @@ let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
 function openScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.getElementById(id);if(target)target.classList.add("active")}
 function goHome(){openScreen("home")}
 function startCourse(){lessonIndex=Math.max(0,Math.min(lessonIndex,lessons.length-1));showLesson()}
-function showLesson(){const item=lessons[lessonIndex];document.getElementById("lessonImage").src=item.image;document.getElementById("lessonImage").alt=item.title;document.getElementById("backBtn").disabled=false;document.getElementById("nextBtn").disabled=item.requiresAnswers&&!activityIsComplete(lessonIndex);localStorage.setItem("kimunLessonIndex",lessonIndex);openScreen("lesson")}
+function showLesson(){
+ const item=lessons[lessonIndex];
+ localStorage.setItem("kimunLessonIndex",lessonIndex);
+ if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
+ document.getElementById("lessonImage").src=item.image;
+ document.getElementById("lessonImage").alt=item.title;
+ document.getElementById("backBtn").disabled=false;
+ document.getElementById("nextBtn").disabled=item.requiresAnswers&&!activityIsComplete(lessonIndex);
+ openScreen("lesson");
+}
 function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
 function previousLesson(){if(lessonIndex>0){lessonIndex--;showLesson()}else{goHome()}}
 function nextLesson(){const item=lessons[lessonIndex];if(item.requiresAnswers&&!activityIsComplete(lessonIndex))return;if(lessonIndex<lessons.length-1){lessonIndex++;showLesson()}else{localStorage.setItem("kimunCourseFinished","1");goHome()}}
@@ -199,6 +272,67 @@ function openDictionaryPdf(){
  window.location.href="diccionario_mapuche.pdf#page=48";
 }
 function dictionaryBack(){if(dictionaryOrigin==="consult")openScreen("consult");else goHome()}
+
+/* === LÓGICA NHEWEN === */
+const nhewenCenters=[
+ [43.2,9.8],[57.6,11.3],[70.2,13.3],[83.0,16.0],[90.5,22.3],
+ [78.0,28.9],[63.3,31.0],[46.1,32.1],[29.8,32.9],[18.3,39.6],
+ [26.9,47.6],[41.9,50.5],[56.9,51.2],[69.2,51.6],[85.1,56.9],
+ [77.0,66.3],[61.9,68.4],[44.7,68.2],[26.9,68.6],[73.8,81.4]
+];
+const nhewenProgressX=[6.2,10.8,15.4,20.0,24.6,29.2,33.8,38.4,43.0,47.6,52.2,56.8,61.4,66.0,70.6,75.2,79.8,84.4,89.0,93.6];
+
+function nhewenCount(){return Number(localStorage.getItem("kimunNhewenCount")||0)}
+function setNhewenCount(v){localStorage.setItem("kimunNhewenCount",String(v))}
+function buildNhewenUI(){
+ const stage=document.getElementById("nhewenStage");
+ stage.querySelectorAll(".nhewen-hotspot,.nhewen-progress-dot").forEach(e=>e.remove());
+ nhewenCenters.forEach((p,i)=>{
+   const b=document.createElement("button");
+   b.type="button"; b.className="nhewen-hotspot"; b.style.left=p[0]+"%"; b.style.top=p[1]+"%";
+   b.setAttribute("aria-label","Número "+(i+1));
+   b.onclick=()=>pressNhewenNumber(i+1);
+   stage.appendChild(b);
+ });
+ nhewenProgressX.forEach((x,i)=>{
+   const d=document.createElement("span");
+   d.className="nhewen-progress-dot"; d.style.left=x+"%"; d.dataset.progress=i+1;
+   stage.appendChild(d);
+ });
+ refreshNhewenUI();
+}
+function refreshNhewenUI(){
+ const count=nhewenCount();
+ document.querySelectorAll(".nhewen-hotspot").forEach((e,i)=>e.classList.toggle("done",i<count));
+ document.querySelectorAll(".nhewen-progress-dot").forEach((e,i)=>e.classList.toggle("done",i<count));
+ document.getElementById("nhewenBadgeGreen").classList.toggle("show",count>=20);
+}
+function pressNhewenNumber(n){
+ const expected=nhewenCount()+1;
+ if(n!==expected || expected>20)return;
+ setNhewenCount(n);
+ refreshNhewenUI();
+ // Audio preparado para incorporarse después: audio_nhewen_01.mp3 ... audio_nhewen_20.mp3
+ const audio=new Audio("audio_nhewen_"+String(n).padStart(2,"0")+".mp3");
+ audio.play().catch(()=>{});
+ if(n===20){
+   localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+   setTimeout(()=>document.getElementById("nhewenCelebration").classList.add("show"),350);
+ }
+}
+function showNhewenActivity(){
+ openScreen("nhewenScreen");
+ buildNhewenUI();
+ if(nhewenCount()>=20){
+   localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+   document.getElementById("nhewenCelebration").classList.add("show");
+ }
+}
+function continueAfterNhewen(){
+ document.getElementById("nhewenCelebration").classList.remove("show");
+ if(lessonIndex<lessons.length-1){lessonIndex++;showLesson();}
+}
+
 window.addEventListener("popstate",function(){if(document.getElementById("lesson").classList.contains("active"))previousLesson();else goHome()});
 </script>
 </body>
