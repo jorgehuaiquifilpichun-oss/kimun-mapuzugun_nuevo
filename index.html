@@ -5,259 +5,206 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#172019">
 <title>Kimün Mapuzungun</title>
-
 <style>
-:root{
-    --max-app:480px;
-    --verde:#172019;
-}
-*{
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
-html,body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-}
-body{
-    display:flex;
-    justify-content:center;
-    background:#111;
-    font-family:Arial,Helvetica,sans-serif;
-}
-.app{
-    position:relative;
-    width:100%;
-    max-width:var(--max-app);
-    height:100dvh;
-    min-height:100svh;
-    overflow:hidden;
-    background:var(--verde);
-}
-.screen{
-    position:absolute;
-    inset:0;
-    display:none;
-}
-.screen.active{display:block;}
-
-#home{
-    background-image:url("portada.png");
-    background-size:cover;
-    background-position:center top;
-    background-repeat:no-repeat;
-}
-
-.menu-zone{
-    position:absolute;
-    left:0;
-    right:0;
-    bottom:0;
-    z-index:10;
-    padding:18px 0 max(18px,env(safe-area-inset-bottom));
-    display:flex;
-    justify-content:center;
-    background:linear-gradient(to top,rgba(15,31,24,.97) 0%,rgba(15,31,24,.92) 70%,rgba(15,31,24,0) 100%);
-}
-.menu-background{
-    position:absolute;
-    left:50%;
-    bottom:0;
-    transform:translateX(-50%);
-    width:100%;
-    height:100%;
-    background-image:url("fondo_botonera.jpg");
-    background-size:cover;
-    background-position:center;
-    opacity:.58;
-    pointer-events:none;
-    z-index:0;
-}
-.menu{
-    position:relative;
-    z-index:2;
-    width:91%;
-    max-width:430px;
-    display:grid;
-    gap:8px;
-}
-.image-button{
-    display:block;
-    width:100%;
-    margin:0;
-    padding:0;
-    border:0;
-    background:transparent;
-    cursor:pointer;
-    border-radius:18px;
-    overflow:hidden;
-    filter:drop-shadow(0 4px 5px rgba(0,0,0,.30));
-}
-.image-button:active{transform:scale(.975);}
-.image-button img{
-    display:block;
-    width:100%;
-    height:auto;
-    object-fit:contain;
-    pointer-events:none;
-    user-select:none;
-}
-.panel{
-    width:100%;
-    height:100%;
-    overflow-y:auto;
-    padding:calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
-    background:linear-gradient(180deg,#f8f0df 0%,#eee0c6 100%);
-    color:#24170f;
-}
-.back{
-    border:0;
-    border-radius:999px;
-    padding:11px 15px;
-    background:#4a2a16;
-    color:#fff;
-    font-weight:700;
-    cursor:pointer;
-}
-h1{
-    margin:22px 0 8px;
-    font-size:clamp(26px,7vw,34px);
-    line-height:1.08;
-}
-.subtitle{
-    margin:0 0 20px;
-    color:#315b47;
-    font-weight:700;
-}
-.guides{
-    display:grid;
-    gap:10px;
-}
-.guide{
-    display:block;
-    padding:15px;
-    text-decoration:none;
-    color:#2b170d;
-    background:#fff9ec;
-    border:2px solid #9b6a39;
-    border-radius:16px;
-    font-weight:700;
-}
-.placeholder{
-    margin-top:25px;
-    padding:20px;
-    background:#fff9ec;
-    border:2px solid #9b6a39;
-    border-radius:18px;
-    line-height:1.5;
-}
-@media(max-height:720px){
-    .menu-zone{
-        padding-top:10px;
-        padding-bottom:max(10px,env(safe-area-inset-bottom));
-    }
-    .menu{width:86%;gap:5px;}
-}
-@media(max-width:380px){
-    .menu{width:90%;}
-}
+:root{--max-app:480px;--verde:#172019;--crema:#f8f0df;--madera:#4a2a16}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;width:100%;height:100%}
+body{display:flex;justify-content:center;background:#111;font-family:Arial,Helvetica,sans-serif}
+button{font:inherit}
+.app{position:relative;width:100%;max-width:var(--max-app);height:100dvh;min-height:100svh;overflow:hidden;background:var(--verde)}
+.screen{position:absolute;inset:0;display:none;background:var(--verde)}
+.screen.active{display:block}
+#home{background-image:url("portada.png");background-size:cover;background-position:center top;background-repeat:no-repeat}
+.menu-zone{position:absolute;left:0;right:0;bottom:0;z-index:10;padding:18px 0 max(18px,env(safe-area-inset-bottom));display:flex;justify-content:center;background:linear-gradient(to top,rgba(15,31,24,.97),rgba(15,31,24,.92) 70%,rgba(15,31,24,0))}
+.menu-background{position:absolute;inset:auto 0 0;width:100%;height:100%;background-image:url("fondo_botonera.jpg");background-size:cover;background-position:center;opacity:.58;pointer-events:none}
+.menu{position:relative;z-index:2;width:91%;max-width:430px;display:grid;gap:8px}
+.image-button{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;cursor:pointer;border-radius:18px;overflow:hidden;filter:drop-shadow(0 4px 5px rgba(0,0,0,.30))}
+.image-button:active,.nav-img:active{transform:scale(.975)}
+.image-button img,.nav-img img{display:block;width:100%;height:auto;pointer-events:none;user-select:none}
+.panel{width:100%;height:100%;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#f8f0df,#eee0c6);color:#24170f}
+h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
+.subtitle{margin:0 0 20px;color:#315b47;font-weight:700}
+.guides{display:grid;gap:10px}
+.guide,.consult-option{display:block;padding:15px;text-decoration:none;color:#2b170d;background:#fff9ec;border:2px solid #9b6a39;border-radius:16px;font-weight:700}
+.placeholder{margin-top:20px;padding:18px;background:#fff9ec;border:2px solid #9b6a39;border-radius:18px;line-height:1.5}
+.lesson{background:#111}
+.lesson-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
+.lesson-shade{position:absolute;left:0;right:0;bottom:0;height:27%;background:linear-gradient(to top,rgba(10,15,11,.92),rgba(10,15,11,.48),transparent);pointer-events:none}
+.lesson-nav{position:absolute;z-index:5;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:end}
+.nav-img{border:0;background:transparent;padding:0;cursor:pointer;min-width:0;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+.nav-img[disabled]{opacity:.42;filter:grayscale(.65);cursor:not-allowed}
+.progress{position:absolute;z-index:6;top:max(8px,env(safe-area-inset-top));right:9px;background:rgba(20,31,23,.86);color:white;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.consult-return{margin-top:16px;width:100%;border:0;background:transparent;padding:0;cursor:pointer}
+.pdf-frame{width:100%;height:68vh;border:2px solid #9b6a39;border-radius:12px;background:#fff}
+.notice{padding:12px 14px;border-radius:12px;background:#fff3cd;color:#493b12;margin:12px 0;font-size:14px}
+@media(max-height:720px){.menu-zone{padding-top:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}.menu{width:86%;gap:5px}.lesson-nav{bottom:6px}}
 </style>
 </head>
-
 <body>
 <main class="app">
 
 <section id="home" class="screen active">
-    <div class="menu-zone">
-        <div class="menu-background" aria-hidden="true"></div>
-        <nav class="menu" aria-label="Menú principal">
-
-            <button type="button" class="image-button" onclick="openScreen('start')" aria-label="Comenzar">
-                <img src="boton_comenzar.png" alt="Comenzar">
-            </button>
-
-            <button type="button" class="image-button" onclick="openScreen('grammar')" aria-label="Apoyo de Gramática">
-                <img src="boton_gramatica.png" alt="Apoyo de Gramática">
-            </button>
-
-            <button type="button" class="image-button" onclick="openScreen('dictionary')" aria-label="Diccionario Mapuche">
-                <img src="boton_diccionario.png" alt="Diccionario Mapuche">
-            </button>
-
-            <button type="button" class="image-button" onclick="openScreen('grafemario')" aria-label="Grafemario y Sonidos">
-                <img src="boton_grafemario.png" alt="Grafemario y Sonidos">
-            </button>
-
-        </nav>
-    </div>
+  <div class="menu-zone">
+    <div class="menu-background" aria-hidden="true"></div>
+    <nav class="menu" aria-label="Menú principal">
+      <button class="image-button" onclick="startCourse()" aria-label="Comenzar"><img src="boton_comenzar.png" alt="Comenzar"></button>
+      <button class="image-button" onclick="openScreen('grammar')" aria-label="Apoyo de Gramática"><img src="boton_gramatica.png" alt="Apoyo de Gramática"></button>
+      <button class="image-button" onclick="openDictionary(false)" aria-label="Diccionario Mapuche"><img src="boton_diccionario.png" alt="Diccionario Mapuche"></button>
+      <button class="image-button" onclick="openScreen('grafemario')" aria-label="Grafemario y Sonidos"><img src="boton_grafemario.png" alt="Grafemario y Sonidos"></button>
+    </nav>
+  </div>
 </section>
 
-<section id="start" class="screen">
-    <div class="panel">
-        <button type="button" class="back" onclick="goHome()">← Wüñotxekage · Volver atrás</button>
-        <h1>Comenzar</h1>
-        <div class="placeholder">Las actividades de aprendizaje se conectarán aquí posteriormente.</div>
-    </div>
+<section id="lesson" class="screen lesson">
+  <img id="lessonImage" class="lesson-bg" src="" alt="">
+  <div class="progress" id="progress">1 / 11</div>
+  <div class="lesson-shade"></div>
+  <nav class="lesson-nav" aria-label="Navegación de la actividad">
+    <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxecage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxecage - Volver atrás"></button>
+    <button class="nav-img" onclick="openConsult()" aria-label="Ramtuchi, consultar"><img src="boton_consultar.png" alt="Ramtuchi - Consultaré"></button>
+    <button class="nav-img" id="nextBtn" onclick="nextLesson()" aria-label="Amulepe, seguir"><img src="boton_seguir.png" alt="Amulepe - Seguir"></button>
+  </nav>
+</section>
+
+<section id="consult" class="screen">
+ <div class="panel">
+   <h1>Ramtuchi</h1>
+   <p class="subtitle">Consultar sin perder el avance de la actividad.</p>
+   <button class="consult-option" style="width:100%;text-align:left" onclick="openDictionary(true)">Diccionario Mapuche</button>
+   <button class="consult-option" style="width:100%;text-align:left;margin-top:10px" onclick="openGrammarFromConsult()">Guías de Gramática</button>
+   <button class="consult-return" onclick="returnFromConsult()"><img src="boton_volver_atras.png" alt="Volver a la actividad" style="width:100%;height:auto"></button>
+ </div>
 </section>
 
 <section id="grammar" class="screen">
-    <div class="panel">
-        <button type="button" class="back" onclick="goHome()">← Wüñotxekage · Volver atrás</button>
-        <h1>Apoyo de Gramática</h1>
-        <p class="subtitle">Guías originales en PDF</p>
-
-        <div class="guides">
-            <a class="guide" href="01_A1.1_Kimeltun_0.pdf" target="_blank">Guía 1</a>
-            <a class="guide" href="02_A1.1_Mapuzugun_kimeltun_2.pdf" target="_blank">Guía 2</a>
-            <a class="guide" href="03_Mapuzugun_kimeltun_3.pdf" target="_blank">Guía 3</a>
-            <a class="guide" href="04_A1.1_2026_Kimeltun_6.pdf" target="_blank">Guía 4</a>
-            <a class="guide" href="05_A1.1_2026_Kimeltun_7.pdf" target="_blank">Guía 5</a>
-            <a class="guide" href="06_A1.1_2026_Kimeltun_9.pdf" target="_blank">Guía 6</a>
-            <a class="guide" href="07_A1.1_2026_Kimeltun_10.pdf" target="_blank">Guía 7</a>
-            <a class="guide" href="08_A1.1_2026_Kimeltun_11.pdf" target="_blank">Guía 8</a>
-            <a class="guide" href="09_A1.1_2026_Kimeltun_12.pdf" target="_blank">Guía 9</a>
-            <a class="guide" href="10_A1.1_2026_Kimeltun_13.pdf" target="_blank">Guía 10</a>
-        </div>
-    </div>
+ <div class="panel">
+   <button class="consult-return" onclick="grammarBack()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
+   <h1>Apoyo de Gramática</h1>
+   <p class="subtitle">Guías originales en PDF</p>
+   <div class="guides">
+    <a class="guide" href="01_A1.1_Kimeltun_0.pdf" target="_blank">Guía 1</a>
+    <a class="guide" href="02_A1.1_Mapuzugun_kimeltun_2.pdf" target="_blank">Guía 2</a>
+    <a class="guide" href="03_Mapuzugun_kimeltun_3.pdf" target="_blank">Guía 3</a>
+    <a class="guide" href="04_A1.1_2026_Kimeltun_6.pdf" target="_blank">Guía 4</a>
+    <a class="guide" href="05_A1.1_2026_Kimeltun_7.pdf" target="_blank">Guía 5</a>
+    <a class="guide" href="06_A1.1_2026_Kimeltun_9.pdf" target="_blank">Guía 6</a>
+    <a class="guide" href="07_A1.1_2026_Kimeltun_10.pdf" target="_blank">Guía 7</a>
+    <a class="guide" href="08_A1.1_2026_Kimeltun_11.pdf" target="_blank">Guía 8</a>
+    <a class="guide" href="09_A1.1_2026_Kimeltun_12.pdf" target="_blank">Guía 9</a>
+    <a class="guide" href="10_A1.1_2026_Kimeltun_13.pdf" target="_blank">Guía 10</a>
+   </div>
+ </div>
 </section>
 
 <section id="dictionary" class="screen">
-    <div class="panel">
-        <button type="button" class="back" onclick="goHome()">← Wüñotxekage · Volver atrás</button>
-        <h1>Diccionario Mapuche</h1>
-        <div class="placeholder">Aquí conectaremos posteriormente el diccionario.</div>
-    </div>
+ <div class="panel">
+   <button class="consult-return" onclick="dictionaryBack()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
+   <h1>Diccionario Mapuche</h1>
+   <iframe class="pdf-frame" src="diccionario_mapuche.pdf" title="Diccionario Mapuche"></iframe>
+ </div>
 </section>
 
 <section id="grafemario" class="screen">
-    <div class="panel">
-        <button type="button" class="back" onclick="goHome()">← Wüñotxekage · Volver atrás</button>
-        <h1>Grafemario y Sonidos</h1>
-        <div class="placeholder">Aquí conectaremos posteriormente el grafemario, pronunciaciones, audios y números.</div>
-    </div>
+ <div class="panel">
+   <button class="consult-return" onclick="goHome()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
+   <h1>Grafemario y Sonidos</h1>
+   <div class="placeholder">Aquí se conectarán el grafemario, pronunciaciones y audios.</div>
+ </div>
 </section>
 
 </main>
-
 <script>
+const lessons = [
+ {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
+ {image:"actividad_numeros_01.png", title:"Números 1", requiresAnswers:false},
+ {image:"actividad_numeros_02.png", title:"Números 2", requiresAnswers:false},
+ {image:"actividad_numeros_03.png", title:"Números 3", requiresAnswers:false},
+ {image:"actividad_numeros_04.png", title:"Números 4", requiresAnswers:false},
+ {image:"actividad_numeros_05.png", title:"Números 5", requiresAnswers:false},
+ {image:"actividad_numeros_06.png", title:"Números 6", requiresAnswers:false},
+ {image:"actividad_numeros_07.png", title:"Números 7", requiresAnswers:false},
+ {image:"actividad_numeros_08.png", title:"Números 8", requiresAnswers:false},
+ {image:"actividad_numeros_09.png", title:"Números 9", requiresAnswers:false},
+ {image:"actividad_casa_01.png", title:"Números y objetos de la casa", requiresAnswers:false}
+];
+
+let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
+let consultOrigin = "home";
+let grammarOrigin = "home";
+let dictionaryOrigin = "home";
+
 function openScreen(id){
-    document.querySelectorAll(".screen").forEach(function(screen){
-        screen.classList.remove("active");
-    });
-    const target=document.getElementById(id);
-    if(target){
-        target.classList.add("active");
-    }
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ const target=document.getElementById(id);
+ if(target) target.classList.add("active");
 }
 
-function goHome(){
-    openScreen("home");
+function goHome(){ openScreen("home"); }
+
+function startCourse(){
+ lessonIndex=Math.max(0,Math.min(lessonIndex,lessons.length-1));
+ showLesson();
 }
 
-window.addEventListener("popstate",goHome);
+function showLesson(){
+ const item=lessons[lessonIndex];
+ document.getElementById("lessonImage").src=item.image;
+ document.getElementById("lessonImage").alt=item.title;
+ document.getElementById("progress").textContent=(lessonIndex+1)+" / "+lessons.length;
+ document.getElementById("backBtn").disabled=false;
+ // Preparado para bloqueo real cuando incorporemos las preguntas de cada actividad.
+ document.getElementById("nextBtn").disabled=item.requiresAnswers && !activityIsComplete(lessonIndex);
+ localStorage.setItem("kimunLessonIndex",lessonIndex);
+ openScreen("lesson");
+}
+
+function activityIsComplete(index){
+ return localStorage.getItem("kimunComplete_"+index)==="1";
+}
+
+function previousLesson(){
+ if(lessonIndex>0){ lessonIndex--; showLesson(); }
+ else { goHome(); }
+}
+
+function nextLesson(){
+ const item=lessons[lessonIndex];
+ if(item.requiresAnswers && !activityIsComplete(lessonIndex)) return;
+ if(lessonIndex<lessons.length-1){ lessonIndex++; showLesson(); }
+ else { localStorage.setItem("kimunCourseFinished","1"); goHome(); }
+}
+
+function openConsult(){
+ consultOrigin="lesson";
+ openScreen("consult");
+}
+
+function returnFromConsult(){
+ if(consultOrigin==="lesson") showLesson(); else goHome();
+}
+
+function openGrammarFromConsult(){
+ grammarOrigin="consult";
+ openScreen("grammar");
+}
+
+function grammarBack(){
+ if(grammarOrigin==="consult") openScreen("consult"); else goHome();
+}
+
+function openDictionary(fromConsult){
+ dictionaryOrigin=fromConsult ? "consult" : "home";
+ openScreen("dictionary");
+}
+
+function dictionaryBack(){
+ if(dictionaryOrigin==="consult") openScreen("consult"); else goHome();
+}
+
+window.addEventListener("popstate",function(){
+ if(document.getElementById("lesson").classList.contains("active")) previousLesson();
+ else goHome();
+});
 </script>
-
 </body>
 </html>
