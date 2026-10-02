@@ -34,41 +34,37 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .nav-img{position:absolute;border:0;background:transparent;padding:0;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
 .nav-img img{display:block;width:100%;height:auto;pointer-events:none;user-select:none}
 .nav-img[disabled]{opacity:.42;filter:grayscale(.65);cursor:not-allowed}
-#backBtn{top:-18px;left:-42px;width:74%;max-width:334px}
-#nextBtn{top:-18px;right:-42px;width:74%;max-width:334px}
-#consultBtn{left:50%;bottom:max(12px,env(safe-area-inset-bottom));width:74%;max-width:334px;transform:translateX(-50%)}
+
+/* Navegación superior corregida:
+   cada botón ocupa como máximo su mitad.
+   Se ajustan automáticamente sin tocarse ni superponerse. */
+#backBtn{
+ top:0;
+ left:0;
+ width:50%;
+ max-width:240px;
+}
+#nextBtn{
+ top:0;
+ right:0;
+ width:50%;
+ max-width:240px;
+}
+#consultBtn{
+ left:50%;
+ bottom:max(12px,env(safe-area-inset-bottom));
+ width:74%;
+ max-width:334px;
+ transform:translateX(-50%);
+}
 #consultBtn:active{transform:translateX(-50%) scale(.975)}
+
 .progress{position:absolute;z-index:6;top:max(8px,env(safe-area-inset-top));right:9px;background:rgba(20,31,23,.86);color:white;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700}
 .consult-return{margin-top:16px;width:100%;border:0;background:transparent;padding:0;cursor:pointer}
-
-.dictionary-cover{
- position:relative;
- width:100%;
- max-width:430px;
- margin:0 auto;
-}
-.dictionary-cover img{
- display:block;
- width:100%;
- height:auto;
- border-radius:16px;
-}
-.dictionary-open-hotspot{
- position:absolute;
- left:12%;
- right:12%;
- bottom:5.2%;
- height:9.5%;
- border:0;
- padding:0;
- background:transparent;
- cursor:pointer;
- border-radius:24px;
-}
-.dictionary-open-hotspot:focus-visible{
- outline:3px solid #fff;
- outline-offset:3px;
-}
+.dictionary-cover{position:relative;width:100%;max-width:430px;margin:0 auto}
+.dictionary-cover img{display:block;width:100%;height:auto;border-radius:16px}
+.dictionary-open-hotspot{position:absolute;left:12%;right:12%;bottom:5.2%;height:9.5%;border:0;padding:0;background:transparent;cursor:pointer;border-radius:24px}
+.dictionary-open-hotspot:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .notice{padding:12px 14px;border-radius:12px;background:#fff3cd;color:#493b12;margin:12px 0;font-size:14px}
 @media(max-height:720px){.menu-zone{padding-top:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}.menu{width:86%;gap:5px}}
 </style>
@@ -133,7 +129,6 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
  <div class="panel">
    <button class="consult-return" onclick="dictionaryBack()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
    <h1>Diccionario Mapuche</h1>
-
    <div id="dictionaryCover" class="dictionary-cover">
      <img src="portada_diccionario.png" alt="Portada del Diccionario Mapuche">
      <button class="dictionary-open-hotspot" type="button" onclick="openDictionaryPdf()" aria-label="Abrir diccionario"></button>
@@ -175,76 +170,35 @@ function openScreen(id){
  const target=document.getElementById(id);
  if(target) target.classList.add("active");
 }
-
-function goHome(){ openScreen("home"); }
-
-function startCourse(){
- lessonIndex=Math.max(0,Math.min(lessonIndex,lessons.length-1));
- showLesson();
-}
-
+function goHome(){openScreen("home")}
+function startCourse(){lessonIndex=Math.max(0,Math.min(lessonIndex,lessons.length-1));showLesson()}
 function showLesson(){
  const item=lessons[lessonIndex];
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
  document.getElementById("progress").textContent=(lessonIndex+1)+" / "+lessons.length;
  document.getElementById("backBtn").disabled=false;
- // Preparado para bloqueo real cuando incorporemos las preguntas de cada actividad.
  document.getElementById("nextBtn").disabled=item.requiresAnswers && !activityIsComplete(lessonIndex);
  localStorage.setItem("kimunLessonIndex",lessonIndex);
  openScreen("lesson");
 }
-
-function activityIsComplete(index){
- return localStorage.getItem("kimunComplete_"+index)==="1";
-}
-
-function previousLesson(){
- if(lessonIndex>0){ lessonIndex--; showLesson(); }
- else { goHome(); }
-}
-
+function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
+function previousLesson(){if(lessonIndex>0){lessonIndex--;showLesson()}else{goHome()}}
 function nextLesson(){
  const item=lessons[lessonIndex];
- if(item.requiresAnswers && !activityIsComplete(lessonIndex)) return;
- if(lessonIndex<lessons.length-1){ lessonIndex++; showLesson(); }
- else { localStorage.setItem("kimunCourseFinished","1"); goHome(); }
+ if(item.requiresAnswers && !activityIsComplete(lessonIndex))return;
+ if(lessonIndex<lessons.length-1){lessonIndex++;showLesson()}
+ else{localStorage.setItem("kimunCourseFinished","1");goHome()}
 }
-
-function openConsult(){
- consultOrigin="lesson";
- openScreen("consult");
-}
-
-function returnFromConsult(){
- if(consultOrigin==="lesson") showLesson(); else goHome();
-}
-
-function openGrammarFromConsult(){
- grammarOrigin="consult";
- openScreen("grammar");
-}
-
-function grammarBack(){
- if(grammarOrigin==="consult") openScreen("consult"); else goHome();
-}
-
-function openDictionary(fromConsult){
- dictionaryOrigin=fromConsult ? "consult" : "home";
- openScreen("dictionary");
-}
-
-
-function openDictionaryPdf(){
- window.location.href="diccionario_mapuche.pdf";
-}
-
-function dictionaryBack(){
- if(dictionaryOrigin==="consult") openScreen("consult"); else goHome();
-}
-
+function openConsult(){consultOrigin="lesson";openScreen("consult")}
+function returnFromConsult(){if(consultOrigin==="lesson")showLesson();else goHome()}
+function openGrammarFromConsult(){grammarOrigin="consult";openScreen("grammar")}
+function grammarBack(){if(grammarOrigin==="consult")openScreen("consult");else goHome()}
+function openDictionary(fromConsult){dictionaryOrigin=fromConsult?"consult":"home";openScreen("dictionary")}
+function openDictionaryPdf(){window.location.href="diccionario_mapuche.pdf"}
+function dictionaryBack(){if(dictionaryOrigin==="consult")openScreen("consult");else goHome()}
 window.addEventListener("popstate",function(){
- if(document.getElementById("lesson").classList.contains("active")) previousLesson();
+ if(document.getElementById("lesson").classList.contains("active"))previousLesson();
  else goHome();
 });
 </script>
