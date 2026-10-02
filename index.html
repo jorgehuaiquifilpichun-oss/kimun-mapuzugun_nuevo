@@ -69,6 +69,52 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
  margin:0 auto;
 }
 
+
+/* DICCIONARIO — PORTADA A PANTALLA COMPLETA */
+#dictionary{background:#000;overflow:hidden}
+#dictionary .panel{
+ position:relative;
+ width:100%;
+ max-width:480px;
+ height:100dvh;
+ height:100svh;
+ min-height:100svh;
+ margin:0 auto;
+ padding:0;
+ overflow:hidden;
+ background:#000;
+}
+#dictionary .dictionary-cover{
+ position:absolute;
+ inset:0;
+ width:100%;
+ max-width:none;
+ height:100%;
+ margin:0;
+}
+#dictionary .dictionary-cover>img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ object-position:center;
+ border-radius:0;
+}
+#dictionary .consult-return{
+ position:absolute;
+ z-index:20;
+ top:max(4px,env(safe-area-inset-top));
+ left:8px;
+ width:48%;
+ max-width:230px;
+ margin:0;
+ padding:0;
+ border:0;
+ background:transparent;
+}
+#dictionary .consult-return img{display:block;width:100%;height:auto}
+#dictionary .dictionary-open-hotspot{z-index:15}
+
 </style>
 </head>
 <body>
@@ -113,7 +159,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 </div></div></section>
 <section id="dictionary" class="screen"><div class="panel">
 <button class="consult-return" onclick="dictionaryBack()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
-<h1>Diccionario Mapuche</h1>
+
 <div id="dictionaryCover" class="dictionary-cover"><img src="portada_diccionario.png" alt="Portada del Diccionario Mapuche"><button class="dictionary-open-hotspot" type="button" onclick="openDictionaryPdf()" aria-label="Abrir diccionario"></button></div>
 </div></section>
 <section id="grafemario" class="screen"><div class="panel">
