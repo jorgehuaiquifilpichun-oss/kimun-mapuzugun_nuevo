@@ -35,6 +35,38 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .nav-img[disabled]{opacity:.42;filter:grayscale(.65);cursor:not-allowed}
 .progress{position:absolute;z-index:6;top:max(8px,env(safe-area-inset-top));right:9px;background:rgba(20,31,23,.86);color:white;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700}
 .consult-return{margin-top:16px;width:100%;border:0;background:transparent;padding:0;cursor:pointer}
+
+.dictionary-cover{
+ position:relative;
+ width:100%;
+ max-width:430px;
+ margin:0 auto;
+}
+.dictionary-cover img{
+ display:block;
+ width:100%;
+ height:auto;
+ border-radius:16px;
+}
+.dictionary-open-hotspot{
+ position:absolute;
+ left:12%;
+ right:12%;
+ bottom:5.2%;
+ height:9.5%;
+ border:0;
+ padding:0;
+ background:transparent;
+ cursor:pointer;
+ border-radius:24px;
+}
+.dictionary-open-hotspot:focus-visible{
+ outline:3px solid #fff;
+ outline-offset:3px;
+}
+.dictionary-viewer{display:none}
+.dictionary-viewer.active{display:block}
+
 .pdf-frame{width:100%;height:68vh;border:2px solid #9b6a39;border-radius:12px;background:#fff}
 .notice{padding:12px 14px;border-radius:12px;background:#fff3cd;color:#493b12;margin:12px 0;font-size:14px}
 @media(max-height:720px){.menu-zone{padding-top:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}.menu{width:86%;gap:5px}.lesson-nav{bottom:6px}}
@@ -100,7 +132,15 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
  <div class="panel">
    <button class="consult-return" onclick="dictionaryBack()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
    <h1>Diccionario Mapuche</h1>
-   <iframe class="pdf-frame" src="diccionario_mapuche.pdf" title="Diccionario Mapuche"></iframe>
+
+   <div id="dictionaryCover" class="dictionary-cover">
+     <img src="portada_diccionario.png" alt="Portada del Diccionario Mapuche">
+     <button class="dictionary-open-hotspot" type="button" onclick="showDictionaryPdf()" aria-label="Abrir diccionario"></button>
+   </div>
+
+   <div id="dictionaryViewer" class="dictionary-viewer">
+     <iframe class="pdf-frame" src="diccionario_mapuche.pdf" title="Diccionario Mapuche"></iframe>
+   </div>
  </div>
 </section>
 
@@ -194,7 +234,21 @@ function grammarBack(){
 
 function openDictionary(fromConsult){
  dictionaryOrigin=fromConsult ? "consult" : "home";
+ resetDictionaryCover();
  openScreen("dictionary");
+}
+
+
+function showDictionaryPdf(){
+ document.getElementById("dictionaryCover").style.display="none";
+ document.getElementById("dictionaryViewer").classList.add("active");
+}
+
+function resetDictionaryCover(){
+ const cover=document.getElementById("dictionaryCover");
+ const viewer=document.getElementById("dictionaryViewer");
+ if(cover) cover.style.display="block";
+ if(viewer) viewer.classList.remove("active");
 }
 
 function dictionaryBack(){
