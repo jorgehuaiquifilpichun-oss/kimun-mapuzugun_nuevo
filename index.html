@@ -59,7 +59,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 }
 #consultBtn:active{transform:translateX(-50%) scale(.975)}
 
-.progress{position:absolute;z-index:6;top:max(8px,env(safe-area-inset-top));right:9px;background:rgba(20,31,23,.86);color:white;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700}
+
 .consult-return{margin-top:16px;width:100%;border:0;background:transparent;padding:0;cursor:pointer}
 .dictionary-cover{position:relative;width:100%;max-width:430px;margin:0 auto}
 .dictionary-cover img{display:block;width:100%;height:auto;border-radius:16px}
@@ -86,7 +86,6 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt="">
-  <div class="progress" id="progress">1 / 11</div>
   <div class="lesson-shade"></div>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
@@ -176,7 +175,6 @@ function showLesson(){
  const item=lessons[lessonIndex];
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
- document.getElementById("progress").textContent=(lessonIndex+1)+" / "+lessons.length;
  document.getElementById("backBtn").disabled=false;
  document.getElementById("nextBtn").disabled=item.requiresAnswers && !activityIsComplete(lessonIndex);
  localStorage.setItem("kimunLessonIndex",lessonIndex);
