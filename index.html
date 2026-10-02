@@ -195,7 +195,9 @@ function returnFromConsult(){if(consultOrigin==="lesson")showLesson();else goHom
 function openGrammarFromConsult(){grammarOrigin="consult";openScreen("grammar")}
 function grammarBack(){if(grammarOrigin==="consult")openScreen("consult");else goHome()}
 function openDictionary(fromConsult){dictionaryOrigin=fromConsult?"consult":"home";openScreen("dictionary")}
-function openDictionaryPdf(){window.location.href="diccionario_mapuche.pdf"}
+function openDictionaryPdf(){
+ window.location.href="diccionario_mapuche.pdf#page=48";
+}
 function dictionaryBack(){if(dictionaryOrigin==="consult")openScreen("consult");else goHome()}
 window.addEventListener("popstate",function(){if(document.getElementById("lesson").classList.contains("active"))previousLesson();else goHome()});
 </script>
