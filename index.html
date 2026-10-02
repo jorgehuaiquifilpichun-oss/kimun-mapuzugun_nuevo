@@ -50,6 +50,25 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .dictionary-open-hotspot:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .notice{padding:12px 14px;border-radius:12px;background:#fff3cd;color:#493b12;margin:12px 0;font-size:14px}
 @media(max-height:720px){.menu-zone{padding-top:10px;padding-bottom:max(10px,env(safe-area-inset-bottom))}.menu{width:86%;gap:5px}}
+
+/* Ajuste final: Diccionario usa al máximo la pantalla */
+#dictionary .panel{
+ padding:max(0px,env(safe-area-inset-top)) 0 max(8px,env(safe-area-inset-bottom));
+ overflow-y:auto;
+}
+#dictionary .consult-return{
+ display:block;
+ width:72%;
+ max-width:334px;
+ margin:0 auto;
+ padding:0;
+}
+#dictionary .dictionary-cover{
+ width:100%;
+ max-width:480px;
+ margin:0 auto;
+}
+
 </style>
 </head>
 <body>
