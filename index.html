@@ -278,6 +278,8 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <h1>Grafemario y Sonidos</h1><div class="placeholder">Aquí se conectarán el grafemario, pronunciaciones y audios.</div>
 </div></section>
 </main>
+<audio id="agradecimientosAudio" src="audio_agradecimientos.mp3" preload="auto"></audio>
+
 <script>
 const lessons = [
  {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
@@ -297,6 +299,7 @@ let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
 let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
 function openScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.getElementById(id);if(target)target.classList.add("active")}
 function goHome(){
+ stopAgradecimientosAudio();
  const celebration=document.getElementById("nhewenCelebration");
  const status=document.getElementById("nhewenStatus");
  if(celebration)celebration.classList.remove("show");
@@ -304,6 +307,23 @@ function goHome(){
  openScreen("home");
 }
 function startCourse(){lessonIndex=0;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson()}
+
+function playAgradecimientosAudio(){
+ const audio=document.getElementById("agradecimientosAudio");
+ if(!audio)return;
+ try{
+   audio.pause();
+   audio.currentTime=0;
+   const p=audio.play();
+   if(p&&typeof p.catch==="function")p.catch(()=>{});
+ }catch(_){}
+}
+function stopAgradecimientosAudio(){
+ const audio=document.getElementById("agradecimientosAudio");
+ if(!audio)return;
+ try{audio.pause();audio.currentTime=0}catch(_){}
+}
+
 function showLesson(){
  const item=lessons[lessonIndex];
  localStorage.setItem("kimunLessonIndex",lessonIndex);
