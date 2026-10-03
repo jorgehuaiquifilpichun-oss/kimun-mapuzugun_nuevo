@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#172019">
-<meta name="kimun-version" content="nhewen-consolidado-2026-10-02">
+<meta name="kimun-version" content="nhewen-numeros-pergamino-2026-10-03">
 <title>Kimün Mapuzungun</title>
 <style>
 :root{--max-app:480px;--verde:#172019;--crema:#f8f0df;--madera:#4a2a16}
@@ -196,18 +196,20 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 #nhewenConsultBtn{left:50%;bottom:max(12px,env(safe-area-inset-bottom));width:74%;max-width:334px;transform:translateX(-50%)}
 #nhewenConsultBtn:active{transform:translateX(-50%) scale(.975)}
 
-/* === REGLA ESTÁNDAR DE PERGAMINO PARA ACTIVIDADES === */
-.activity-parchment{
- position:absolute;top:37%;left:1.5%;width:97%;height:auto;z-index:3;
- object-fit:contain;pointer-events:none;
+
+/* === TRANSICIÓN NÚMEROS: ¡A JUGAR! + PERGAMINO === */
+.play-once-btn{
+ position:absolute;left:50%;bottom:max(88px,calc(72px + env(safe-area-inset-bottom)));
+ transform:translateX(-50%);z-index:18;border:3px solid #d7b86a;border-radius:999px;
+ padding:13px 30px;background:#27823a;color:#fff;font-weight:1000;
+ font-size:clamp(20px,6vw,28px);box-shadow:0 6px 16px rgba(0,0,0,.42);
+ cursor:pointer;white-space:nowrap;
 }
-/* Pantalla intermedia NHEWEN: el botón ¡A jugar! siempre existe al volver. */
-#nhewenCongrats{background:#172019;overflow:hidden}
-.nhewen-congrats-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top}
-.nhewen-congrats-card{position:absolute;left:8%;right:8%;top:34%;z-index:5;text-align:center;padding:24px 18px;border:2px solid #9b6a39;border-radius:22px;background:rgba(248,240,223,.96);color:#4b2a17;box-shadow:0 10px 28px rgba(0,0,0,.35)}
-.nhewen-congrats-card h2{margin:0 0 8px;font-size:clamp(27px,8vw,40px)}
-.nhewen-congrats-card p{margin:0 0 16px;font-weight:800;font-size:clamp(17px,4.5vw,22px)}
-.play-button{border:2px solid #6b3b1e;border-radius:999px;padding:11px 24px;background:#b57a3c;color:#fff7e7;font-weight:900;font-size:clamp(18px,5vw,24px);cursor:pointer}
+.play-once-btn:active{transform:translateX(-50%) scale(.97)}
+.lesson-parchment{
+ position:absolute;z-index:12;left:1%;right:1%;top:50%;width:98%;height:auto;
+ transform:translateY(-50%);pointer-events:none;filter:drop-shadow(0 5px 8px rgba(0,0,0,.35));
+}
 
 </style>
 </head>
@@ -259,17 +261,10 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   </nav>
 </section>
 
-<section id="nhewenCongrats" class="screen" aria-label="Felicidades, NHEWEN completo">
-  <img class="nhewen-congrats-bg" src="overlay_nhewen_txegul_v1.png?v=4" alt="">
-  <div class="nhewen-congrats-card">
-    <h2>¡Felicidades!</h2>
-    <p>Ya tienes 20 vidas de NHEWEN</p>
-    <button class="play-button" type="button" onclick="playAfterNhewen()">¡A jugar!</button>
-  </div>
-</section>
-
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
+  <img id="lessonParchment" class="lesson-parchment" src="pergamino_actividad_recortado.png" alt="Pergamino de actividad" hidden>
+  <button id="playOnceBtn" class="play-once-btn" type="button" onclick="playNumbersMission()" hidden>¡A jugar!</button>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
     <button class="nav-img" id="nextBtn" onclick="nextLesson()" aria-label="Amulepe, seguir"><img src="boton_seguir.png" alt="Amulepe - Seguir"></button>
@@ -312,7 +307,8 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 const lessons = [
  {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
  {image:"__NHEWEN__", title:"Llena tu NHEWEN", requiresAnswers:true},
- {image:"actividad_numeros_01.png", title:"Números 1", requiresAnswers:false},
+ {image:"actividad_numeros_01.png", title:"Introducción a los números", requiresAnswers:false, playGate:true},
+ {image:"actividad_casa_01.png", title:"Primer ejercicio de números", requiresAnswers:false, parchment:true},
  {image:"actividad_numeros_02.png", title:"Números 2", requiresAnswers:false},
  {image:"actividad_numeros_03.png", title:"Números 3", requiresAnswers:false},
  {image:"actividad_numeros_04.png", title:"Números 4", requiresAnswers:false},
@@ -320,8 +316,7 @@ const lessons = [
  {image:"actividad_numeros_06.png", title:"Números 6", requiresAnswers:false},
  {image:"actividad_numeros_07.png", title:"Números 7", requiresAnswers:false},
  {image:"actividad_numeros_08.png", title:"Números 8", requiresAnswers:false},
- {image:"actividad_numeros_09.png", title:"Números 9", requiresAnswers:false},
- {image:"actividad_casa_01.png", title:"Números y objetos de la casa", requiresAnswers:false}
+ {image:"actividad_numeros_09.png", title:"Números 9", requiresAnswers:false}
 ];
 let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
 let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
@@ -361,20 +356,35 @@ function showLesson(audioAlreadyStarted=false){
  if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
- const parchment=document.getElementById("activityParchment");
- if(parchment)parchment.hidden=!(lessonIndex>=2);
+ const playBtn=document.getElementById("playOnceBtn");
+ const parchment=document.getElementById("lessonParchment");
+ const numbersStarted=localStorage.getItem("kimunNumbersStarted")==="1";
+ if(playBtn)playBtn.hidden=!item.playGate||numbersStarted;
+ if(parchment)parchment.hidden=!item.parchment;
  document.getElementById("backBtn").disabled=false;
- document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
+ document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(Boolean(item.playGate)&&!numbersStarted)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
  openScreen("lesson");
 }
 function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
+function playNumbersMission(){
+ const item=lessons[lessonIndex];
+ if(!item || !item.playGate)return;
+ const btn=document.getElementById("playOnceBtn");
+ if(btn)btn.hidden=true;
+ localStorage.setItem("kimunNumbersStarted","1");
+ if(lessonIndex<lessons.length-1){
+   lessonIndex++;
+   localStorage.setItem("kimunLessonIndex",lessonIndex);
+   showLesson();
+ }
+}
 function previousLesson(){
- if(lessonIndex===2 && nhewenAlreadyEarned()){lessonIndex=1;localStorage.setItem("kimunLessonIndex",lessonIndex);showNhewenCongrats();return;}
  if(lessonIndex>0){lessonIndex--;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
  else{goHome();}
 }
 function nextLesson(){
  const item=lessons[lessonIndex];
+ if(item.playGate && localStorage.getItem("kimunNumbersStarted")!=="1")return;
  if(item.requiresAnswers&&!activityIsComplete(lessonIndex))return;
  if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
 }
@@ -619,12 +629,9 @@ function continueAfterNhewen(){
  document.getElementById("nhewenCelebration").classList.remove("show");
  document.getElementById("nhewenStatus").classList.remove("show");
  nhewenSessionCount=0;
- openScreen("nhewenCongrats");
-}
-function playAfterNhewen(){
  if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
+ else{localStorage.setItem("kimunCourseFinished","1");goHome();}
 }
-function showNhewenCongrats(){openScreen("nhewenCongrats");}
 
 window.addEventListener("popstate",function(){if(document.getElementById("lesson").classList.contains("active"))previousLesson();else if(document.getElementById("nhewenScreen").classList.contains("active"))nhewenBackHome();else goHome()});
 </script>
