@@ -146,7 +146,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
  align-items:center;justify-content:center;padding:0;
 }
 #nhewenCelebration.show{display:flex}
-.nhewen-scroll-wrap{position:relative;width:142%;max-width:682px;left:50%;transform:translateX(-50%)}
+.nhewen-scroll-wrap{position:relative;width:158%;max-width:758px;left:50%;transform:translateX(-50%)}
 .nhewen-scroll-wrap>img{display:block;width:100%;height:auto}
 .nhewen-word-zone{position:absolute;z-index:12;display:none;min-width:25%;max-width:38%;padding:7px 10px;border:1px solid rgba(255,239,204,.72);border-radius:12px;background:rgba(35,24,15,.68);color:#fff4d8;text-align:center;font-weight:900;font-size:clamp(15px,4.4vw,21px);line-height:1.05;text-shadow:0 2px 3px rgba(0,0,0,.75);box-shadow:0 3px 10px rgba(0,0,0,.24);pointer-events:none}
 .nhewen-word-zone.show{display:block}
@@ -296,7 +296,7 @@ function showLesson(){
  openScreen("lesson");
 }
 function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
-function previousLesson(){if(lessonIndex>0){lessonIndex--;showLesson()}else{goHome()}}
+function previousLesson(){goHome()}
 function nextLesson(){const item=lessons[lessonIndex];if(item.requiresAnswers&&!activityIsComplete(lessonIndex))return;if(lessonIndex<lessons.length-1){lessonIndex++;showLesson()}else{localStorage.setItem("kimunCourseFinished","1");goHome()}}
 function openConsult(){consultOrigin="lesson";openScreen("consult")}
 function returnFromConsult(){if(consultOrigin==="lesson")showLesson();else goHome()}
@@ -323,6 +323,8 @@ let nhewenPracticeMode=false;
 let nhewenSessionStartedAt=0;
 let nhewenAudioQueue=[];
 let nhewenAudioPlaying=false;
+let nhewenCurrentAudio=null;
+const nhewenCelebrationAudio="audio_celebracion.mp3";
 
 /* Registro reutilizable para las 10 actividades evaluadas. */
 function getActivityRecords(){
@@ -391,19 +393,31 @@ function showNhewenWord(n){
  el.textContent=mapuzugunNumbers[n-1];
  el.classList.add("show");
 }
+function hideNhewenWords(){
+ document.querySelectorAll(".nhewen-word-zone").forEach(el=>el.classList.remove("show"));
+}
 
 function enqueueNhewenAudio(n){
- nhewenAudioQueue.push("audio_nhewen_"+String(n).padStart(2,"0")+".mp3");
+ nhewenAudioQueue.push({src:"audio_nhewen_"+String(n).padStart(2,"0")+".mp3"});
+ playNextNhewenAudio();
+}
+function enqueueCelebrationAudio(){
+ nhewenAudioQueue.push({src:nhewenCelebrationAudio});
  playNextNhewenAudio();
 }
 function playNextNhewenAudio(){
  if(nhewenAudioPlaying || !nhewenAudioQueue.length)return;
  nhewenAudioPlaying=true;
- const src=nhewenAudioQueue.shift();
- const audio=new Audio(src);
+ const item=nhewenAudioQueue.shift();
+ const audio=new Audio(item.src);
+ nhewenCurrentAudio=audio;
  let finished=false;
  const done=()=>{
-   if(finished)return; finished=true; nhewenAudioPlaying=false; playNextNhewenAudio();
+   if(finished)return;
+   finished=true;
+   if(nhewenCurrentAudio===audio)nhewenCurrentAudio=null;
+   nhewenAudioPlaying=false;
+   playNextNhewenAudio();
  };
  audio.addEventListener("ended",done,{once:true});
  audio.addEventListener("error",done,{once:true});
@@ -411,7 +425,12 @@ function playNextNhewenAudio(){
  if(p&&typeof p.catch==="function")p.catch(done);
  setTimeout(done,8000);
 }
-function clearNhewenAudioQueue(){nhewenAudioQueue=[];nhewenAudioPlaying=false}
+function clearNhewenAudioQueue(){
+ nhewenAudioQueue=[];
+ if(nhewenCurrentAudio){try{nhewenCurrentAudio.pause();nhewenCurrentAudio.currentTime=0}catch(_){}}
+ nhewenCurrentAudio=null;
+ nhewenAudioPlaying=false;
+}
 
 function launchKimunConfetti(){
  const layer=document.getElementById("kimunConfetti");
@@ -441,7 +460,11 @@ function pressNhewenNumber(n){
  enqueueNhewenAudio(n);
  if(n===20){
    const firstOfficialCompletion=awardNhewenOnce();
-   if(firstOfficialCompletion)launchKimunConfetti();
+   hideNhewenWords();
+   if(firstOfficialCompletion){
+     launchKimunConfetti();
+     enqueueCelebrationAudio();
+   }
    setTimeout(()=>document.getElementById("nhewenCelebration").classList.add("show"),350);
  }
 }
