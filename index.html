@@ -514,10 +514,10 @@ function pressNhewenNumber(n){
  if(n===20){
    const firstOfficialCompletion=awardNhewenOnce();
    hideNhewenWords();
-   if(firstOfficialCompletion){
-     launchKimunConfetti();
-     playCelebrationSound();
-   }
+   /* Modo de prueba: celebrar cada finalización 1–20; la recompensa oficial
+      continúa protegida por awardNhewenOnce() y no se duplica. */
+   launchKimunConfetti();
+   playCelebrationSound();
    refreshNhewenNav();
    setTimeout(()=>document.getElementById("nhewenCelebration").classList.add("show"),350);
  }
