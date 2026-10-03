@@ -327,6 +327,8 @@ function stopAgradecimientosAudio(){
 function showLesson(){
  const item=lessons[lessonIndex];
  localStorage.setItem("kimunLessonIndex",lessonIndex);
+ if(item.image==="pantalla_agradecimientos.png")playAgradecimientosAudio();
+ else stopAgradecimientosAudio();
  if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
