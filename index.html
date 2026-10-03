@@ -337,7 +337,6 @@ function dictionaryBack(){if(dictionaryOrigin==="consult")openScreen("consult");
 function nhewenBackHome(){
  document.getElementById("nhewenCelebration").classList.remove("show");
  document.getElementById("nhewenStatus").classList.remove("show");
- clearNhewenAudioQueue();
  if(lessonIndex>0){lessonIndex--;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
  else{goHome();}
 }
@@ -364,9 +363,6 @@ const mapuzugunNumbers=["KINJE","EPU","XWILA","MELI","KECHU","KAŽU","VEGLE","PO
 let nhewenSessionCount=0;
 let nhewenPracticeMode=false;
 let nhewenSessionStartedAt=0;
-let nhewenAudioQueue=[];
-let nhewenAudioPlaying=false;
-let nhewenCurrentAudio=null;
 const nhewenCelebrationAudio="audio_celebracion.mp3";
 
 /* Registro reutilizable para las 10 actividades evaluadas. */
@@ -440,41 +436,23 @@ function hideNhewenWords(){
  document.querySelectorAll(".nhewen-word-zone").forEach(el=>el.classList.remove("show"));
 }
 
-function enqueueNhewenAudio(n){
- nhewenAudioQueue.push({src:"audio_nhewen_"+String(n).padStart(2,"0")+".mp3"});
- playNextNhewenAudio();
+/* Lee exactamente la palabra Mapuzugun visible al tocar cada número. */
+function speakNhewenWord(n){
+ const text=mapuzugunNumbers[n-1];
+ if(!text || !("speechSynthesis" in window))return;
+ window.speechSynthesis.cancel();
+ const utterance=new SpeechSynthesisUtterance(text);
+ utterance.lang="es-CL";
+ utterance.rate=0.82;
+ utterance.pitch=1;
+ window.speechSynthesis.speak(utterance);
 }
+
 function playCelebrationSound(){
  const audio=new Audio(nhewenCelebrationAudio);
  audio.volume=.68;
  const p=audio.play();
  if(p&&typeof p.catch==="function")p.catch(()=>{});
-}
-function playNextNhewenAudio(){
- if(nhewenAudioPlaying || !nhewenAudioQueue.length)return;
- nhewenAudioPlaying=true;
- const item=nhewenAudioQueue.shift();
- const audio=new Audio(item.src);
- nhewenCurrentAudio=audio;
- let finished=false;
- const done=()=>{
-   if(finished)return;
-   finished=true;
-   if(nhewenCurrentAudio===audio)nhewenCurrentAudio=null;
-   nhewenAudioPlaying=false;
-   playNextNhewenAudio();
- };
- audio.addEventListener("ended",done,{once:true});
- audio.addEventListener("error",done,{once:true});
- const p=audio.play();
- if(p&&typeof p.catch==="function")p.catch(done);
- setTimeout(done,8000);
-}
-function clearNhewenAudioQueue(){
- nhewenAudioQueue=[];
- if(nhewenCurrentAudio){try{nhewenCurrentAudio.pause();nhewenCurrentAudio.currentTime=0}catch(_){}}
- nhewenCurrentAudio=null;
- nhewenAudioPlaying=false;
 }
 
 function launchKimunConfetti(){
@@ -510,21 +488,21 @@ function pressNhewenNumber(n){
  nhewenSessionCount=n;
  refreshNhewenUI();
  showNhewenWord(n);
- enqueueNhewenAudio(n);
+ speakNhewenWord(n);
  if(n===20){
    awardNhewenOnce();
-   hideNhewenWords();
    launchKimunConfetti();
-   playCelebrationSound();
    refreshNhewenNav();
-   setTimeout(()=>document.getElementById("nhewenCelebration").classList.add("show"),350);
+   setTimeout(()=>{
+     playCelebrationSound();
+     document.getElementById("nhewenCelebration").classList.add("show");
+   },1400);
  }
 }
 function startNhewenSession(practice){
  nhewenPracticeMode=Boolean(practice);
  nhewenSessionCount=0;
  nhewenSessionStartedAt=Date.now();
- clearNhewenAudioQueue();
  resetNhewenWords();
  document.getElementById("nhewenCelebration").classList.remove("show");
  document.getElementById("nhewenStatus").classList.remove("show");
@@ -553,7 +531,6 @@ function repeatNhewenActivity(){startNhewenSession(true)}
 function continueAfterNhewen(){
  document.getElementById("nhewenCelebration").classList.remove("show");
  document.getElementById("nhewenStatus").classList.remove("show");
- clearNhewenAudioQueue();
  nhewenSessionCount=0;
  if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
  else{localStorage.setItem("kimunCourseFinished","1");goHome();}
