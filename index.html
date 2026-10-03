@@ -306,7 +306,7 @@ function goHome(){
  if(status)status.classList.remove("show");
  openScreen("home");
 }
-function startCourse(){lessonIndex=0;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson()}
+function startCourse(){lessonIndex=0;localStorage.setItem("kimunLessonIndex",lessonIndex);playAgradecimientosAudio();showLesson(true)}
 
 function playAgradecimientosAudio(){
  const audio=document.getElementById("agradecimientosAudio");
@@ -324,10 +324,10 @@ function stopAgradecimientosAudio(){
  try{audio.pause();audio.currentTime=0}catch(_){}
 }
 
-function showLesson(){
+function showLesson(audioAlreadyStarted=false){
  const item=lessons[lessonIndex];
  localStorage.setItem("kimunLessonIndex",lessonIndex);
- if(item.image==="pantalla_agradecimientos.png")playAgradecimientosAudio();
+ if(item.image==="pantalla_agradecimientos.png"){if(!audioAlreadyStarted)playAgradecimientosAudio();}
  else stopAgradecimientosAudio();
  if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
  document.getElementById("lessonImage").src=item.image;
