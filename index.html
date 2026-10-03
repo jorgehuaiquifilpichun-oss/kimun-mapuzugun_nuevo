@@ -163,7 +163,8 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 
 
 /* === NHEWEN V3: práctica, palabras, celebración y confeti === */
-.nhewen-word{position:absolute;z-index:12;transform:translate(-50%,-50%);min-width:24%;max-width:42%;padding:7px 10px;border-radius:14px;background:rgba(20,15,10,.48);border:1px solid rgba(255,244,211,.45);color:#fff4d3;text-align:center;font-weight:900;font-size:clamp(16px,4.8vw,24px);text-shadow:0 2px 3px rgba(0,0,0,.75);pointer-events:none}
+.nhewen-word{position:absolute;z-index:25;transform:translate(-50%,-50%);min-width:28%;max-width:46%;padding:8px 12px;border-radius:14px;background:rgba(20,15,10,.66);border:1px solid rgba(255,244,211,.62);color:#fff4d3;text-align:center;font-weight:1000;font-size:clamp(18px,5.2vw,26px);line-height:1.05;text-shadow:0 2px 4px rgba(0,0,0,.9);box-shadow:0 3px 10px rgba(0,0,0,.22);pointer-events:none;animation:nhewenWordIn .16s ease-out}
+@keyframes nhewenWordIn{from{opacity:0;transform:translate(-50%,-50%) scale(.88)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 .nhewen-status{display:none;position:absolute;inset:0;z-index:40;background:rgba(0,0,0,.72);align-items:center;justify-content:center;padding:22px}
 .nhewen-status.show{display:flex}
 .nhewen-status-card{width:min(90%,390px);padding:26px 18px;border:2px solid #8d6b3f;border-radius:24px;background:rgba(24,22,17,.94);text-align:center;box-shadow:0 12px 34px rgba(0,0,0,.45)}
@@ -179,7 +180,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .nhewen-scroll-wrap{width:142%;max-width:682px}
 
 </style>
-<meta name="kimun-version" content="nhewen-v3-2026-10-02">
+<meta name="kimun-version" content="nhewen-v4-2026-10-02">
 </head>
 <body>
 <main class="app">
@@ -387,26 +388,29 @@ function pressNhewenNumber(n){
  if(n===20)setTimeout(finishNhewen,420);
 }
 function finishNhewen(){
- const firstTime=awardActivityOnce(1);
- localStorage.setItem("kimunComplete_"+lessonIndex,"1");
- localStorage.setItem("kimunNhewenEarned","1");
- if(firstTime)launchKimunConfetti();
+ const wasEarned=nhewenAlreadyEarned();
+ const firstTime=wasEarned?false:awardActivityOnce(1);
+ if(firstTime){
+   localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+   localStorage.setItem("kimunNhewenEarned","1");
+   launchKimunConfetti();
+ }
  document.getElementById("nhewenCelebration").classList.add("show");
 }
 function showNhewenActivity(){
  ensureCourseTimer();openScreen("nhewenScreen");migrateNhewenCompletion();
  document.getElementById("nhewenCelebration").classList.remove("show");document.getElementById("nhewenStatus").classList.remove("show");
- nhewenSessionCount=0;buildNhewenUI();
- if(nhewenAlreadyEarned())document.getElementById("nhewenStatus").classList.add("show");
+ nhewenSessionCount=0;nhewenPracticeMode=nhewenAlreadyEarned();buildNhewenUI();
+ if(nhewenPracticeMode)document.getElementById("nhewenStatus").classList.add("show");
 }
 function startNhewenPractice(){
  document.getElementById("nhewenStatus").classList.remove("show");document.getElementById("nhewenCelebration").classList.remove("show");
- nhewenPracticeMode=true;nhewenSessionCount=0;nhewenAudioQueue=[];buildNhewenUI();
+ nhewenPracticeMode=true;nhewenSessionCount=0;nhewenAudioQueue=[];nhewenAudioPlaying=false;buildNhewenUI();
 }
 function repeatNhewenActivity(){startNhewenPractice()}
 function continueFromCompletedNhewen(){document.getElementById("nhewenStatus").classList.remove("show");continueAfterNhewen()}
 function continueAfterNhewen(){
- document.getElementById("nhewenCelebration").classList.remove("show");nhewenSessionCount=0;nhewenAudioQueue=[];
+ document.getElementById("nhewenCelebration").classList.remove("show");nhewenSessionCount=0;nhewenAudioQueue=[];nhewenAudioPlaying=false;
  if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson()}
 }
 function markGenericActivityComplete(activityId){
