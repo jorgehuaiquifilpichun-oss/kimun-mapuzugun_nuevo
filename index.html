@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#172019">
 <title>Kimün Mapuzungun</title>
-<meta name="kimun-version" content="nhewen-v2-2026-10-02">
 <style>
 :root{--max-app:480px;--verde:#172019;--crema:#f8f0df;--madera:#4a2a16}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -117,45 +116,50 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 #dictionary .dictionary-open-hotspot{z-index:15}
 
 
-/* === ACTIVIDAD ESPECIAL: LLENA TU NHEWEN — VERSIÓN 2 === */
+/* === ACTIVIDAD ESPECIAL: LLENA TU NHEWEN === */
 #nhewenScreen{background:#1b120c;overflow:hidden}
-.nhewen-stage{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:100%;max-width:480px;aspect-ratio:2/3;overflow:hidden;background:#1b120c}
+.nhewen-stage{
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+ width:100%;max-width:480px;aspect-ratio:2/3;overflow:hidden;background:#1b120c;
+}
 .nhewen-base{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
-.nhewen-hotspot{position:absolute;transform:translate(-50%,-50%);width:9.4%;aspect-ratio:1;border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer;z-index:8}
+.nhewen-hotspot{
+ position:absolute;transform:translate(-50%,-50%);width:9.4%;aspect-ratio:1/1;
+ border:0;border-radius:50%;padding:0;background:transparent;cursor:pointer;z-index:5;
+}
 .nhewen-hotspot.done{background:rgba(58,168,77,.50);box-shadow:0 0 0 3px rgba(218,244,194,.55) inset}
-.nhewen-progress-dot{position:absolute;bottom:4.95%;width:4.25%;aspect-ratio:1;border-radius:50%;transform:translateX(-50%);background:transparent;z-index:7;pointer-events:none}
-.nhewen-progress-dot.done{background:rgba(55,175,73,.92);box-shadow:0 0 5px rgba(32,92,39,.7)}
-.nhewen-complete-badge{display:none;position:absolute;left:50%;bottom:8.25%;transform:translateX(-50%);z-index:9;padding:.55% 4.5%;border-radius:999px;background:#d8ad63;border:4px solid #27823a;color:#176d2c;font-weight:900;font-size:clamp(22px,7vw,34px);line-height:1;letter-spacing:.5px;box-shadow:0 2px 5px rgba(0,0,0,.35)}
+.nhewen-progress-dot{
+ position:absolute;bottom:4.95%;width:4.25%;aspect-ratio:1/1;border-radius:50%;
+ transform:translateX(-50%);background:transparent;z-index:4;pointer-events:none;
+}
+.nhewen-progress-dot.done{background:rgba(55,175,73,.90);box-shadow:0 0 5px rgba(32,92,39,.7)}
+.nhewen-complete-badge{
+ display:none;position:absolute;left:50%;bottom:8.25%;transform:translateX(-50%);
+ z-index:7;padding:.55% 4.5%;border-radius:999px;background:#d8ad63;
+ border:4px solid #27823a;color:#176d2c;font-weight:900;font-size:clamp(22px,7vw,34px);
+ line-height:1;letter-spacing:.5px;box-shadow:0 2px 5px rgba(0,0,0,.35);
+}
 .nhewen-complete-badge.show{display:block}
-
-/* Palabra Mapuzungun: un solo recuadro que cambia de posición por tramo */
-.nhewen-word{display:none;position:absolute;z-index:12;width:28%;min-height:5.3%;padding:5px 7px;align-items:center;justify-content:center;border:1px solid rgba(255,247,220,.72);border-radius:12px;background:rgba(38,27,17,.58);backdrop-filter:blur(2px);color:#fff5d9;font-weight:900;font-size:clamp(15px,4.8vw,24px);line-height:1.05;text-align:center;letter-spacing:.25px;text-shadow:0 2px 3px rgba(0,0,0,.9);box-shadow:0 3px 10px rgba(0,0,0,.20);pointer-events:none}
-.nhewen-word.show{display:flex}
-
-/* Celebración */
-#nhewenCelebration{display:none;position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.52);align-items:center;justify-content:center;overflow:hidden}
+#nhewenCelebration{
+ display:none;position:absolute;inset:0;z-index:30;background:rgba(0,0,0,.48);
+ align-items:center;justify-content:center;padding:0;
+}
 #nhewenCelebration.show{display:flex}
-.nhewen-scroll-wrap{position:relative;width:100%;height:100%;overflow:hidden}
-/* El límite visual son los Txegül: el PNG se amplía más allá del 100% para compensar sus márgenes transparentes. */
-.nhewen-scroll-wrap>img{position:absolute;z-index:31;left:50%;top:50%;width:142%;max-width:none;height:auto;transform:translate(-50%,-50%);pointer-events:none}
-.nhewen-message{position:absolute;z-index:33;left:25%;right:25%;top:36%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#4b2a17;text-shadow:0 1px rgba(255,255,255,.45)}
-.nhewen-message strong{font-size:clamp(21px,6vw,32px);line-height:1.06}
-.nhewen-message span{margin-top:8px;font-size:clamp(14px,4vw,19px);font-weight:800}
-.nhewen-actions{position:absolute;z-index:35;left:15%;right:15%;bottom:12%;display:flex;gap:8px;justify-content:center}
-.nhewen-action{flex:1;border:2px solid #6b3b1e;border-radius:999px;padding:10px 8px;background:#b57a3c;color:#fff7e7;font-weight:900;box-shadow:0 3px 6px rgba(0,0,0,.25);cursor:pointer}
-
-/* Al volver a una etapa ya superada */
-#nhewenPassed{display:none;position:absolute;inset:0;z-index:25;background:rgba(0,0,0,.62);align-items:center;justify-content:center;text-align:center;padding:22px}
-#nhewenPassed.show{display:flex}
-.nhewen-passed-card{width:84%;padding:24px 16px;border-radius:20px;background:rgba(29,43,31,.88);border:2px solid rgba(185,224,175,.72);box-shadow:0 8px 24px rgba(0,0,0,.35)}
-.nhewen-passed-card strong{display:block;color:#79e68a;font-size:clamp(27px,8vw,39px);line-height:1.05;text-shadow:0 2px 4px #000}
-.nhewen-passed-card span{display:block;margin:10px 0 16px;color:#fff7e7;font-weight:800;font-size:clamp(14px,4.2vw,19px)}
-.nhewen-passed-actions{display:flex;gap:8px}
-.nhewen-passed-actions button{flex:1;border:1px solid #d8bd83;border-radius:999px;padding:11px 7px;background:#8a5a2c;color:#fff;font-weight:900}
-
-/* Confeti */
-.kimun-confetti{position:absolute;z-index:50;top:-8%;width:8px;height:14px;border-radius:2px;pointer-events:none;animation:kimunFall 2.8s linear forwards}
-@keyframes kimunFall{to{transform:translate3d(var(--drift),112vh,0) rotate(760deg)}}
+.nhewen-scroll-wrap{position:relative;width:112%;max-width:538px;left:50%;transform:translateX(-50%)}
+.nhewen-scroll-wrap>img{display:block;width:100%;height:auto}
+.nhewen-message{
+ position:absolute;left:28%;right:28%;top:29%;bottom:28%;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ color:#4b2a17;text-shadow:0 1px rgba(255,255,255,.45);
+}
+.nhewen-message strong{font-size:clamp(23px,6.7vw,34px);line-height:1.08}
+.nhewen-message span{margin-top:10px;font-size:clamp(15px,4.2vw,20px);font-weight:700}
+.nhewen-continue{
+ margin-top:15px;border:2px solid #6b3b1e;border-radius:999px;padding:10px 22px;
+ background:#b57a3c;color:#fff7e7;font-weight:900;box-shadow:0 3px 6px rgba(0,0,0,.25);
+ cursor:pointer;
+}
+.nhewen-repeat{margin-top:8px;background:#315b47;border-color:#244534}
 
 </style>
 </head>
@@ -175,30 +179,15 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <section id="nhewenScreen" class="screen" aria-label="Llena tu NHEWEN">
   <div class="nhewen-stage" id="nhewenStage">
     <img class="nhewen-base" src="actividad_nhewen_filu_v1.png" alt="Actividad Llena tu NHEWEN">
-    <div id="nhewenWord" class="nhewen-word" aria-live="polite"></div>
     <div id="nhewenBadgeGreen" class="nhewen-complete-badge">NHEWEN</div>
-
-    <div id="nhewenPassed" aria-live="polite">
-      <div class="nhewen-passed-card">
-        <strong>ETAPA SUPERADA</strong>
-        <span>Puedes volver a practicar. Esta repetición no suma puntaje ni NHEWEN.</span>
-        <div class="nhewen-passed-actions">
-          <button type="button" onclick="startNhewenPractice()">Repetir actividad</button>
-          <button type="button" onclick="continueFromPassed()">Seguir</button>
-        </div>
-      </div>
-    </div>
-
     <div id="nhewenCelebration" aria-live="polite">
       <div class="nhewen-scroll-wrap">
         <img src="overlay_nhewen_txegul_v1.png" alt="">
         <div class="nhewen-message">
           <strong>¡Completaste tu NHEWEN!</strong>
           <span>Ahora comencemos.</span>
-        </div>
-        <div class="nhewen-actions">
-          <button class="nhewen-action" type="button" onclick="startNhewenPractice()">Repetir actividad</button>
-          <button class="nhewen-action" type="button" onclick="continueAfterNhewen()">Continuar</button>
+          <button class="nhewen-continue" type="button" onclick="continueAfterNhewen()">Continuar</button>
+          <button class="nhewen-continue nhewen-repeat" type="button" onclick="repeatNhewenActivity()">Repetir actividad</button>
         </div>
       </div>
     </div>
@@ -262,7 +251,7 @@ let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
 let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
 function openScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.getElementById(id);if(target)target.classList.add("active")}
 function goHome(){openScreen("home")}
-function startCourse(){ensureCourseTimer();lessonIndex=Math.max(0,Math.min(lessonIndex,lessons.length-1));showLesson()}
+function startCourse(){lessonIndex=Math.max(0,Math.min(lessonIndex,lessons.length-1));showLesson()}
 function showLesson(){
  const item=lessons[lessonIndex];
  localStorage.setItem("kimunLessonIndex",lessonIndex);
@@ -286,9 +275,7 @@ function openDictionaryPdf(){
 }
 function dictionaryBack(){if(dictionaryOrigin==="consult")openScreen("consult");else goHome()}
 
-/* === LÓGICA NHEWEN — VERSIÓN 2 === */
-const KIMUN_TOTAL_ACTIVITIES=10;
-const NHEWEN_ACTIVITY_ID=1;
+/* === LÓGICA NHEWEN === */
 const nhewenCenters=[
  [43.2,9.8],[57.6,11.3],[70.2,13.3],[83.0,16.0],[90.5,22.3],
  [78.0,28.9],[63.3,31.0],[46.1,32.1],[29.8,32.9],[18.3,39.6],
@@ -297,37 +284,12 @@ const nhewenCenters=[
 ];
 const nhewenProgressX=[6.2,10.8,15.4,20.0,24.6,29.2,33.8,38.4,43.0,47.6,52.2,56.8,61.4,66.0,70.6,75.2,79.8,84.4,89.0,93.6];
 
-/* Mantener estas grafías exactamente como se definan para el material pedagógico. */
-const mapuzugunNumbers=[
- "KIÑE","EPU","KÜLA","MELI","KECHU","KAYU","REGLE","PURA","AYLLA","MARI",
- "MARI KIÑE","MARI EPU","MARI KÜLA","MARI MELI","MARI KECHU",
- "MARI KAYU","MARI REGLE","MARI PURA","MARI AYLLA","EPU MARI"
-];
+let nhewenSessionCount=0;
+let nhewenPracticeMode=false;
 
-/* Cuatro ubicaciones acordadas para el recuadro de palabra. */
-const nhewenWordZones=[
- {from:1,to:5,left:"70%",top:"5.5%"},
- {from:6,to:10,left:"48%",top:"23.5%"},
- {from:11,to:15,left:"70%",top:"40.5%"},
- {from:16,to:20,left:"31%",top:"58.5%"}
-];
-
-let nhewenSessionCount=0;       // siempre parte de cero al practicar
-let nhewenPracticeMode=false;   // true = no vuelve a sumar puntaje
-let nhewenAudioQueue=[];
-let nhewenAudioPlaying=false;
-
-function activityAwardKey(id){return "kimunAwardedActivity_"+id}
-function activityWasAwarded(id){return localStorage.getItem(activityAwardKey(id))==="1"}
-function awardActivityOnce(id){
- if(activityWasAwarded(id))return false;
- localStorage.setItem(activityAwardKey(id),"1");
- const score=Number(localStorage.getItem("kimunOfficialScore")||0)+1;
- localStorage.setItem("kimunOfficialScore",String(score));
- return true;
+function nhewenAlreadyEarned(){
+ return localStorage.getItem("kimunComplete_"+lessonIndex)==="1";
 }
-function ensureCourseTimer(){if(!localStorage.getItem("kimunCourseStartedAt"))localStorage.setItem("kimunCourseStartedAt",String(Date.now()))}
-function officialScore(){return Number(localStorage.getItem("kimunOfficialScore")||0)}
 
 function buildNhewenUI(){
  const stage=document.getElementById("nhewenStage");
@@ -335,99 +297,66 @@ function buildNhewenUI(){
  nhewenCenters.forEach((p,i)=>{
    const b=document.createElement("button");
    b.type="button";b.className="nhewen-hotspot";b.style.left=p[0]+"%";b.style.top=p[1]+"%";
-   b.setAttribute("aria-label","Número "+(i+1)+", "+mapuzugunNumbers[i]);
+   b.setAttribute("aria-label","Número "+(i+1));
    b.onclick=()=>pressNhewenNumber(i+1);
    stage.appendChild(b);
  });
  nhewenProgressX.forEach((x,i)=>{
-   const d=document.createElement("span");d.className="nhewen-progress-dot";d.style.left=x+"%";d.dataset.progress=i+1;stage.appendChild(d);
+   const d=document.createElement("span");
+   d.className="nhewen-progress-dot";d.style.left=x+"%";d.dataset.progress=i+1;
+   stage.appendChild(d);
  });
  refreshNhewenUI();
 }
 
 function refreshNhewenUI(){
- document.querySelectorAll(".nhewen-hotspot").forEach((e,i)=>e.classList.toggle("done",i<nhewenSessionCount));
- document.querySelectorAll(".nhewen-progress-dot").forEach((e,i)=>e.classList.toggle("done",i<nhewenSessionCount));
- document.getElementById("nhewenBadgeGreen").classList.toggle("show",nhewenSessionCount>=20);
-}
-
-function showNhewenWord(n){
- const box=document.getElementById("nhewenWord");
- const z=nhewenWordZones.find(v=>n>=v.from&&n<=v.to)||nhewenWordZones[0];
- box.textContent=mapuzugunNumbers[n-1];box.style.left=z.left;box.style.top=z.top;box.classList.add("show");
-}
-
-/* Cola de audio: aunque se presione rápido, una palabra termina antes de iniciar la siguiente. */
-function queueNhewenAudio(n){nhewenAudioQueue.push(n);playNextNhewenAudio()}
-function playNextNhewenAudio(){
- if(nhewenAudioPlaying||!nhewenAudioQueue.length)return;
- const n=nhewenAudioQueue.shift();nhewenAudioPlaying=true;
- const audio=new Audio("audio_nhewen_"+String(n).padStart(2,"0")+".mp3");
- const done=()=>{nhewenAudioPlaying=false;playNextNhewenAudio()};
- audio.onended=done;audio.onerror=done;audio.play().catch(done);
-}
-
-function softTap(){
- try{const C=window.AudioContext||window.webkitAudioContext,c=new C(),o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=360;g.gain.setValueAtTime(.012,c.currentTime);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.035);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.04)}catch(e){}
+ const count=nhewenSessionCount;
+ document.querySelectorAll(".nhewen-hotspot").forEach((e,i)=>e.classList.toggle("done",i<count));
+ document.querySelectorAll(".nhewen-progress-dot").forEach((e,i)=>e.classList.toggle("done",i<count));
+ document.getElementById("nhewenBadgeGreen").classList.toggle("show",count>=20);
 }
 
 function pressNhewenNumber(n){
  const expected=nhewenSessionCount+1;
  if(n!==expected||expected>20)return;
- softTap();nhewenSessionCount=n;refreshNhewenUI();showNhewenWord(n);queueNhewenAudio(n);
- if(n===20)setTimeout(finishNhewen,320);
-}
+ nhewenSessionCount=n;
+ refreshNhewenUI();
 
-function finishNhewen(){
- const firstTime=!activityWasAwarded(NHEWEN_ACTIVITY_ID);
- if(firstTime){
-   awardActivityOnce(NHEWEN_ACTIVITY_ID);
-   localStorage.setItem("kimunComplete_"+lessonIndex,"1");
-   launchKimunConfetti();
+ const audio=new Audio("audio_nhewen_"+String(n).padStart(2,"0")+".mp3");
+ audio.play().catch(()=>{});
+
+ if(n===20){
+   if(!nhewenAlreadyEarned()){
+     localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+     localStorage.setItem("kimunNhewenEarned","1");
+   }
+   setTimeout(()=>document.getElementById("nhewenCelebration").classList.add("show"),350);
  }
- document.getElementById("nhewenCelebration").classList.add("show");
 }
 
-function resetNhewenSession(){
- nhewenSessionCount=0;nhewenAudioQueue=[];
- document.getElementById("nhewenWord").classList.remove("show");
+function showNhewenActivity(){
+ openScreen("nhewenScreen");
  document.getElementById("nhewenCelebration").classList.remove("show");
- document.getElementById("nhewenPassed").classList.remove("show");
+ nhewenPracticeMode=nhewenAlreadyEarned();
+ nhewenSessionCount=0;
  buildNhewenUI();
 }
 
-function startNhewenPractice(){nhewenPracticeMode=true;resetNhewenSession()}
-
-function showNhewenActivity(){
- ensureCourseTimer();openScreen("nhewenScreen");
- nhewenPracticeMode=activityWasAwarded(NHEWEN_ACTIVITY_ID);
- resetNhewenSession();
- if(nhewenPracticeMode)document.getElementById("nhewenPassed").classList.add("show");
+function repeatNhewenActivity(){
+ document.getElementById("nhewenCelebration").classList.remove("show");
+ nhewenPracticeMode=true;
+ nhewenSessionCount=0;
+ buildNhewenUI();
 }
 
-function continueFromPassed(){
- document.getElementById("nhewenPassed").classList.remove("show");
- if(lessonIndex<lessons.length-1){lessonIndex++;showLesson()}else goHome();
-}
 function continueAfterNhewen(){
  document.getElementById("nhewenCelebration").classList.remove("show");
- if(lessonIndex<lessons.length-1){lessonIndex++;showLesson()}else goHome();
-}
-
-function launchKimunConfetti(){
- const host=document.getElementById("nhewenStage");
- const colors=["#f2c94c","#e86a5d","#65c879","#6f94df","#fff1d0"];
- for(let i=0;i<72;i++){
-   const p=document.createElement("i");p.className="kimun-confetti";p.style.left=(Math.random()*100)+"%";p.style.background=colors[i%colors.length];p.style.setProperty("--drift",((Math.random()-.5)*180)+"px");p.style.animationDelay=(Math.random()*.65)+"s";host.appendChild(p);setTimeout(()=>p.remove(),3700);
+ nhewenSessionCount=0;
+ if(lessonIndex<lessons.length-1){
+   lessonIndex++;
+   localStorage.setItem("kimunLessonIndex",lessonIndex);
+   showLesson();
  }
-}
-
-/* Regla global preparada para las 10 actividades:
-   la primera superación suma; las repeticiones son sólo práctica. */
-function markGenericActivityComplete(activityId){return awardActivityOnce(activityId)}
-function finalCourseResult(){
- const started=Number(localStorage.getItem("kimunCourseStartedAt")||Date.now());
- return {score:officialScore(),total:KIMUN_TOTAL_ACTIVITIES,elapsedMs:Math.max(0,Date.now()-started)};
 }
 
 window.addEventListener("popstate",function(){if(document.getElementById("lesson").classList.contains("active"))previousLesson();else goHome()});
