@@ -560,6 +560,7 @@ function setupPairActivity(layer,file){
     const n=nums[i];
     addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");speakKimun(String(n),"es-CL")}});
   });
+  restorePairProgress(layer);
 }
 function selectPair(el,value,kind){
   if(el.classList.contains("matched"))return;
@@ -572,11 +573,13 @@ function selectPair(el,value,kind){
   if(wordEl.dataset.value===expected){
     wordEl.classList.remove("selected");numEl.classList.remove("selected");
     wordEl.classList.add("matched");numEl.classList.add("matched");
+    savePairMatch(lessonIndex,Number(numEl.dataset.value));
     const allHits=[...wordEl.parentElement.querySelectorAll(".activity-hit")];
     const allMatched=allHits.length>0 && allHits.every(hit=>hit.classList.contains("matched"));
     if(allMatched){
       localStorage.setItem("kimunComplete_"+lessonIndex,"1");
-      scheduleAutoAdvance(lessonIndex);
+      completeAndAdvanceImmediately(lessonIndex);
+      return;
     }
   }else{
     wordEl.classList.remove("selected");numEl.classList.remove("selected");
@@ -605,20 +608,59 @@ function setupNumberActivity(layer,file){
     speakKimun(word,"es-CL");
     if(this.classList.contains("matched"))return;
     const expected=NUMBER_WORDS[n];
-    if(word===expected){this.classList.remove("wrong");this.classList.add("matched");localStorage.setItem("kimunComplete_"+lessonIndex,"1");scheduleAutoAdvance(lessonIndex)}
+    if(word===expected){
+      this.classList.remove("wrong");this.classList.add("matched");
+      localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+      completeAndAdvanceImmediately(lessonIndex);
+      return;
+    }
     else{this.classList.add("wrong");loseNhewenLife();setTimeout(()=>this.classList.remove("wrong"),700)}
   }}));
+  if(activityIsComplete(lessonIndex)){
+    [...layer.querySelectorAll('.activity-hit')].forEach(hit=>{if(hit.dataset.value===NUMBER_WORDS[n])hit.classList.add('matched')});
+  }
 }
 
+/* === PROGRESO, RETROCESO Y AVANCE INDEPENDIENTES === */
 let autoAdvanceTimer=null;
 function cancelAutoAdvance(){if(autoAdvanceTimer!==null){clearTimeout(autoAdvanceTimer);autoAdvanceTimer=null}}
-function scheduleAutoAdvance(completedIndex){
- cancelAutoAdvance();
- autoAdvanceTimer=setTimeout(()=>{
-   autoAdvanceTimer=null;
-   if(nhewenRecovering || lessonIndex!==completedIndex)return;
-   if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
- },1000);
+function getMaxUnlockedLesson(){
+  const saved=Number(localStorage.getItem("kimunMaxUnlockedLesson"));
+  if(Number.isFinite(saved))return Math.max(2,Math.min(lessons.length-1,saved));
+  return Math.max(2,Math.min(lessons.length-1,lessonIndex));
+}
+function unlockLesson(index){
+  const next=Math.max(getMaxUnlockedLesson(),Math.min(lessons.length-1,index));
+  localStorage.setItem("kimunMaxUnlockedLesson",String(next));
+}
+function completeAndAdvanceImmediately(completedIndex){
+  cancelAutoAdvance();
+  if(nhewenRecovering || lessonIndex!==completedIndex)return;
+  if(completedIndex<lessons.length-1){
+    const target=completedIndex+1;
+    unlockLesson(target);
+    lessonIndex=target;
+    localStorage.setItem("kimunLessonIndex",lessonIndex);
+    showLesson();
+  }
+}
+function getPairMatches(index){
+  try{return JSON.parse(localStorage.getItem("kimunPairMatches_"+index)||"[]")}catch(_){return []}
+}
+function savePairMatch(index,number){
+  const matches=getPairMatches(index);
+  if(!matches.includes(number))matches.push(number);
+  localStorage.setItem("kimunPairMatches_"+index,JSON.stringify(matches));
+}
+function restorePairProgress(layer){
+  const matches=getPairMatches(lessonIndex);
+  matches.forEach(number=>{
+    const expected=NUMBER_WORDS[Number(number)];
+    [...layer.querySelectorAll('.activity-hit')].forEach(hit=>{
+      if((hit.dataset.kind==='number' && Number(hit.dataset.value)===Number(number)) ||
+         (hit.dataset.kind==='word' && hit.dataset.value===expected))hit.classList.add('matched');
+    });
+  });
 }
 function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
 function previousLesson(){
@@ -628,9 +670,14 @@ function previousLesson(){
 }
 function nextLesson(){
  cancelAutoAdvance();
- const item=lessons[lessonIndex];
- if(item.requiresAnswers&&!activityIsComplete(lessonIndex))return;
- if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
+ if(lessonIndex<2){
+   if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
+   return;
+ }
+ const maxUnlocked=getMaxUnlockedLesson();
+ if(lessonIndex<maxUnlocked && lessonIndex<lessons.length-1){
+   lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();
+ }
 }
 function openConsult(){cancelAutoAdvance();consultOrigin="lesson";openScreen("consult")}
 function returnFromConsult(){if(consultOrigin==="lesson")showLesson();else if(consultOrigin==="nhewen")openScreen("nhewenScreen");else goHome()}
@@ -870,6 +917,7 @@ function showNhewenActivity(){
 }
 function repeatNhewenActivity(){startNhewenSession(true)}
 function continueAfterNhewen(){
+ unlockLesson(Math.min(lessons.length-1,lessonIndex+1));
  resetNhewenLives();
  document.getElementById("nhewenCelebration").classList.remove("show");
  document.getElementById("nhewenStatus").classList.remove("show");
