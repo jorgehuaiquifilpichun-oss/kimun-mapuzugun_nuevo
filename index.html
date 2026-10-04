@@ -393,6 +393,19 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <audio id="agradecimientosAudio" src="audio_agradecimientos.mp3" preload="auto"></audio>
 
 <script>
+/* === CONTROL DE ESTADO DE PRUEBA ===
+   Conserva progreso y Nhewen, pero elimina estados visuales antiguos
+   de emparejamiento cuando cambia esta versión. */
+const KIMUN_DATA_VERSION="2026-10-04-navfix-v2";
+(function migrateKimunState(){
+  const previous=localStorage.getItem("kimunDataVersion");
+  if(previous===KIMUN_DATA_VERSION)return;
+  Object.keys(localStorage).forEach(key=>{
+    if(key.startsWith("kimunPairMatches_"))localStorage.removeItem(key);
+  });
+  localStorage.setItem("kimunDataVersion",KIMUN_DATA_VERSION);
+})();
+
 const lessons = [
  {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
  {image:"__NHEWEN__", title:"Llena tu NHEWEN", requiresAnswers:true},
@@ -488,8 +501,13 @@ function showLesson(audioAlreadyStarted=false){
    }
  }
  setupActivityInteractions(item);
+ // Regla de consistencia: una actividad ya completada siempre debe dejar habilitado su avance.
+ if(activityIsComplete(lessonIndex) && lessonIndex<lessons.length-1){
+   unlockLesson(lessonIndex+1);
+ }
  document.getElementById("backBtn").disabled=false;
- document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
+ const maxUnlocked=getMaxUnlockedLesson();
+ document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(lessonIndex>=2 && lessonIndex>=maxUnlocked);
  openScreen("lesson");
 }
 
@@ -619,7 +637,7 @@ function setupPairActivity(layer,file){
     const n=nums[i];
     addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");speakKimun(String(n),"es-CL")}});
   });
-  restorePairProgress(layer);
+  // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
 }
 function selectPair(el,value,kind){
   if(el.classList.contains("matched"))return;
@@ -675,17 +693,19 @@ function setupNumberActivity(layer,file){
     }
     else{this.classList.add("wrong");loseNhewenLife();setTimeout(()=>this.classList.remove("wrong"),700)}
   }}));
-  if(activityIsComplete(lessonIndex)){
-    [...layer.querySelectorAll('.activity-hit')].forEach(hit=>{if(hit.dataset.value===NUMBER_WORDS[n])hit.classList.add('matched')});
-  }
+  // Si esta actividad ya fue completada, no volver a dibujar el visto bueno.
+  // El desbloqueo se conserva y se sincroniza en showLesson().
 }
 
 /* === PROGRESO, RETROCESO Y AVANCE INDEPENDIENTES === */
 let autoAdvanceTimer=null;
 function cancelAutoAdvance(){if(autoAdvanceTimer!==null){clearTimeout(autoAdvanceTimer);autoAdvanceTimer=null}}
 function getMaxUnlockedLesson(){
-  const saved=Number(localStorage.getItem("kimunMaxUnlockedLesson"));
-  if(Number.isFinite(saved))return Math.max(2,Math.min(lessons.length-1,saved));
+  const raw=localStorage.getItem("kimunMaxUnlockedLesson");
+  if(raw!==null){
+    const saved=Number(raw);
+    if(Number.isFinite(saved))return Math.max(2,Math.min(lessons.length-1,saved));
+  }
   return Math.max(2,Math.min(lessons.length-1,lessonIndex));
 }
 function unlockLesson(index){
