@@ -211,6 +211,19 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
  transform:none;pointer-events:none;filter:drop-shadow(0 5px 8px rgba(0,0,0,.35));
 }
 
+
+/* Actividades de números sobre la mesa de trabajo */
+.lesson-activity-overlay{
+  position:absolute;
+  left:50%;
+  top:27%;
+  transform:translateX(-50%);
+  width:min(92%,690px);
+  max-height:64%;
+  object-fit:contain;
+  z-index:3;
+  pointer-events:none;
+}
 </style>
 </head>
 <body>
@@ -263,7 +276,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
-  <img id="lessonParchment" class="lesson-parchment" src="pergamino_actividad_recortado.png" alt="Pergamino de actividad" hidden>
+  <img id="lessonActivityOverlay" class="lesson-activity-overlay" src="" alt="" hidden>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
     <button class="nav-img" id="nextBtn" onclick="nextLesson()" aria-label="Amulepe, seguir"><img src="boton_seguir.png" alt="Amulepe - Seguir"></button>
@@ -306,7 +319,18 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 const lessons = [
  {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
  {image:"__NHEWEN__", title:"Llena tu NHEWEN", requiresAnswers:true},
- {image:"actividad_casa_01.png", title:"Primer ejercicio de números", requiresAnswers:false, parchment:true}
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_03.png", title:"Número 3", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_pares_01_05.png", title:"Selección de pares 1 al 5", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_07.png", title:"Número 7", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_01.png", title:"Número 1", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_09.png", title:"Número 9", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_pares_05_10.png", title:"Selección de pares 5 al 10", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_04.png", title:"Número 4", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_10.png", title:"Número 10", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_02.png", title:"Número 2", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_08.png", title:"Número 8", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_05.png", title:"Número 5", requiresAnswers:false},
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_06.png", title:"Número 6", requiresAnswers:false}
 ];
 let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
 let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
@@ -346,8 +370,11 @@ function showLesson(audioAlreadyStarted=false){
  if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
- const parchment=document.getElementById("lessonParchment");
- if(parchment)parchment.hidden=!item.parchment;
+ const overlay=document.getElementById("lessonActivityOverlay");
+ if(overlay){
+   if(item.overlay){overlay.src=item.overlay;overlay.alt=item.title;overlay.hidden=false;}
+   else{overlay.removeAttribute("src");overlay.alt="";overlay.hidden=true;}
+ }
  document.getElementById("backBtn").disabled=false;
  document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
  openScreen("lesson");
