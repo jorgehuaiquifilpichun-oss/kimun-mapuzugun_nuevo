@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#172019">
-<meta name="kimun-version" content="nhewen-10-vidas-recuperacion-2026-10-04">
+<meta name="kimun-version" content="ramtuchi-numeros-autoavance-2026-10-04">
 <title>Kimün Mapuzungun</title>
 <style>
 :root{--max-app:480px;--verde:#172019;--crema:#f8f0df;--madera:#4a2a16}
@@ -288,6 +288,17 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .ramtuchi-context .consult-option:first-of-type{margin-top:0}
 .ramtuchi-general{margin-top:12px}
 
+
+/* === RAMTUCHI: CONSULTA INTERNA DE NÚMEROS === */
+#numberReference .panel{padding-top:max(10px,env(safe-area-inset-top));}
+.number-reference-card{max-width:430px;margin:8px auto 20px;padding:16px;background:#fff9ec;border:2px solid #9b6a39;border-radius:18px;}
+.number-reference-card h1{margin:4px 0 4px;color:#315b47;}
+.number-reference-card .hint{margin:0 0 14px;line-height:1.4;}
+.number-reference-grid{display:grid;grid-template-columns:64px 1fr;gap:7px 10px;align-items:center;}
+.number-reference-grid div{padding:9px 11px;border-radius:11px;background:#f2e2c6;font-weight:800;}
+.number-reference-grid .num{text-align:center;color:#315b47;}
+.number-reference-back{width:100%;margin-top:14px;border:2px solid #315b47;border-radius:999px;padding:12px 16px;background:#315b47;color:#fff;font-weight:900;cursor:pointer;}
+
 </style>
 </head>
 <body>
@@ -388,6 +399,16 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <button class="consult-return" onclick="dictionaryBack()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
 
 <div id="dictionaryCover" class="dictionary-cover"><img src="portada_diccionario.png" alt="Portada del Diccionario Mapuche"><button class="dictionary-open-hotspot" type="button" onclick="openDictionaryPdf()" aria-label="Abrir diccionario"></button></div>
+</div></section>
+<section id="numberReference" class="screen"><div class="panel">
+  <div class="number-reference-card">
+    <h1>Números</h1>
+    <p class="hint">Consulta rápida de numeración Mapuzugun. Al volver continuarás en la misma actividad.</p>
+    <div class="number-reference-grid" aria-label="Números del 1 al 20">
+      <div class="num">1</div><div>kiñe</div><div class="num">2</div><div>epu</div><div class="num">3</div><div>küla</div><div class="num">4</div><div>meli</div><div class="num">5</div><div>kechu</div><div class="num">6</div><div>kayu</div><div class="num">7</div><div>regle</div><div class="num">8</div><div>pura</div><div class="num">9</div><div>aylla</div><div class="num">10</div><div>mari</div><div class="num">11</div><div>mari kiñe</div><div class="num">12</div><div>mari epu</div><div class="num">13</div><div>mari küla</div><div class="num">14</div><div>mari meli</div><div class="num">15</div><div>mari kechu</div><div class="num">16</div><div>mari kayu</div><div class="num">17</div><div>mari regle</div><div class="num">18</div><div>mari pura</div><div class="num">19</div><div>mari aylla</div><div class="num">20</div><div>epu mari</div>
+    </div>
+    <button class="number-reference-back" type="button" onclick="returnFromNumberReference()">Volver a la actividad</button>
+  </div>
 </div></section>
 <section id="grafemario" class="screen"><div class="panel">
 <button class="consult-return" onclick="goHome()"><img src="boton_volver_atras.png" alt="Volver atrás" style="width:100%;height:auto"></button>
@@ -656,13 +677,18 @@ function unlockLesson(index){
 }
 function completeAndAdvanceImmediately(completedIndex){
   cancelAutoAdvance();
-  if(nhewenRecovering || lessonIndex!==completedIndex)return;
+  if(lessonIndex!==completedIndex)return;
   if(completedIndex<lessons.length-1){
     const target=completedIndex+1;
     unlockLesson(target);
-    lessonIndex=target;
-    localStorage.setItem("kimunLessonIndex",lessonIndex);
-    showLesson();
+    localStorage.setItem("kimunComplete_"+completedIndex,"1");
+    autoAdvanceTimer=setTimeout(()=>{
+      autoAdvanceTimer=null;
+      if(lessonIndex!==completedIndex)return;
+      lessonIndex=target;
+      localStorage.setItem("kimunLessonIndex",lessonIndex);
+      showLesson();
+    },320);
   }
 }
 function getPairMatches(index){
@@ -723,8 +749,11 @@ function grammarBack(){if(grammarOrigin==="consult"){refreshConsultOptions();ope
 function openDictionary(fromConsult){dictionaryDirectPage=null;dictionaryOrigin=fromConsult?"consult":"home";openScreen("dictionary")}
 function openDictionaryNumbers(){
   dictionaryOrigin="consult";
-  dictionaryDirectPage=48;
-  openDictionaryPdf();
+  openScreen("numberReference");
+}
+function returnFromNumberReference(){
+  if(consultOrigin==="lesson")showLesson();
+  else{refreshConsultOptions();openScreen("consult");}
 }
 function openDictionaryPdf(){
   const page=dictionaryDirectPage||48;
