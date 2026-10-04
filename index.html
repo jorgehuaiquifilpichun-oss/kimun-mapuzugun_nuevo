@@ -234,6 +234,12 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 }
 
 
+/* Video final de la etapa */
+.lesson-final-video{
+  position:absolute;left:0;top:0;width:100%;height:100%;
+  object-fit:contain;background:#000;z-index:8;
+}
+
 /* === INTERACCIÓN DE LAS 12 ACTIVIDADES === */
 .activity-hotspots{
   position:absolute;left:50%;top:37%;transform:translateX(-50%);
@@ -311,6 +317,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
   <img id="lessonActivityOverlay" class="lesson-activity-overlay" src="" alt="" hidden>
+  <video id="lessonFinalVideo" class="lesson-final-video" src="video_final.mp4" controls playsinline preload="metadata" hidden></video>
   <div id="activityHotspots" class="activity-hotspots" hidden aria-label="Controles interactivos de la actividad"></div>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
@@ -365,7 +372,8 @@ const lessons = [
  {image:"actividad_casa_01.png", overlay:"actividad_numero_02.png", title:"Número 2", requiresAnswers:false},
  {image:"actividad_casa_01.png", overlay:"actividad_numero_08.png", title:"Número 8", requiresAnswers:false},
  {image:"actividad_casa_01.png", overlay:"actividad_numero_05.png", title:"Número 5", requiresAnswers:false},
- {image:"actividad_casa_01.png", overlay:"actividad_numero_06.png", title:"Número 6", requiresAnswers:false}
+ {image:"actividad_casa_01.png", overlay:"actividad_numero_06.png", title:"Número 6", requiresAnswers:false},
+ {image:"__VIDEO_FINAL__", title:"Video final", requiresAnswers:false}
 ];
 let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
 let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
@@ -403,6 +411,25 @@ function showLesson(audioAlreadyStarted=false){
  if(item.image==="pantalla_agradecimientos.png"){if(!audioAlreadyStarted)playAgradecimientosAudio();}
  else stopAgradecimientosAudio();
  if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
+ const finalVideo=document.getElementById("lessonFinalVideo");
+ const isFinalVideo=item.image==="__VIDEO_FINAL__";
+ if(finalVideo){
+   finalVideo.hidden=!isFinalVideo;
+   if(isFinalVideo){try{finalVideo.currentTime=0;}catch(_){}}
+   else{try{finalVideo.pause();}catch(_){}}
+ }
+ if(isFinalVideo){
+   const overlay=document.getElementById("lessonActivityOverlay");
+   if(overlay)overlay.hidden=true;
+   const hotspots=document.getElementById("activityHotspots");
+   if(hotspots){hotspots.hidden=true;hotspots.innerHTML="";}
+   document.getElementById("lessonImage").removeAttribute("src");
+   document.getElementById("lessonImage").alt=item.title;
+   document.getElementById("backBtn").disabled=false;
+   document.getElementById("nextBtn").disabled=true;
+   openScreen("lesson");
+   return;
+ }
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
  const overlay=document.getElementById("lessonActivityOverlay");
