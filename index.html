@@ -574,7 +574,7 @@ function selectPair(el,value,kind){
     wordEl.classList.add("matched");numEl.classList.add("matched");
     const allHits=[...wordEl.parentElement.querySelectorAll(".activity-hit")];
     const allMatched=allHits.length>0 && allHits.every(hit=>hit.classList.contains("matched"));
-    if(allMatched && !activityIsComplete(lessonIndex)){
+    if(allMatched){
       localStorage.setItem("kimunComplete_"+lessonIndex,"1");
       scheduleAutoAdvance(lessonIndex);
     }
@@ -605,7 +605,7 @@ function setupNumberActivity(layer,file){
     speakKimun(word,"es-CL");
     if(this.classList.contains("matched"))return;
     const expected=NUMBER_WORDS[n];
-    if(word===expected){this.classList.remove("wrong");this.classList.add("matched");if(!activityIsComplete(lessonIndex)){localStorage.setItem("kimunComplete_"+lessonIndex,"1");scheduleAutoAdvance(lessonIndex)}}
+    if(word===expected){this.classList.remove("wrong");this.classList.add("matched");localStorage.setItem("kimunComplete_"+lessonIndex,"1");scheduleAutoAdvance(lessonIndex)}
     else{this.classList.add("wrong");loseNhewenLife();setTimeout(()=>this.classList.remove("wrong"),700)}
   }}));
 }
