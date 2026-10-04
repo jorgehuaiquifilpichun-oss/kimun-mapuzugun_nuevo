@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#172019">
-<meta name="kimun-version" content="nhewen-numeros-actividad-2-2026-10-03">
+<meta name="kimun-version" content="nhewen-10-vidas-recuperacion-2026-10-04">
 <title>Kimün Mapuzungun</title>
 <style>
 :root{--max-app:480px;--verde:#172019;--crema:#f8f0df;--madera:#4a2a16}
@@ -264,6 +264,18 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .activity-hit.wrong::after{content:"✕";color:#d62020;border:3px solid #d62020;}
 .activity-hit.speaker-hit{border-radius:50%}
 
+
+/* === NHEWEN: CONTENEDOR VERTICAL DE 10 VIDAS === */
+.nhewen-lives-hud{position:absolute;right:1.2%;top:7.8%;width:12.5%;height:39%;z-index:11;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.42))}
+.nhewen-lives-hud>img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+.nhewen-life-lights{position:absolute;left:29%;right:29%;top:18.7%;bottom:8.5%;display:grid;grid-template-rows:repeat(10,1fr);align-items:center;justify-items:center}
+.nhewen-life-light{width:82%;aspect-ratio:1/1;border-radius:50%;background:transparent}
+.nhewen-life-light.on{background:radial-gradient(circle at 36% 30%,#d8ff83 0 15%,#79dc35 34%,#2f9c38 68%,#1f632d 100%);box-shadow:0 0 7px rgba(100,225,75,.9),inset 0 0 0 1px rgba(238,255,218,.72)}
+.nhewen-life-count{position:absolute;left:50%;bottom:-5%;transform:translateX(-50%);min-width:28px;padding:2px 5px;border-radius:999px;background:rgba(20,30,22,.92);border:1px solid #d6ad61;color:#fff7e6;text-align:center;font-size:12px;font-weight:900}
+#nhewenRecovery{display:none;position:absolute;inset:0;z-index:90;background:#000;align-items:center;justify-content:center}
+#nhewenRecovery.show{display:flex}
+#nhewenRecoveryVideo{display:block;width:100%;height:100%;object-fit:cover;background:#000}
+@media(max-height:720px){.nhewen-lives-hud{top:8.5%;height:37%}}
 </style>
 </head>
 <body>
@@ -318,6 +330,12 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
   <img id="lessonActivityOverlay" class="lesson-activity-overlay" src="" alt="" hidden>
   <video id="lessonFinalVideo" class="lesson-final-video" src="video_final.mp4" controls playsinline preload="metadata" hidden></video>
+  <div id="nhewenLivesHud" class="nhewen-lives-hud" hidden aria-label="Nhewen: 10 vidas">
+    <img src="nhewen_10_vidas.png" alt="Nhewen">
+    <div id="nhewenLifeLights" class="nhewen-life-lights" aria-hidden="true"></div>
+    <div id="nhewenLifeCount" class="nhewen-life-count">10</div>
+  </div>
+  <div id="nhewenRecovery" aria-live="polite"><video id="nhewenRecoveryVideo" src="video_final.mp4" playsinline preload="auto"></video></div>
   <div id="activityHotspots" class="activity-hotspots" hidden aria-label="Controles interactivos de la actividad"></div>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
@@ -413,6 +431,9 @@ function showLesson(audioAlreadyStarted=false){
  if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
  const finalVideo=document.getElementById("lessonFinalVideo");
  const isFinalVideo=item.image==="__VIDEO_FINAL__";
+ const livesHud=document.getElementById("nhewenLivesHud");
+ if(livesHud)livesHud.hidden=!(item.overlay && lessonIndex>1);
+ refreshNhewenLivesUI();
  if(finalVideo){
    finalVideo.hidden=!isFinalVideo;
    if(isFinalVideo){try{finalVideo.currentTime=0;}catch(_){}}
@@ -452,6 +473,27 @@ function showLesson(audioAlreadyStarted=false){
  document.getElementById("backBtn").disabled=false;
  document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
  openScreen("lesson");
+}
+
+/* === REGLA GLOBAL: 10 VIDAS NHEWEN DESPUÉS DE FILU === */
+const NHEWEN_MAX_LIVES=10;
+let nhewenLives=Number(localStorage.getItem("kimunNhewenLives")||NHEWEN_MAX_LIVES);
+let nhewenRecovering=false;
+function normalizeNhewenLives(){if(!Number.isFinite(nhewenLives))nhewenLives=NHEWEN_MAX_LIVES;nhewenLives=Math.max(0,Math.min(NHEWEN_MAX_LIVES,Math.round(nhewenLives)))}
+function setNhewenLives(value){nhewenLives=Number(value);normalizeNhewenLives();localStorage.setItem("kimunNhewenLives",String(nhewenLives));refreshNhewenLivesUI()}
+function resetNhewenLives(){setNhewenLives(NHEWEN_MAX_LIVES)}
+function refreshNhewenLivesUI(){
+ normalizeNhewenLives();const layer=document.getElementById("nhewenLifeLights"),count=document.getElementById("nhewenLifeCount");
+ if(count)count.textContent=String(nhewenLives);if(!layer)return;
+ if(layer.children.length!==NHEWEN_MAX_LIVES){layer.innerHTML="";for(let i=0;i<NHEWEN_MAX_LIVES;i++){const d=document.createElement("span");d.className="nhewen-life-light";layer.appendChild(d)}}
+ [...layer.children].forEach((d,i)=>d.classList.toggle("on",i<nhewenLives));
+}
+function loseNhewenLife(){if(nhewenRecovering||lessonIndex<=1)return;setNhewenLives(nhewenLives-1);if(nhewenLives<=0)playNhewenRecovery()}
+function playNhewenRecovery(){
+ if(nhewenRecovering)return;nhewenRecovering=true;const wrap=document.getElementById("nhewenRecovery"),video=document.getElementById("nhewenRecoveryVideo");
+ if(!wrap||!video){resetNhewenLives();nhewenRecovering=false;return}wrap.classList.add("show");try{video.currentTime=0}catch(_){}
+ const finish=()=>{video.onended=null;video.onerror=null;try{video.pause()}catch(_){}wrap.classList.remove("show");resetNhewenLives();nhewenRecovering=false};
+ video.onended=finish;video.onerror=finish;const play=video.play();if(play&&typeof play.catch==="function")play.catch(finish);
 }
 
 /* === AUDIO + SELECCIÓN DE PARES === */
@@ -521,6 +563,7 @@ function selectPair(el,value,kind){
   }else{
     wordEl.classList.remove("selected");numEl.classList.remove("selected");
     wordEl.classList.add("wrong");numEl.classList.add("wrong");
+    loseNhewenLife();
     setTimeout(()=>{wordEl.classList.remove("wrong");numEl.classList.remove("wrong")},700);
   }
   pairSelection={word:null,number:null};
@@ -540,7 +583,13 @@ function setupNumberActivity(layer,file){
     10:["epu mari","mari","mari kiñe"]
   }[n]||[];
   const xs=[2,34.5,67];
-  options.forEach((word,i)=>addActivityHit(layer,{x:xs[i],y:72,w:31,h:18,label:"Escuchar "+word,value:word,onClick:()=>speakKimun(word,"es-CL")}));
+  options.forEach((word,i)=>addActivityHit(layer,{x:xs[i],y:72,w:31,h:18,label:"Escuchar "+word,value:word,onClick:function(){
+    speakKimun(word,"es-CL");
+    if(this.classList.contains("matched"))return;
+    const expected=NUMBER_WORDS[n];
+    if(word===expected){this.classList.remove("wrong");this.classList.add("matched");localStorage.setItem("kimunComplete_"+lessonIndex,"1")}
+    else{this.classList.add("wrong");loseNhewenLife();setTimeout(()=>this.classList.remove("wrong"),700)}
+  }}));
 }
 
 function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
@@ -791,12 +840,15 @@ function showNhewenActivity(){
 }
 function repeatNhewenActivity(){startNhewenSession(true)}
 function continueAfterNhewen(){
+ resetNhewenLives();
  document.getElementById("nhewenCelebration").classList.remove("show");
  document.getElementById("nhewenStatus").classList.remove("show");
  nhewenSessionCount=0;
  if(lessonIndex<lessons.length-1){lessonIndex++;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
  else{localStorage.setItem("kimunCourseFinished","1");goHome();}
 }
+
+refreshNhewenLivesUI();
 
 window.addEventListener("popstate",function(){if(document.getElementById("lesson").classList.contains("active"))previousLesson();else if(document.getElementById("nhewenScreen").classList.contains("active"))nhewenBackHome();else goHome()});
 </script>
