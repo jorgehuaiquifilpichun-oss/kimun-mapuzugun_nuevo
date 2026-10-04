@@ -224,6 +224,12 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   z-index:3;
   pointer-events:none;
 }
+.lesson-activity-overlay.number-activity{
+  width:min(82.8%,621px);
+}
+.lesson-activity-overlay.pair-activity{
+  top:52%;
+}
 </style>
 </head>
 <body>
@@ -372,8 +378,19 @@ function showLesson(audioAlreadyStarted=false){
  document.getElementById("lessonImage").alt=item.title;
  const overlay=document.getElementById("lessonActivityOverlay");
  if(overlay){
-   if(item.overlay){overlay.src=item.overlay;overlay.alt=item.title;overlay.hidden=false;}
-   else{overlay.removeAttribute("src");overlay.alt="";overlay.hidden=true;}
+   if(item.overlay){
+     overlay.src=item.overlay;
+     overlay.alt=item.title;
+     overlay.classList.toggle("number-activity",item.overlay.startsWith("actividad_numero_"));
+     overlay.classList.toggle("pair-activity",item.overlay.startsWith("actividad_pares_"));
+     overlay.hidden=false;
+   }
+   else{
+     overlay.removeAttribute("src");
+     overlay.alt="";
+     overlay.classList.remove("number-activity", "pair-activity");
+     overlay.hidden=true;
+   }
  }
  document.getElementById("backBtn").disabled=false;
  document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
