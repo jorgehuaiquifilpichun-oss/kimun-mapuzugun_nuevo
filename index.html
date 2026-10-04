@@ -232,6 +232,21 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   width:98%;
   max-width:none;
 }
+
+
+/* === INTERACCIÓN DE LAS 12 ACTIVIDADES === */
+.activity-hotspots{
+  position:absolute;left:50%;top:37%;transform:translateX(-50%);
+  width:min(92%,690px);max-height:64%;z-index:9;pointer-events:auto;
+}
+.activity-hotspots.number-activity{width:min(82.8%,621px);aspect-ratio:1326/1536;}
+.activity-hotspots.pair-activity{top:46%;width:98%;max-width:none;aspect-ratio:1536/1024;}
+.activity-hit{position:absolute;border:0;background:transparent;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.activity-hit:focus{outline:none}
+.activity-hit.selected{box-shadow:inset 0 0 0 4px rgba(255,213,64,.95);border-radius:18px;background:rgba(255,213,64,.14)}
+.activity-hit.matched{border-radius:18px;background:rgba(24,190,74,.42);box-shadow:inset 0 0 0 4px rgba(37,230,91,.95);}
+.activity-hit.speaker-hit{border-radius:50%}
+
 </style>
 </head>
 <body>
@@ -285,6 +300,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
   <img id="lessonActivityOverlay" class="lesson-activity-overlay" src="" alt="" hidden>
+  <div id="activityHotspots" class="activity-hotspots" hidden aria-label="Controles interactivos de la actividad"></div>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
     <button class="nav-img" id="nextBtn" onclick="nextLesson()" aria-label="Amulepe, seguir"><img src="boton_seguir.png" alt="Amulepe - Seguir"></button>
@@ -394,10 +410,99 @@ function showLesson(audioAlreadyStarted=false){
      overlay.hidden=true;
    }
  }
+ setupActivityInteractions(item);
  document.getElementById("backBtn").disabled=false;
  document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
  openScreen("lesson");
 }
+
+/* === AUDIO + SELECCIÓN DE PARES === */
+const NUMBER_WORDS={
+  1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"regle",8:"pura",9:"aylla",10:"mari"
+};
+const QUESTION_AUDIO_TEXT="Chumgechy pigekey tufa rakin mapuzungun mew? ¿Cómo se suele decir este número en mapuzungun?";
+let pairSelection={word:null,number:null};
+
+function speakKimun(text,lang="es-CL"){
+  if(!text || !("speechSynthesis" in window))return;
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=lang;u.rate=0.82;u.pitch=1;u.volume=1;
+    window.speechSynthesis.speak(u);
+  }catch(_){ }
+}
+function addActivityHit(parent,opts){
+  const b=document.createElement("button");
+  b.type="button";b.className="activity-hit"+(opts.className?" "+opts.className:"");
+  b.style.left=opts.x+"%";b.style.top=opts.y+"%";b.style.width=opts.w+"%";b.style.height=opts.h+"%";
+  b.setAttribute("aria-label",opts.label||"");
+  if(opts.value!==undefined)b.dataset.value=String(opts.value);
+  if(opts.kind)b.dataset.kind=opts.kind;
+  b.addEventListener("click",opts.onClick);
+  parent.appendChild(b);return b;
+}
+function setupActivityInteractions(item){
+  const layer=document.getElementById("activityHotspots");
+  if(!layer)return;
+  layer.innerHTML="";layer.hidden=true;layer.classList.remove("number-activity","pair-activity");
+  pairSelection={word:null,number:null};
+  if(!item || !item.overlay)return;
+  if(item.overlay.startsWith("actividad_pares_")){
+    layer.classList.add("pair-activity");layer.hidden=false;setupPairActivity(layer,item.overlay);return;
+  }
+  if(item.overlay.startsWith("actividad_numero_")){
+    layer.classList.add("number-activity");layer.hidden=false;setupNumberActivity(layer,item.overlay);
+  }
+}
+function setupPairActivity(layer,file){
+  const isLow=file.includes("01_05");
+  const words=isLow?["meli","kechu","kiñe","epu","küla"]:["mari","regle","kayu","aylla","pura","kechu"];
+  const nums=isLow?[3,1,5,2,4]:[5,8,10,7,6,9];
+  const rowCount=words.length;
+  const start=isLow?25.0:24.0, end=isLow?95.0:96.0;
+  const step=(end-start)/rowCount;
+  words.forEach((word,i)=>{
+    const y=start+i*step;
+    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:word,kind:"word",value:word,onClick:function(){selectPair(this,word,"word");speakKimun(word,"es-CL")}});
+    const n=nums[i];
+    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");speakKimun(String(n),"es-CL")}});
+  });
+}
+function selectPair(el,value,kind){
+  if(el.classList.contains("matched"))return;
+  const old=pairSelection[kind];
+  if(old && old!==el)old.classList.remove("selected");
+  pairSelection[kind]=el;el.classList.add("selected");
+  if(!pairSelection.word || !pairSelection.number)return;
+  const wordEl=pairSelection.word, numEl=pairSelection.number;
+  const expected=NUMBER_WORDS[Number(numEl.dataset.value)];
+  if(wordEl.dataset.value===expected){
+    wordEl.classList.remove("selected");numEl.classList.remove("selected");
+    wordEl.classList.add("matched");numEl.classList.add("matched");
+  }else{
+    setTimeout(()=>{wordEl.classList.remove("selected");numEl.classList.remove("selected")},260);
+  }
+  pairSelection={word:null,number:null};
+}
+function setupNumberActivity(layer,file){
+  const m=file.match(/_(\d+)\.png$/);if(!m)return;
+  const n=Number(m[1]);
+  // Parlante de la pregunta.
+  addActivityHit(layer,{x:7,y:9,w:17,h:16,label:"Escuchar pregunta",className:"speaker-hit",onClick:()=>speakKimun(QUESTION_AUDIO_TEXT,"es-CL")});
+  // Número grande: se pronuncia en español.
+  addActivityHit(layer,{x:27,y:36,w:46,h:35,label:"Escuchar número "+n,onClick:()=>speakKimun(String(n),"es-CL")});
+  // Las tres palabras visibles se pronuncian al tocarlas.
+  const options={
+    1:["kiñe","epu","küla"],2:["kiñe","epu","küla"],3:["epu","küla","meli"],
+    4:["meli","kechu","kayu"],5:["kechu","kayu","regle"],6:["kechu","kayu","regle"],
+    7:["kayu","regle","pura"],8:["regle","pura","aylla"],9:["pura","aylla","epu mari"],
+    10:["epu mari","mari","mari kiñe"]
+  }[n]||[];
+  const xs=[2,34.5,67];
+  options.forEach((word,i)=>addActivityHit(layer,{x:xs[i],y:72,w:31,h:18,label:"Escuchar "+word,value:word,onClick:()=>speakKimun(word,"es-CL")}));
+}
+
 function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
 function previousLesson(){
  if(lessonIndex>0){lessonIndex--;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
