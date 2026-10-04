@@ -276,6 +276,9 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 #nhewenRecovery.show{display:flex}
 #nhewenRecoveryVideo{display:block;width:100%;height:100%;object-fit:cover;background:#000}
 #nhewenRecoveryStatus{position:absolute;left:50%;bottom:max(28px,calc(18px + env(safe-area-inset-bottom)));transform:translateX(-50%);z-index:92;width:min(88%,410px);padding:12px 16px;border:2px solid #d6ad61;border-radius:16px;background:rgba(20,30,22,.94);color:#fff7e6;text-align:center;font-size:clamp(18px,5vw,24px);font-weight:900;box-shadow:0 5px 18px rgba(0,0,0,.45)}
+/* Barra única durante el video de recuperación: 10 círculos que se llenan de abajo hacia arriba. */
+.nhewen-recovery-hud{z-index:93}
+.nhewen-recovery-hud .nhewen-life-light.on{background:radial-gradient(circle at 36% 30%,#d8ff83 0 15%,#79dc35 34%,#2f9c38 68%,#1f632d 100%);box-shadow:0 0 7px rgba(100,225,75,.9),inset 0 0 0 1px rgba(238,255,218,.72)}
 @media(max-height:720px){.nhewen-lives-hud{top:8.5%;height:37%}}
 </style>
 </head>
@@ -336,7 +339,15 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
     <div id="nhewenLifeLights" class="nhewen-life-lights" aria-hidden="true"></div>
     <div id="nhewenLifeCount" class="nhewen-life-count">10</div>
   </div>
-  <div id="nhewenRecovery" aria-live="polite"><video id="nhewenRecoveryVideo" src="video_final.mp4" playsinline preload="auto"></video><div id="nhewenRecoveryStatus">Recuperando Nhewen…</div></div>
+  <div id="nhewenRecovery" aria-live="polite">
+    <video id="nhewenRecoveryVideo" src="video_final.mp4" playsinline preload="auto"></video>
+    <div id="nhewenRecoveryHud" class="nhewen-lives-hud nhewen-recovery-hud" aria-label="Recuperación de Nhewen: 10 vidas">
+      <img src="nhewen_10_vidas.png" alt="Nhewen">
+      <div id="nhewenRecoveryLifeLights" class="nhewen-life-lights" aria-hidden="true"></div>
+      <div id="nhewenRecoveryLifeCount" class="nhewen-life-count">0</div>
+    </div>
+    <div id="nhewenRecoveryStatus">Recuperando Nhewen…</div>
+  </div>
   <div id="activityHotspots" class="activity-hotspots" hidden aria-label="Controles interactivos de la actividad"></div>
   <nav class="lesson-nav" aria-label="Navegación de la actividad">
     <button class="nav-img" id="backBtn" onclick="previousLesson()" aria-label="Wiñotxekage, volver atrás"><img src="boton_volver_atras.png" alt="Wiñotxekage - Volver atrás"></button>
@@ -496,19 +507,62 @@ function refreshNhewenLivesUI(){
  [...layer.children].forEach((d,i)=>d.classList.toggle("on",i<nhewenLives));
 }
 function loseNhewenLife(){if(nhewenRecovering||lessonIndex<=1)return;setNhewenLives(nhewenLives-1);if(nhewenLives<=0)playNhewenRecovery()}
+
+function buildNhewenRecoveryBar(){
+ const layer=document.getElementById("nhewenRecoveryLifeLights");
+ if(!layer)return;
+ if(layer.children.length!==NHEWEN_MAX_LIVES){
+   layer.innerHTML="";
+   for(let i=0;i<NHEWEN_MAX_LIVES;i++){
+     const d=document.createElement("span");
+     d.className="nhewen-life-light";
+     layer.appendChild(d);
+   }
+ }
+ setNhewenRecoveryBar(0);
+}
+
+function setNhewenRecoveryBar(filled){
+ const layer=document.getElementById("nhewenRecoveryLifeLights");
+ const count=document.getElementById("nhewenRecoveryLifeCount");
+ const value=Math.max(0,Math.min(NHEWEN_MAX_LIVES,Math.floor(Number(filled)||0)));
+ if(count)count.textContent=String(value);
+ if(!layer)return;
+ [...layer.children].forEach((d,i)=>{
+   // Los hijos están ordenados de arriba a abajo: se encienden desde el último hacia arriba.
+   d.classList.toggle("on",i>=NHEWEN_MAX_LIVES-value);
+ });
+}
+
+function syncNhewenRecoveryBar(video){
+ if(!video || !Number.isFinite(video.duration) || video.duration<=0)return;
+ const ratio=Math.max(0,Math.min(1,video.currentTime/video.duration));
+ setNhewenRecoveryBar(Math.floor(ratio*NHEWEN_MAX_LIVES));
+}
+
 function playNhewenRecovery(){
  if(nhewenRecovering)return;
  cancelAutoAdvance();
  nhewenRecovering=true;
  const wrap=document.getElementById("nhewenRecovery"),video=document.getElementById("nhewenRecoveryVideo"),status=document.getElementById("nhewenRecoveryStatus");
  if(!wrap||!video){resetNhewenLives();nhewenRecovering=false;return}
+ buildNhewenRecoveryBar();
  if(status)status.textContent="Recuperando Nhewen…";
  wrap.classList.add("show");try{video.currentTime=0}catch(_){}
+ video.ontimeupdate=()=>syncNhewenRecoveryBar(video);
+ video.onloadedmetadata=()=>syncNhewenRecoveryBar(video);
  const finish=()=>{
-   video.onended=null;video.onerror=null;try{video.pause()}catch(_){}
+   video.onended=null;video.onerror=null;video.ontimeupdate=null;video.onloadedmetadata=null;
+   setNhewenRecoveryBar(NHEWEN_MAX_LIVES);
+   try{video.pause()}catch(_){}
    resetNhewenLives();
    if(status)status.textContent="¡Recuperaste tu Nhewen!";
-   setTimeout(()=>{wrap.classList.remove("show");if(status)status.textContent="Recuperando Nhewen…";nhewenRecovering=false},1400);
+   setTimeout(()=>{
+     wrap.classList.remove("show");
+     setNhewenRecoveryBar(0);
+     if(status)status.textContent="Recuperando Nhewen…";
+     nhewenRecovering=false;
+   },1400);
  };
  video.onended=finish;video.onerror=finish;const play=video.play();if(play&&typeof play.catch==="function")play.catch(finish);
 }
