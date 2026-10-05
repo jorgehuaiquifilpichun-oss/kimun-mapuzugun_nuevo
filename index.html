@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#172019">
-<meta name="kimun-version" content="nhewen-10-vidas-recuperacion-2026-10-04">
+<meta name="kimun-version" content="numeros-1-19-nhewen-10-vidas-2026-10-04">
 <title>Kimün Mapuzungun</title>
 <style>
 :root{--max-app:480px;--verde:#172019;--crema:#f8f0df;--madera:#4a2a16}
@@ -233,6 +233,25 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   max-width:none;
 }
 
+/* Actividad individual de números 1–19: tres imágenes independientes. */
+.number-activity-stack{
+  position:absolute;
+  left:50%;
+  top:17.5%;
+  transform:translateX(-50%);
+  width:min(82.8%,51vh);
+  max-width:398px;
+  z-index:3;
+  pointer-events:none;
+}
+.number-activity-stack img{display:block;width:100%;height:auto;object-fit:contain;margin:0;padding:0}
+.number-stack-question{aspect-ratio:1536/512}
+.number-stack-number{aspect-ratio:1536/1024}
+.number-stack-options{aspect-ratio:1536/560}
+@media(max-height:720px){
+  .number-activity-stack{top:16.5%;width:min(78%,49vh)}
+}
+
 
 /* Video final de la etapa */
 .lesson-final-video{
@@ -240,12 +259,12 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   object-fit:contain;background:#000;z-index:8;
 }
 
-/* === INTERACCIÓN DE LAS 12 ACTIVIDADES === */
+/* === INTERACCIÓN DE ACTIVIDADES EVALUADAS === */
 .activity-hotspots{
   position:absolute;left:50%;top:37%;transform:translateX(-50%);
   width:min(92%,690px);max-height:64%;z-index:9;pointer-events:auto;
 }
-.activity-hotspots.number-activity{width:min(82.8%,621px);aspect-ratio:1326/1536;}
+.activity-hotspots.number-activity{top:17.5%;width:min(82.8%,51vh);max-width:398px;aspect-ratio:1536/2096;}
 .activity-hotspots.pair-activity{top:46%;width:98%;max-width:none;aspect-ratio:1536/1024;}
 .activity-hit{position:absolute;border:0;background:transparent;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .activity-hit:focus{outline:none}
@@ -265,65 +284,6 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .activity-hit.speaker-hit{border-radius:50%}
 
 
-
-/* === NUEVAS ACTIVIDADES DE NUMERACIÓN 1–20 ===
-   Tres piezas reutilizables: pregunta + número + opciones.
-   Se mantienen dentro del espacio central, sin invadir Ramtuchi ni Nhewen. */
-.number-composite{
-  position:absolute;
-  z-index:10;
-  left:3%;
-  right:14%;
-  top:18%;
-  bottom:14%;
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:clamp(4px,1vh,9px);
-  overflow:hidden;
-  pointer-events:auto;
-}
-.number-composite.show{display:flex}
-.number-question-stage,
-.number-value-stage,
-.number-options-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:0;flex:0 0 auto}
-.number-question-stage{width:100%;height:18%}
-.number-question-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none}
-.number-question-speaker{
-  position:absolute;left:0;top:0;width:26%;height:100%;border:0;padding:0;margin:0;
-  background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;
-}
-.number-value-stage{width:82%;height:38%}
-.number-value-stage img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none}
-.number-value-hit{position:absolute;inset:0;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.number-options-stage{overflow:visible}
-.number-options-stage.horizontal{width:100%;aspect-ratio:3/1}
-.number-options-stage.stacked{width:78%;aspect-ratio:3/2}
-.number-options-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
-.number-option-hit{position:absolute;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.number-options-stage.horizontal .number-option-hit:nth-of-type(1){left:0;top:0;width:33.333%;height:100%}
-.number-options-stage.horizontal .number-option-hit:nth-of-type(2){left:33.333%;top:0;width:33.333%;height:100%}
-.number-options-stage.horizontal .number-option-hit:nth-of-type(3){left:66.666%;top:0;width:33.334%;height:100%}
-.number-options-stage.stacked .number-option-hit:nth-of-type(1){left:0;top:0;width:50%;height:52%}
-.number-options-stage.stacked .number-option-hit:nth-of-type(2){left:50%;top:0;width:50%;height:52%}
-.number-options-stage.stacked .number-option-hit:nth-of-type(3){left:24%;top:48%;width:52%;height:52%}
-.number-option-hit.matched::after,
-.number-option-hit.wrong::after{
-  content:"";position:absolute;right:4%;top:50%;transform:translateY(-50%);
-  width:clamp(22px,6vw,34px);height:clamp(22px,6vw,34px);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;background:#fff;
-  box-shadow:0 2px 5px rgba(0,0,0,.38);font-weight:900;font-size:clamp(18px,5vw,29px);line-height:1;
-}
-.number-option-hit.matched::after{content:"✓";color:#16a43b;border:3px solid #16a43b}
-.number-option-hit.wrong::after{content:"✕";color:#d62020;border:3px solid #d62020}
-@media(max-height:720px){
-  .number-composite{top:17%;bottom:13%;gap:3px}
-  .number-question-stage{height:17%}
-  .number-value-stage{height:37%}
-  .number-options-stage.stacked{width:73%}
-}
-
 /* === NHEWEN: CONTENEDOR VERTICAL DE 10 VIDAS === */
 .nhewen-lives-hud{position:absolute;right:1.2%;top:7.8%;width:12.5%;height:39%;z-index:11;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,0,0,.42))}
 .nhewen-lives-hud>img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
@@ -338,7 +298,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 /* Barra única durante el video de recuperación: 10 círculos que se llenan de abajo hacia arriba. */
 .nhewen-recovery-hud{z-index:93}
 .nhewen-recovery-hud .nhewen-life-light.on{background:radial-gradient(circle at 36% 30%,#d8ff83 0 15%,#79dc35 34%,#2f9c38 68%,#1f632d 100%);box-shadow:0 0 7px rgba(100,225,75,.9),inset 0 0 0 1px rgba(238,255,218,.72)}
-@media(max-height:720px){.nhewen-lives-hud{top:8.5%;height:37%}}
+@media(max-height:720px){.nhewen-lives-hud{top:8.5%;height:37%}.activity-hotspots.number-activity{top:16.5%;width:min(78%,49vh)}}
 </style>
 </head>
 <body>
@@ -392,27 +352,16 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
   <img id="lessonActivityOverlay" class="lesson-activity-overlay" src="" alt="" hidden>
+  <div id="numberActivityStack" class="number-activity-stack" hidden aria-label="Actividad de número">
+    <img id="numberQuestionImage" class="number-stack-question" src="" alt="Pregunta">
+    <img id="numberMainImage" class="number-stack-number" src="" alt="">
+    <img id="numberOptionsImage" class="number-stack-options" src="" alt="Opciones">
+  </div>
   <video id="lessonFinalVideo" class="lesson-final-video" src="video_final.mp4" controls playsinline preload="metadata" hidden></video>
   <div id="nhewenLivesHud" class="nhewen-lives-hud" hidden aria-label="Nhewen: 10 vidas">
     <img src="nhewen_10_vidas.png" alt="Nhewen">
     <div id="nhewenLifeLights" class="nhewen-life-lights" aria-hidden="true"></div>
     <div id="nhewenLifeCount" class="nhewen-life-count">10</div>
-  </div>
-  <div id="numberComposite" class="number-composite" hidden aria-label="Actividad de numeración">
-    <div class="number-question-stage">
-      <img id="numberQuestionImage" src="1000222915.png" alt="Chumgechi pigey tüfachi numeru mapuzungun mew? ¿Cómo se dice este número en mapudungun?">
-      <button id="numberQuestionSpeaker" class="number-question-speaker" type="button" aria-label="Escuchar pregunta"></button>
-    </div>
-    <div class="number-value-stage">
-      <img id="numberValueImage" src="" alt="">
-      <button id="numberValueHit" class="number-value-hit" type="button" aria-label="Escuchar número"></button>
-    </div>
-    <div id="numberOptionsStage" class="number-options-stage horizontal">
-      <img id="numberOptionsImage" src="" alt="Opciones de respuesta">
-      <button class="number-option-hit" type="button" data-option="0" aria-label="Opción 1"></button>
-      <button class="number-option-hit" type="button" data-option="1" aria-label="Opción 2"></button>
-      <button class="number-option-hit" type="button" data-option="2" aria-label="Opción 3"></button>
-    </div>
   </div>
   <div id="nhewenRecovery" aria-live="polite">
     <video id="nhewenRecoveryVideo" src="video_final.mp4" playsinline preload="auto"></video>
@@ -468,54 +417,31 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <audio id="agradecimientosAudio" src="audio_agradecimientos.mp3" preload="auto"></audio>
 
 <script>
-/* === CONTROL DE ESTADO DE PRUEBA ===
-   Conserva progreso y Nhewen, pero elimina estados visuales antiguos
-   de emparejamiento cuando cambia esta versión. */
-const KIMUN_DATA_VERSION="2026-10-04-numeros20-v1";
-(function migrateKimunState(){
-  const previous=localStorage.getItem("kimunDataVersion");
-  if(previous===KIMUN_DATA_VERSION)return;
-  Object.keys(localStorage).forEach(key=>{
-    if(key.startsWith("kimunPairMatches_"))localStorage.removeItem(key);
-    const m=key.match(/^kimunComplete_(\d+)$/);
-    if(m && Number(m[1])>=2)localStorage.removeItem(key);
-  });
-  localStorage.removeItem("kimunMaxUnlockedLesson");
-  try{
-    const records=JSON.parse(localStorage.getItem("kimunActivityRecords")||"{}");
-    const keep={};
-    if(records[1])keep[1]=records[1];
-    localStorage.setItem("kimunActivityRecords",JSON.stringify(keep));
-  }catch(_){ localStorage.removeItem("kimunActivityRecords"); }
-  localStorage.setItem("kimunLessonIndex","0");
-  localStorage.setItem("kimunDataVersion",KIMUN_DATA_VERSION);
-})();
-
+const NUMBER_QUESTION_IMAGE="1000222915.png";
 const lessons = [
  {image:"pantalla_agradecimientos.png", title:"Agradecimientos", requiresAnswers:false},
  {image:"__NHEWEN__", title:"Llena tu NHEWEN", requiresAnswers:true},
- {image:"actividad_casa_01.png", overlay:"actividad_pares_01_05.png", title:"Selección de pares 1 al 5", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:1,  numberImage:"1000222916(1).png", optionsImage:"1000222088.png", options:["kiñe","epu","küla"], correct:0, optionsLayout:"horizontal", title:"Número 1", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:2,  numberImage:"1000222917.png", optionsImage:"1000222088.png", options:["kiñe","epu","küla"], correct:1, optionsLayout:"horizontal", title:"Número 2", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:3,  numberImage:"1000222918.png", optionsImage:"1000222090.png", options:["epu","küla","meli"], correct:1, optionsLayout:"horizontal", title:"Número 3", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:4,  numberImage:"1000222919.png", optionsImage:"1000222090.png", options:["epu","küla","meli"], correct:2, optionsLayout:"horizontal", title:"Número 4", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:5,  numberImage:"1000222920.png", optionsImage:"1000222092.png", options:["meli","kechu","kayu"], correct:1, optionsLayout:"horizontal", title:"Número 5", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:6,  numberImage:"1000222921.png", optionsImage:"1000222091.png", options:["kechu","kayu","regle"], correct:1, optionsLayout:"horizontal", title:"Número 6", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:7,  numberImage:"1000222922.png", optionsImage:"1000222086.png", options:["kayu","regle","pura"], correct:1, optionsLayout:"horizontal", title:"Número 7", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:8,  numberImage:"1000222923.png", optionsImage:"1000222085.png", options:["regle","pura","aylla"], correct:1, optionsLayout:"horizontal", title:"Número 8", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:9,  numberImage:"1000222924.png", optionsImage:"1000222084.png", options:["pura","aylla","epu mari"], correct:1, optionsLayout:"horizontal", title:"Número 9", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:10, numberImage:"1000222925.png", optionsImage:"1000222083.png", options:["epu mari","mari","mari kiñe"], correct:1, optionsLayout:"horizontal", title:"Número 10", requiresAnswers:false},
- {image:"actividad_casa_01.png", overlay:"actividad_pares_05_10.png", title:"Selección de pares 5 al 10", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:11, numberImage:"1000222926.png", optionsImage:"1000222937.png", options:["mari kiñe","mari küla","mari meli"], correct:0, optionsLayout:"stacked", title:"Número 11", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:12, numberImage:"1000222927.png", optionsImage:"1000222941.png", options:["mari kayu","mari epu","mari küla"], correct:1, optionsLayout:"stacked", title:"Número 12", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:13, numberImage:"1000222928.png", optionsImage:"1000222943.png", options:["mari kechu","mari epu","mari küla"], correct:2, optionsLayout:"stacked", title:"Número 13", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:14, numberImage:"1000222929.png", optionsImage:"1000222944.png", options:["mari regle","mari kayu","mari meli"], correct:2, optionsLayout:"stacked", title:"Número 14", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:15, numberImage:"1000222930.png", optionsImage:"1000222950.png", options:["mari kechu","mari pura","mari regle"], correct:0, optionsLayout:"stacked", title:"Número 15", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:16, numberImage:"1000222931.png", optionsImage:"1000222952.png", options:["mari aylla","mari kayu","mari pura"], correct:1, optionsLayout:"stacked", title:"Número 16", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:17, numberImage:"1000222932.png", optionsImage:"1000222954.png", options:["epu mari","mari kechu","mari regle"], correct:2, optionsLayout:"stacked", title:"Número 17", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:18, numberImage:"1000222933.png", optionsImage:"1000222958.png", options:["mari pura","mari aylla","epu mari"], correct:0, optionsLayout:"stacked", title:"Número 18", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:19, numberImage:"1000222934.png", optionsImage:"1000222962.png", options:["mari aylla","mari pura","mari kiñe"], correct:0, optionsLayout:"stacked", title:"Número 19", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:20, numberImage:"1000222935.png", optionsImage:"1000222963.png", options:["mari kiñe","mari pura","epu mari"], correct:2, optionsLayout:"stacked", title:"Número 20", requiresAnswers:false},
+ {id:"pair-01-05", image:"actividad_casa_01.png", overlay:"actividad_pares_01_05.png", title:"Selección de pares 1 al 5", requiresAnswers:false},
+ {id:"number-01", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222916.png", optionsImage:"1000222089.png", number:1,  options:["kiñe","epu","küla"], answer:"kiñe", title:"Número 1", requiresAnswers:false},
+ {id:"number-02", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222917.png", optionsImage:"1000222088.png", number:2,  options:["kiñe","epu","küla"], answer:"epu", title:"Número 2", requiresAnswers:false},
+ {id:"number-03", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222918.png", optionsImage:"1000222090.png", number:3,  options:["epu","küla","meli"], answer:"küla", title:"Número 3", requiresAnswers:false},
+ {id:"number-04", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222919.png", optionsImage:"1000222092.png", number:4,  options:["meli","kechu","kayu"], answer:"meli", title:"Número 4", requiresAnswers:false},
+ {id:"number-05", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222920.png", optionsImage:"1000222091.png", number:5,  options:["kechu","kayu","regle"], answer:"kechu", title:"Número 5", requiresAnswers:false},
+ {id:"number-06", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222921.png", optionsImage:"1000222087.png", number:6,  options:["kechu","kayu","regle"], answer:"kayu", title:"Número 6", requiresAnswers:false},
+ {id:"number-07", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222922.png", optionsImage:"1000222086.png", number:7,  options:["kayu","regle","pura"], answer:"regle", title:"Número 7", requiresAnswers:false},
+ {id:"number-08", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222923.png", optionsImage:"1000222085.png", number:8,  options:["regle","pura","aylla"], answer:"pura", title:"Número 8", requiresAnswers:false},
+ {id:"number-09", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222924.png", optionsImage:"1000222084.png", number:9,  options:["pura","aylla","epu mari"], answer:"aylla", title:"Número 9", requiresAnswers:false},
+ {id:"number-10", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222925.png", optionsImage:"1000222083.png", number:10, options:["epu mari","mari","mari kiñe"], answer:"mari", title:"Número 10", requiresAnswers:false},
+ {id:"pair-05-10", image:"actividad_casa_01.png", overlay:"actividad_pares_05_10.png", title:"Selección de pares 5 al 10", requiresAnswers:false},
+ {id:"number-11", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222926.png", optionsImage:"1000222937.png", number:11, options:["mari kiñe","mari küla","mari meli"], answer:"mari kiñe", title:"Número 11", requiresAnswers:false},
+ {id:"number-12", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222927.png", optionsImage:"1000222941.png", number:12, options:["mari kayu","mari epu","mari küla"], answer:"mari epu", title:"Número 12", requiresAnswers:false},
+ {id:"number-13", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222928.png", optionsImage:"1000222943.png", number:13, options:["mari kechu","mari epu","mari küla"], answer:"mari küla", title:"Número 13", requiresAnswers:false},
+ {id:"number-14", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222929.png", optionsImage:"1000223085.png", number:14, options:["mari reqle","mari kayu","mari meli"], answer:"mari meli", title:"Número 14", requiresAnswers:false},
+ {id:"number-15", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222930.png", optionsImage:"1000222950.png", number:15, options:["mari kechu","mari pura","mari reqle"], answer:"mari kechu", title:"Número 15", requiresAnswers:false},
+ {id:"number-16", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222931.png", optionsImage:"1000222952.png", number:16, options:["mari aylla","mari kayu","mari pura"], answer:"mari kayu", title:"Número 16", requiresAnswers:false},
+ {id:"number-17", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222932.png", optionsImage:"1000222954.png", number:17, options:["epu mari","mari kechu","mari reqle"], answer:"mari reqle", title:"Número 17", requiresAnswers:false},
+ {id:"number-18", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222933.png", optionsImage:"1000222958.png", number:18, options:["mari pura","mari aylla","epu mari"], answer:"mari pura", title:"Número 18", requiresAnswers:false},
+ {id:"number-19", type:"number", image:"actividad_casa_01.png", questionImage:NUMBER_QUESTION_IMAGE, numberImage:"1000222934.png", optionsImage:"1000222962.png", number:19, options:["mari aylla","mari pura","mari kiñe"], answer:"mari aylla", title:"Número 19", requiresAnswers:false},
  {image:"__VIDEO_FINAL__", title:"Video final", requiresAnswers:false}
 ];
 let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
@@ -554,22 +480,23 @@ function showLesson(audioAlreadyStarted=false){
  localStorage.setItem("kimunLessonIndex",lessonIndex);
  if(item.image==="pantalla_agradecimientos.png"){if(!audioAlreadyStarted)playAgradecimientosAudio();}
  else stopAgradecimientosAudio();
- if(item.image==="__NHEWEN__"){hideNumberComposite();showNhewenActivity();return;}
+ if(item.image==="__NHEWEN__"){showNhewenActivity();return;}
  const finalVideo=document.getElementById("lessonFinalVideo");
  const isFinalVideo=item.image==="__VIDEO_FINAL__";
- const isNumberComposite=item.kind==="numberComposite";
  const livesHud=document.getElementById("nhewenLivesHud");
- if(livesHud)livesHud.hidden=!((item.overlay||isNumberComposite) && lessonIndex>1);
+ const isEvaluated=Boolean(item.overlay || item.type==="number");
+ if(livesHud)livesHud.hidden=!(isEvaluated && lessonIndex>1);
  refreshNhewenLivesUI();
  if(finalVideo){
    finalVideo.hidden=!isFinalVideo;
    if(isFinalVideo){try{finalVideo.currentTime=0;}catch(_){}}
    else{try{finalVideo.pause();}catch(_){}}
  }
+ const overlay=document.getElementById("lessonActivityOverlay");
+ const numberStack=document.getElementById("numberActivityStack");
  if(isFinalVideo){
-   hideNumberComposite();
-   const overlay=document.getElementById("lessonActivityOverlay");
    if(overlay)overlay.hidden=true;
+   if(numberStack)numberStack.hidden=true;
    const hotspots=document.getElementById("activityHotspots");
    if(hotspots){hotspots.hidden=true;hotspots.innerHTML="";}
    document.getElementById("lessonImage").removeAttribute("src");
@@ -581,33 +508,43 @@ function showLesson(audioAlreadyStarted=false){
  }
  document.getElementById("lessonImage").src=item.image;
  document.getElementById("lessonImage").alt=item.title;
- const overlay=document.getElementById("lessonActivityOverlay");
- if(overlay){
-   if(item.overlay){
-     overlay.src=item.overlay;
-     overlay.alt=item.title;
-     overlay.classList.remove("number-activity");
-     overlay.classList.toggle("pair-activity",item.overlay.startsWith("actividad_pares_"));
-     overlay.hidden=false;
-   }
-   else{
-     overlay.removeAttribute("src");
-     overlay.alt="";
-     overlay.classList.remove("number-activity","pair-activity");
-     overlay.hidden=true;
+ if(item.type==="number"){
+   if(overlay){overlay.removeAttribute("src");overlay.alt="";overlay.classList.remove("number-activity","pair-activity");overlay.hidden=true;}
+   renderNumberActivity(item);
+ }else{
+   if(numberStack)numberStack.hidden=true;
+   if(overlay){
+     if(item.overlay){
+       overlay.src=item.overlay;
+       overlay.alt=item.title;
+       overlay.classList.remove("number-activity");
+       overlay.classList.toggle("pair-activity",item.overlay.startsWith("actividad_pares_"));
+       overlay.hidden=false;
+     }else{
+       overlay.removeAttribute("src");
+       overlay.alt="";
+       overlay.classList.remove("number-activity","pair-activity");
+       overlay.hidden=true;
+     }
    }
  }
- if(isNumberComposite)renderNumberComposite(item);
- else hideNumberComposite();
  setupActivityInteractions(item);
- // Una actividad ya completada siempre debe dejar habilitado el avance al volver atrás.
- if(activityIsComplete(lessonIndex) && lessonIndex<lessons.length-1){
-   unlockLesson(lessonIndex+1);
- }
  document.getElementById("backBtn").disabled=false;
- const maxUnlocked=getMaxUnlockedLesson();
- document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(lessonIndex>=2 && lessonIndex>=maxUnlocked);
+ document.getElementById("nextBtn").disabled=(lessonIndex>=lessons.length-1)||(item.requiresAnswers&&!activityIsComplete(lessonIndex));
  openScreen("lesson");
+}
+
+function renderNumberActivity(item){
+ const stack=document.getElementById("numberActivityStack");
+ if(!stack)return;
+ const q=document.getElementById("numberQuestionImage");
+ const n=document.getElementById("numberMainImage");
+ const o=document.getElementById("numberOptionsImage");
+ q.src=item.questionImage; q.alt="Pregunta de número";
+ n.src=item.numberImage; n.alt="Número "+item.number;
+ o.src=item.optionsImage; o.alt="Opciones para el número "+item.number;
+ stack.setAttribute("aria-label",item.title);
+ stack.hidden=false;
 }
 
 /* === REGLA GLOBAL: 10 VIDAS NHEWEN DESPUÉS DE FILU === */
@@ -687,7 +624,7 @@ function playNhewenRecovery(){
 /* === AUDIO + SELECCIÓN DE PARES === */
 const NUMBER_WORDS={
   1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"regle",8:"pura",9:"aylla",10:"mari",
-  11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari regle",18:"mari pura",19:"mari aylla",20:"epu mari"
+  11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla"
 };
 const QUESTION_AUDIO_TEXT="Chumgechi pigey tüfachi numeru mapuzungun mew? ¿Cómo se dice este número en mapudungun?";
 let pairSelection={word:null,number:null};
@@ -716,9 +653,12 @@ function setupActivityInteractions(item){
   if(!layer)return;
   layer.innerHTML="";layer.hidden=true;layer.classList.remove("number-activity","pair-activity");
   pairSelection={word:null,number:null};
-  if(!item || !item.overlay)return;
-  if(item.overlay.startsWith("actividad_pares_")){
-    layer.classList.add("pair-activity");layer.hidden=false;setupPairActivity(layer,item.overlay);
+  if(!item)return;
+  if(item.overlay && item.overlay.startsWith("actividad_pares_")){
+    layer.classList.add("pair-activity");layer.hidden=false;setupPairActivity(layer,item.overlay);return;
+  }
+  if(item.type==="number"){
+    layer.classList.add("number-activity");layer.hidden=false;setupNumberActivity(layer,item);
   }
 }
 function setupPairActivity(layer,file){
@@ -734,7 +674,7 @@ function setupPairActivity(layer,file){
     const n=nums[i];
     addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");speakKimun(String(n),"es-CL")}});
   });
-  // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
+  restorePairProgress(layer);
 }
 function selectPair(el,value,kind){
   if(el.classList.contains("matched"))return;
@@ -751,7 +691,7 @@ function selectPair(el,value,kind){
     const allHits=[...wordEl.parentElement.querySelectorAll(".activity-hit")];
     const allMatched=allHits.length>0 && allHits.every(hit=>hit.classList.contains("matched"));
     if(allMatched){
-      localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+      markActivityComplete(lessonIndex);
       completeAndAdvanceImmediately(lessonIndex);
       return;
     }
@@ -763,74 +703,36 @@ function selectPair(el,value,kind){
   }
   pairSelection={word:null,number:null};
 }
-function hideNumberComposite(){
-  const box=document.getElementById("numberComposite");
-  if(!box)return;
-  box.classList.remove("show");
-  box.hidden=true;
-  const hits=box.querySelectorAll(".number-option-hit");
-  hits.forEach(hit=>hit.classList.remove("matched","wrong"));
-}
-
-function renderNumberComposite(item){
-  const box=document.getElementById("numberComposite");
-  const numberImg=document.getElementById("numberValueImage");
-  const optionsImg=document.getElementById("numberOptionsImage");
-  const optionsStage=document.getElementById("numberOptionsStage");
-  const questionSpeaker=document.getElementById("numberQuestionSpeaker");
-  const numberHit=document.getElementById("numberValueHit");
-  if(!box||!numberImg||!optionsImg||!optionsStage)return;
-
-  numberImg.src=item.numberImage;
-  numberImg.alt="Número "+item.number;
-  optionsImg.src=item.optionsImage;
-  optionsImg.alt="Opciones para el número "+item.number;
-  optionsStage.classList.toggle("horizontal",item.optionsLayout!=="stacked");
-  optionsStage.classList.toggle("stacked",item.optionsLayout==="stacked");
-
-  box.querySelectorAll(".number-option-hit").forEach((hit,i)=>{
-    hit.classList.remove("matched","wrong");
-    hit.setAttribute("aria-label","Opción "+(i+1)+": "+(item.options[i]||""));
-    hit.onclick=()=>chooseCompositeNumberOption(i,hit);
-  });
-
-  if(questionSpeaker)questionSpeaker.onclick=()=>speakKimun(QUESTION_AUDIO_TEXT,"es-CL");
-  if(numberHit){
-    numberHit.setAttribute("aria-label","Escuchar número "+item.number);
-    numberHit.onclick=()=>speakKimun(String(item.number),"es-CL");
+function setupNumberActivity(layer,item){
+  const n=Number(item.number);
+  if(!Number.isFinite(n))return;
+  // El bloque completo usa proporción 1536 x 2096: pregunta 24.43%, número 48.85%, opciones 26.72%.
+  addActivityHit(layer,{x:1.5,y:9.5,w:15,h:11,label:"Escuchar pregunta",className:"speaker-hit",onClick:()=>speakKimun(QUESTION_AUDIO_TEXT,"es-CL")});
+  addActivityHit(layer,{x:13,y:25,w:74,h:47,label:"Escuchar número "+n,onClick:()=>speakKimun(String(n),"es-CL")});
+  const options=Array.isArray(item.options)?item.options:[];
+  const xs=[1.5,34.0,66.5];
+  options.forEach((word,i)=>addActivityHit(layer,{x:xs[i],y:76.2,w:32,h:20.8,label:"Escuchar "+word,value:word,onClick:function(){
+    speakKimun(word,"es-CL");
+    if(this.classList.contains("matched"))return;
+    if(word===item.answer){
+      this.classList.remove("wrong");this.classList.add("matched");
+      markActivityComplete(lessonIndex);
+      completeAndAdvanceImmediately(lessonIndex);
+      return;
+    }
+    this.classList.add("wrong");loseNhewenLife();setTimeout(()=>this.classList.remove("wrong"),700);
+  }}));
+  if(activityIsComplete(lessonIndex)){
+    [...layer.querySelectorAll(".activity-hit")].forEach(hit=>{if(hit.dataset.value===item.answer)hit.classList.add("matched")});
   }
-
-  box.hidden=false;
-  box.classList.add("show");
-}
-
-function chooseCompositeNumberOption(optionIndex,hit){
-  if(nhewenRecovering)return;
-  const item=lessons[lessonIndex];
-  if(!item || item.kind!=="numberComposite")return;
-  const word=item.options[optionIndex]||"";
-  speakKimun(word,"es-CL");
-  if(optionIndex===item.correct){
-    hit.classList.remove("wrong");
-    hit.classList.add("matched");
-    localStorage.setItem("kimunComplete_"+lessonIndex,"1");
-    setTimeout(()=>completeAndAdvanceImmediately(lessonIndex),360);
-    return;
-  }
-  hit.classList.add("wrong");
-  loseNhewenLife();
-  setTimeout(()=>hit.classList.remove("wrong"),700);
 }
 
 /* === PROGRESO, RETROCESO Y AVANCE INDEPENDIENTES === */
 let autoAdvanceTimer=null;
 function cancelAutoAdvance(){if(autoAdvanceTimer!==null){clearTimeout(autoAdvanceTimer);autoAdvanceTimer=null}}
 function getMaxUnlockedLesson(){
-  const raw=localStorage.getItem("kimunMaxUnlockedLesson");
-  if(raw!==null){
-    const saved=Number(raw);
-    if(Number.isFinite(saved))return Math.max(2,Math.min(lessons.length-1,saved));
-  }
+  const saved=Number(localStorage.getItem("kimunMaxUnlockedLesson"));
+  if(Number.isFinite(saved))return Math.max(2,Math.min(lessons.length-1,saved));
   return Math.max(2,Math.min(lessons.length-1,lessonIndex));
 }
 function unlockLesson(index){
@@ -848,13 +750,20 @@ function completeAndAdvanceImmediately(completedIndex){
     showLesson();
   }
 }
+function activityStorageKey(index){
+  const item=lessons[index];
+  return item&&item.id?item.id:String(index);
+}
+function completionStorageKey(index){return "kimunComplete_"+activityStorageKey(index)}
+function pairStorageKey(index){return "kimunPairMatches_"+activityStorageKey(index)}
+function markActivityComplete(index){localStorage.setItem(completionStorageKey(index),"1")}
 function getPairMatches(index){
-  try{return JSON.parse(localStorage.getItem("kimunPairMatches_"+index)||"[]")}catch(_){return []}
+  try{return JSON.parse(localStorage.getItem(pairStorageKey(index))||"[]")}catch(_){return []}
 }
 function savePairMatch(index,number){
   const matches=getPairMatches(index);
   if(!matches.includes(number))matches.push(number);
-  localStorage.setItem("kimunPairMatches_"+index,JSON.stringify(matches));
+  localStorage.setItem(pairStorageKey(index),JSON.stringify(matches));
 }
 function restorePairProgress(layer){
   const matches=getPairMatches(lessonIndex);
@@ -866,7 +775,18 @@ function restorePairProgress(layer){
     });
   });
 }
-function activityIsComplete(index){return localStorage.getItem("kimunComplete_"+index)==="1"}
+function activityIsComplete(index){return localStorage.getItem(completionStorageKey(index))==="1"}
+function migrateLegacyPairProgress(){
+  if(localStorage.getItem("kimunPairsMigratedV19")==="1")return;
+  const migrations=[{oldIndex:3,newIndex:2},{oldIndex:7,newIndex:13}];
+  migrations.forEach(({oldIndex,newIndex})=>{
+    const oldMatches=localStorage.getItem("kimunPairMatches_"+oldIndex);
+    if(oldMatches && !localStorage.getItem(pairStorageKey(newIndex)))localStorage.setItem(pairStorageKey(newIndex),oldMatches);
+    if(localStorage.getItem("kimunComplete_"+oldIndex)==="1")markActivityComplete(newIndex);
+  });
+  localStorage.setItem("kimunPairsMigratedV19","1");
+}
+migrateLegacyPairProgress();
 function previousLesson(){
  cancelAutoAdvance();
  if(lessonIndex>0){lessonIndex--;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson();}
@@ -949,13 +869,13 @@ function kimunOfficialTimeMs(){
 }
 function nhewenAlreadyEarned(){
  const record=getActivityRecord(lessonIndex);
- return record.completed===true || localStorage.getItem("kimunComplete_"+lessonIndex)==="1";
+ return record.completed===true || activityIsComplete(lessonIndex);
 }
 function awardNhewenOnce(){
  if(nhewenAlreadyEarned())return false;
  const elapsed=nhewenSessionStartedAt?Math.max(0,Date.now()-nhewenSessionStartedAt):0;
  saveActivityRecord(lessonIndex,{completed:true,score:1,rewardEarned:true,timeMs:elapsed});
- localStorage.setItem("kimunComplete_"+lessonIndex,"1");
+ markActivityComplete(lessonIndex);
  localStorage.setItem("kimunNhewenEarned","1");
  return true;
 }
