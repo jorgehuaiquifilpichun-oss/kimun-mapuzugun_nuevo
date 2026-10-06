@@ -640,7 +640,7 @@ function playNhewenRecovery(){
  video.onended=finish;video.onerror=finish;const play=video.play();if(play&&typeof play.catch==="function")play.catch(finish);
 }
 
-/* === AUDIO + SELECCIÓN DE PARES === */
+/* === SELECCIÓN DE PARES FILU === */
 const NUMBER_WORDS={
   1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"reqle",8:"pura",9:"aylla",10:"mari",
   11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla",20:"epu mari"
@@ -669,8 +669,8 @@ function setupActivityInteractions(item){
 }
 function setupPairActivity(layer,file){
   const isLow=file.includes("01_05");
-  // Mandos reconstruidos desde cero. Cada palabra conserva su valor real
-  // y cada número reproduce exactamente el mismo MP3 oficial.
+  // Primera lámina FILU: pares del 1 al 5.
+  // Sin reproducción de audio: cada mando solo selecciona y valida su par.
   const wordRows=isLow
     ? [{word:"meli",number:4},{word:"kechu",number:5},{word:"kiñe",number:1},{word:"epu",number:2},{word:"küla",number:3}]
     : [{word:"mari",number:10},{word:"reqle",number:7},{word:"kayu",number:6},{word:"aylla",number:9},{word:"pura",number:8},{word:"kechu",number:5}];
