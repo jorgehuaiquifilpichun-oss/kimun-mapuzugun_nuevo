@@ -382,7 +382,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <section id="lesson" class="screen lesson">
   <img id="lessonImage" class="lesson-bg" src="" alt=""><div class="lesson-shade"></div>
   <img id="lessonActivityOverlay" class="lesson-activity-overlay" src="" alt="" hidden>
-  <video id="lessonFinalVideo" class="lesson-final-video" src="video_final.mp4" controls playsinline preload="metadata" hidden></video>
+  <video id="lessonFinalVideo" class="lesson-final-video" src="video_final.mp4" controls playsinline muted preload="metadata" hidden></video>
   <div id="nhewenLivesHud" class="nhewen-lives-hud" hidden aria-label="Nhewen: 10 vidas">
     <img src="nhewen_10_vidas.png" alt="Nhewen">
     <div id="nhewenLifeLights" class="nhewen-life-lights" aria-hidden="true"></div>
@@ -405,7 +405,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
     </div>
   </div>
   <div id="nhewenRecovery" aria-live="polite">
-    <video id="nhewenRecoveryVideo" src="video_final.mp4" playsinline preload="auto"></video>
+    <video id="nhewenRecoveryVideo" src="video_final.mp4" playsinline muted preload="auto"></video>
     <div id="nhewenRecoveryHud" class="nhewen-lives-hud nhewen-recovery-hud" aria-label="Recuperación de Nhewen: 10 vidas">
       <img src="nhewen_10_vidas.png" alt="Nhewen">
       <div id="nhewenRecoveryLifeLights" class="nhewen-life-lights" aria-hidden="true"></div>
@@ -455,7 +455,7 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 <h1>Grafemario y Sonidos</h1><div class="placeholder">Aquí se conectarán el grafemario, pronunciaciones y audios.</div>
 </div></section>
 </main>
-<audio id="agradecimientosAudio" src="audio_agradecimientos.mp3" preload="auto"></audio>
+
 
 <script>
 /* === CONTROL DE ESTADO DE PRUEBA ===
@@ -497,39 +497,20 @@ let lessonIndex = Number(localStorage.getItem("kimunLessonIndex") || 0);
 let consultOrigin = "home", grammarOrigin = "home", dictionaryOrigin = "home";
 function openScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.getElementById(id);if(target)target.classList.add("active")}
 function goHome(){
- stopAgradecimientosAudio();
  const celebration=document.getElementById("nhewenCelebration");
  const status=document.getElementById("nhewenStatus");
  if(celebration)celebration.classList.remove("show");
  if(status)status.classList.remove("show");
  openScreen("home");
 }
-function startCourse(){lessonIndex=0;localStorage.setItem("kimunLessonIndex",lessonIndex);playAgradecimientosAudio();showLesson(true)}
-
-function playAgradecimientosAudio(){
- const audio=document.getElementById("agradecimientosAudio");
- if(!audio)return;
- audio.volume=0.25;
- try{
-   audio.pause();
-   audio.currentTime=0;
-   const p=audio.play();
-   if(p&&typeof p.catch==="function")p.catch(()=>{});
- }catch(_){}
-}
-function stopAgradecimientosAudio(){
- const audio=document.getElementById("agradecimientosAudio");
- if(!audio)return;
- try{audio.pause();audio.currentTime=0}catch(_){}
-}
+function startCourse(){lessonIndex=0;localStorage.setItem("kimunLessonIndex",lessonIndex);showLesson(true)}
 
 function showLesson(audioAlreadyStarted=false){
  cancelAutoAdvance();
  const item=lessons[lessonIndex];
  localStorage.setItem("kimunLessonIndex",lessonIndex);
  if(item.image==="pantalla_agradecimientos.png"){if(!audioAlreadyStarted)playAgradecimientosAudio();}
- else stopAgradecimientosAudio();
- if(item.image==="__NHEWEN__"){hideNumberComposite();showNhewenActivity();return;}
+ else if(item.image==="__NHEWEN__"){hideNumberComposite();showNhewenActivity();return;}
  const finalVideo=document.getElementById("lessonFinalVideo");
  const isFinalVideo=item.image==="__VIDEO_FINAL__";
  const isNumberComposite=item.kind==="numberComposite";
@@ -640,7 +621,7 @@ function playNhewenRecovery(){
  if(!wrap||!video){resetNhewenLives();nhewenRecovering=false;return}
  buildNhewenRecoveryBar();
  if(status)status.textContent="Recuperando Nhewen…";
- wrap.classList.add("show");try{video.currentTime=0}catch(_){}
+ wrap.classList.add("show");video.muted=true;try{video.currentTime=0}catch(_){}
  video.ontimeupdate=()=>syncNhewenRecoveryBar(video);
  video.onloadedmetadata=()=>syncNhewenRecoveryBar(video);
  const finish=()=>{
@@ -664,43 +645,8 @@ const NUMBER_WORDS={
   1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"reqle",8:"pura",9:"aylla",10:"mari",
   11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla",20:"epu mari"
 };
-const NUMBER_AUDIO={
-  1:"Kimun_mapuzungun_01_kine.mp3",2:"Kimun_mapuzungun_02_epu.mp3",3:"Kimun_mapuzungun_03_kula.mp3",4:"Kimun_mapuzungun_04_meli.mp3",5:"Kimun_mapuzungun_05_kechu.mp3",
-  6:"Kimun_mapuzungun_06_kayu.mp3",7:"Kimun_mapuzungun_07_reqle.mp3",8:"Kimun_mapuzungun_08_pura.mp3",9:"Kimun_mapuzungun_09_aylla.mp3",10:"Kimun_mapuzungun_10_mari.mp3",
-  11:"Kimun_mapuzungun_11_mari_kine.mp3",12:"Kimun_mapuzungun_12_mari_epu.mp3",13:"Kimun_mapuzungun_13_mari_kula.mp3",14:"Kimun_mapuzungun_14_mari_meli.mp3",15:"Kimun_mapuzungun_15_mari_kechu.mp3",
-  16:"Kimun_mapuzungun_16_mari_kayu.mp3",17:"Kimun_mapuzungun_17_mari_reqle.mp3",18:"Kimun_mapuzungun_18_mari_pura.mp3",19:"Kimun_mapuzungun_19_mari_aylla.mp3",20:"Kimun_mapuzungun_20_epu_mari.mp3"
-};
-let kimunNumberAudio=null;
-function playNumberAudio(number){
-  const src=NUMBER_AUDIO[Number(number)];
-  if(!src)return;
-  try{
-    if(kimunNumberAudio){kimunNumberAudio.pause();kimunNumberAudio.currentTime=0;}
-    kimunNumberAudio=new Audio(src);
-    const p=kimunNumberAudio.play();
-    if(p&&typeof p.catch==="function")p.catch(()=>{});
-  }catch(_){}
-}
-function getNumberFromWord(word){
-  const entry=Object.entries(NUMBER_WORDS).find(([,value])=>value===word);
-  return entry?Number(entry[0]):null;
-}
-function playNumberWordAudio(word){
-  const number=getNumberFromWord(word);
-  if(number!==null)playNumberAudio(number);
-}
-const QUESTION_AUDIO_TEXT="Chumgechi pigey tüfachi numeru mapuzungun mew? ¿Cómo se dice este número en mapudungun?";
 let pairSelection={word:null,number:null};
 
-function speakKimun(text,lang="es-CL"){
-  if(!text || !("speechSynthesis" in window))return;
-  try{
-    window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang=lang;u.rate=0.82;u.pitch=1;u.volume=1;
-    window.speechSynthesis.speak(u);
-  }catch(_){ }
-}
 function addActivityHit(parent,opts){
   const b=document.createElement("button");
   b.type="button";b.className="activity-hit"+(opts.className?" "+opts.className:"");
@@ -734,9 +680,9 @@ function setupPairActivity(layer,file){
   const step=(end-start)/rowCount;
   wordRows.forEach((entry,i)=>{
     const y=start+i*step;
-    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word");playNumberAudio(entry.number)}});
+    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word")}});
     const n=numberRows[i];
-    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");playNumberAudio(n)}});
+    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number")}});
   });
   // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
 }
@@ -800,8 +746,8 @@ function renderNumberComposite(item){
 
   if(questionSpeaker){questionSpeaker.onclick=null;questionSpeaker.setAttribute("aria-label","Audio oficial de la pregunta no disponible");}
   if(numberHit){
-    numberHit.setAttribute("aria-label","Escuchar número "+item.number);
-    numberHit.onclick=()=>playNumberAudio(item.number);
+    numberHit.setAttribute("aria-label","Número "+item.number);
+    numberHit.onclick=null;
   }
 
   box.hidden=false;
@@ -812,8 +758,6 @@ function chooseCompositeNumberOption(optionIndex,hit){
   if(nhewenRecovering)return;
   const item=lessons[lessonIndex];
   if(!item || item.kind!=="numberComposite")return;
-  const word=item.options[optionIndex]||"";
-  playNumberWordAudio(word);
   if(optionIndex===item.correct){
     hit.classList.remove("wrong");
     hit.classList.add("matched");
@@ -928,7 +872,6 @@ const mapuzugunNumbers=["kiñe","epu","küla","meli","kechu","kayu","reqle","pur
 let nhewenSessionCount=0;
 let nhewenPracticeMode=false;
 let nhewenSessionStartedAt=0;
-const nhewenCelebrationAudio="audio_celebracion.mp3";
 
 /* Registro reutilizable para las 10 actividades evaluadas. */
 function getActivityRecords(){
@@ -1035,24 +978,6 @@ function hideNhewenWords(){
 }
 
 /* Lee exactamente la palabra Mapuzugun visible al tocar cada número. */
-function speakNhewenWord(n){
- const text=mapuzugunNumbers[n-1];
- if(!text || !("speechSynthesis" in window))return;
- window.speechSynthesis.cancel();
- const utterance=new SpeechSynthesisUtterance(text);
- utterance.lang="es-CL";
- utterance.rate=0.82;
- utterance.pitch=1;
- window.speechSynthesis.speak(utterance);
-}
-
-function playCelebrationSound(){
- const audio=new Audio(nhewenCelebrationAudio);
- audio.volume=.68;
- const p=audio.play();
- if(p&&typeof p.catch==="function")p.catch(()=>{});
-}
-
 function launchKimunConfetti(){
  const layer=document.getElementById("kimunConfetti");
  if(!layer)return;
@@ -1086,13 +1011,11 @@ function pressNhewenNumber(n){
  nhewenSessionCount=n;
  refreshNhewenUI();
  showNhewenWord(n);
- speakNhewenWord(n);
  if(n===20){
    awardNhewenOnce();
    launchKimunConfetti();
    refreshNhewenNav();
    setTimeout(()=>{
-     playCelebrationSound();
      document.getElementById("nhewenCelebration").classList.add("show");
    },1400);
  }
