@@ -489,7 +489,7 @@ const lessons = [
  {image:"actividad_casa_01.png", kind:"numberComposite", number:2, questionImage:"encabezado_pregunta_numeros.png", numberImage:"file_0000000006e8820e93c35b6df3c23120.png", optionsImage:"actividad_numero_01.png", options:["kiñe","epu","küla"], correct:1, title:"Número 2", requiresAnswers:false},
  {image:"actividad_casa_01.png", kind:"numberComposite", number:3, questionImage:"encabezado_pregunta_numeros.png", numberImage:"file_00000000bf90820e87f87081b5e0e636.png", optionsImage:"actividad_numero_03.png", options:["epu","küla","meli"], correct:1, title:"Número 3", requiresAnswers:false},
  {image:"actividad_casa_01.png", kind:"numberComposite", number:4, questionImage:"encabezado_pregunta_numeros.png", numberImage:"file_000000008844820ead091fc1534509e8.png", optionsImage:"actividad_numero_04.png", options:["meli","kechu","kayu"], correct:0, title:"Número 4", requiresAnswers:false},
- {image:"actividad_casa_01.png", kind:"numberComposite", number:5, questionImage:"encabezado_pregunta_numeros.png", numberImage:"file_000000004718820eb365774d3b8a9634.png", optionsImage:"actividad_numero_05.png", options:["kechu","kayu","regle"], correct:0, title:"Número 5", requiresAnswers:false},
+ {image:"actividad_casa_01.png", kind:"numberComposite", number:5, questionImage:"encabezado_pregunta_numeros.png", numberImage:"file_000000004718820eb365774d3b8a9634.png", optionsImage:"actividad_numero_05.png", options:["kechu","kayu","reqle"], correct:0, title:"Número 5", requiresAnswers:false},
  {image:"actividad_casa_01.png", overlay:"actividad_pares_05_10.png", title:"Selección de pares 5 al 10", requiresAnswers:false},
  {image:"__VIDEO_FINAL__", title:"Video final", requiresAnswers:false}
 ];
@@ -661,9 +661,26 @@ function playNhewenRecovery(){
 
 /* === AUDIO + SELECCIÓN DE PARES === */
 const NUMBER_WORDS={
-  1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"regle",8:"pura",9:"aylla",10:"mari",
-  11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari regle",18:"mari pura",19:"mari aylla",20:"epu mari"
+  1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"reqle",8:"pura",9:"aylla",10:"mari",
+  11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla",20:"epu mari"
 };
+const NUMBER_AUDIO={
+  1:"Kimun_mapuzungun_01_kine.mp3",2:"Kimun_mapuzungun_02_epu.mp3",3:"Kimun_mapuzungun_03_kula.mp3",4:"Kimun_mapuzungun_04_meli.mp3",5:"Kimun_mapuzungun_05_kechu.mp3",
+  6:"Kimun_mapuzungun_06_kayu.mp3",7:"Kimun_mapuzungun_07_reqle.mp3",8:"Kimun_mapuzungun_08_pura.mp3",9:"Kimun_mapuzungun_09_aylla.mp3",10:"Kimun_mapuzungun_10_mari.mp3",
+  11:"Kimun_mapuzungun_11_mari_kine.mp3",12:"Kimun_mapuzungun_12_mari_epu.mp3",13:"Kimun_mapuzungun_13_mari_kula.mp3",14:"Kimun_mapuzungun_14_mari_meli.mp3",15:"Kimun_mapuzungun_15_mari_kechu.mp3",
+  16:"Kimun_mapuzungun_16_mari_kayu.mp3",17:"Kimun_mapuzungun_17_mari_reqle.mp3",18:"Kimun_mapuzungun_18_mari_pura.mp3",19:"Kimun_mapuzungun_19_mari_aylla.mp3",20:"Kimun_mapuzungun_20_epu_mari.mp3"
+};
+let kimunNumberAudio=null;
+function playNumberAudio(number){
+  const src=NUMBER_AUDIO[Number(number)];
+  if(!src)return;
+  try{
+    if(kimunNumberAudio){kimunNumberAudio.pause();kimunNumberAudio.currentTime=0;}
+    kimunNumberAudio=new Audio(src);
+    const p=kimunNumberAudio.play();
+    if(p&&typeof p.catch==="function")p.catch(()=>{});
+  }catch(_){}
+}
 const QUESTION_AUDIO_TEXT="Chumgechi pigey tüfachi numeru mapuzungun mew? ¿Cómo se dice este número en mapudungun?";
 let pairSelection={word:null,number:null};
 
@@ -698,7 +715,7 @@ function setupActivityInteractions(item){
 }
 function setupPairActivity(layer,file){
   const isLow=file.includes("01_05");
-  const words=isLow?["meli","kechu","kiñe","epu","küla"]:["mari","regle","kayu","aylla","pura","kechu"];
+  const words=isLow?["meli","kechu","kiñe","epu","küla"]:["mari","reqle","kayu","aylla","pura","kechu"];
   const nums=isLow?[3,1,5,2,4]:[5,8,10,7,6,9];
   const rowCount=words.length;
   const start=isLow?25.0:24.0, end=isLow?95.0:96.0;
@@ -707,7 +724,7 @@ function setupPairActivity(layer,file){
     const y=start+i*step;
     addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:word,kind:"word",value:word,onClick:function(){selectPair(this,word,"word");speakKimun(word,"es-CL")}});
     const n=nums[i];
-    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");speakKimun(String(n),"es-CL")}});
+    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");playNumberAudio(n)}});
   });
   // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
 }
@@ -772,7 +789,7 @@ function renderNumberComposite(item){
   if(questionSpeaker)questionSpeaker.onclick=()=>speakKimun(QUESTION_AUDIO_TEXT,"es-CL");
   if(numberHit){
     numberHit.setAttribute("aria-label","Escuchar número "+item.number);
-    numberHit.onclick=()=>speakKimun(String(item.number),"es-CL");
+    numberHit.onclick=()=>playNumberAudio(item.number);
   }
 
   box.hidden=false;
@@ -894,7 +911,7 @@ const nhewenCenters=[
  [77.0,66.3],[61.9,68.4],[44.7,68.2],[26.9,68.6],[73.8,81.4]
 ];
 const nhewenProgressX=[6.2,10.8,15.4,20.0,24.6,29.2,33.8,38.4,43.0,47.6,52.2,56.8,61.4,66.0,70.6,75.2,79.8,84.4,89.0,93.6];
-const mapuzugunNumbers=["kiñe","epu","küla","meli","kechu","kayu","reqle","pura","aylla","mari","MARI KIÑE","MARI EPU","MARI KÜLA","MARI MELI","MARI KECHU","MARI KAYU","MARI REGLE","MARI PURA","MARI AYLLA","EPU MARI"];
+const mapuzugunNumbers=["kiñe","epu","küla","meli","kechu","kayu","reqle","pura","aylla","mari","MARI KIÑE","MARI EPU","MARI KÜLA","MARI MELI","MARI KECHU","MARI KAYU","MARI REQLE","MARI PURA","MARI AYLLA","EPU MARI"];
 
 let nhewenSessionCount=0;
 let nhewenPracticeMode=false;
