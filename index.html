@@ -681,6 +681,14 @@ function playNumberAudio(number){
     if(p&&typeof p.catch==="function")p.catch(()=>{});
   }catch(_){}
 }
+function getNumberFromWord(word){
+  const entry=Object.entries(NUMBER_WORDS).find(([,value])=>value===word);
+  return entry?Number(entry[0]):null;
+}
+function playNumberWordAudio(word){
+  const number=getNumberFromWord(word);
+  if(number!==null)playNumberAudio(number);
+}
 const QUESTION_AUDIO_TEXT="Chumgechi pigey tüfachi numeru mapuzungun mew? ¿Cómo se dice este número en mapudungun?";
 let pairSelection={word:null,number:null};
 
@@ -715,15 +723,19 @@ function setupActivityInteractions(item){
 }
 function setupPairActivity(layer,file){
   const isLow=file.includes("01_05");
-  const words=isLow?["meli","kechu","kiñe","epu","küla"]:["mari","reqle","kayu","aylla","pura","kechu"];
-  const nums=isLow?[3,1,5,2,4]:[5,8,10,7,6,9];
-  const rowCount=words.length;
+  // Mandos reconstruidos desde cero. Cada palabra conserva su valor real
+  // y cada número reproduce exactamente el mismo MP3 oficial.
+  const wordRows=isLow
+    ? [{word:"meli",number:4},{word:"kechu",number:5},{word:"kiñe",number:1},{word:"epu",number:2},{word:"küla",number:3}]
+    : [{word:"mari",number:10},{word:"reqle",number:7},{word:"kayu",number:6},{word:"aylla",number:9},{word:"pura",number:8},{word:"kechu",number:5}];
+  const numberRows=isLow?[3,1,5,2,4]:[5,8,10,7,6,9];
+  const rowCount=wordRows.length;
   const start=isLow?25.0:24.0, end=isLow?95.0:96.0;
   const step=(end-start)/rowCount;
-  words.forEach((word,i)=>{
+  wordRows.forEach((entry,i)=>{
     const y=start+i*step;
-    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:word,kind:"word",value:word,onClick:function(){selectPair(this,word,"word");speakKimun(word,"es-CL")}});
-    const n=nums[i];
+    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word");playNumberAudio(entry.number)}});
+    const n=numberRows[i];
     addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");playNumberAudio(n)}});
   });
   // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
@@ -786,7 +798,7 @@ function renderNumberComposite(item){
     hit.onclick=()=>chooseCompositeNumberOption(i,hit);
   });
 
-  if(questionSpeaker)questionSpeaker.onclick=()=>speakKimun(QUESTION_AUDIO_TEXT,"es-CL");
+  if(questionSpeaker){questionSpeaker.onclick=null;questionSpeaker.setAttribute("aria-label","Audio oficial de la pregunta no disponible");}
   if(numberHit){
     numberHit.setAttribute("aria-label","Escuchar número "+item.number);
     numberHit.onclick=()=>playNumberAudio(item.number);
@@ -801,7 +813,7 @@ function chooseCompositeNumberOption(optionIndex,hit){
   const item=lessons[lessonIndex];
   if(!item || item.kind!=="numberComposite")return;
   const word=item.options[optionIndex]||"";
-  speakKimun(word,"es-CL");
+  playNumberWordAudio(word);
   if(optionIndex===item.correct){
     hit.classList.remove("wrong");
     hit.classList.add("matched");
