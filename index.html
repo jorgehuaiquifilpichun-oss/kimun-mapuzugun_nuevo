@@ -427,6 +427,19 @@
       0% { transform:translate3d(0,-10vh,0) rotate(0deg); }
       100% { transform:translate3d(var(--drift),115vh,0) rotate(760deg); }
     }
+
+    /* PRIMERA ACTIVIDAD — plantilla actividad_casa_01.png */
+    .activity-one-screen {
+      position: relative;
+      width: 100%;
+      min-height: 100dvh;
+      background: #183f31;
+    }
+    .activity-one-image {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
   </style>
 </head>
 
@@ -501,6 +514,13 @@
     </section>
 
 
+
+
+    <section id="activityOne" class="screen">
+      <div class="activity-one-screen">
+        <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
+      </div>
+    </section>
 
     <section id="consult" class="screen">
       <div class="consult-screen">
@@ -749,9 +769,8 @@
     }
 
     function advanceFromFilu() {
-      // La siguiente actividad aún no está integrada.
-      // Amulepe y ¡A jugar! quedan preparados sin abandonar FILU.
-      return;
+      // Al completar FILU, abrir la primera actividad usando su plantilla oficial.
+      showScreen("activityOne");
     }
 
     buildFiluNumberHits();
