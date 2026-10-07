@@ -451,6 +451,18 @@
       bottom: max(18px, env(safe-area-inset-bottom));
       width: 68%;
     }
+
+    /* PRIMERA ACTIVIDAD — encabezado de pregunta de números */
+    .activity-one-question {
+      position: absolute;
+      z-index: 4;
+      left: 50%;
+      top: 47%;
+      transform: translate(-50%, -50%);
+      width: 88%;
+      height: auto;
+      display: block;
+    }
   </style>
 </head>
 
@@ -530,6 +542,7 @@
     <section id="activityOne" class="screen">
       <div class="activity-one-screen">
         <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
+        <img class="activity-one-question" src="./encabezado_pregunta_numeros.png" alt="Chumgechi pigey tüfachi numeru mapuzugun mew?">
         <div class="ack-controls" aria-label="Controles de la primera actividad">
           <button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás">
             <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
