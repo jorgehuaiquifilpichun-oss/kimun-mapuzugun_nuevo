@@ -205,7 +205,7 @@
     /* RAMTUCHI — MENÚ DE CONSULTA */
     .consult-screen {
       min-height: 100dvh;
-      padding: clamp(190px, 28dvh, 245px) 18px 28px;
+      padding: clamp(215px, 31dvh, 270px) 18px 28px;
       background:
         linear-gradient(rgba(12, 42, 32, 0.18), rgba(12, 42, 32, 0.28)),
         url("./1000224679.png") center center / cover no-repeat;
@@ -260,6 +260,34 @@
       height: auto;
       margin: 0 auto;
     }
+
+    /* RAKIN — NÚMEROS 1–40 */
+    .rakin-screen {
+      position: relative;
+      width: 100%;
+      min-height: 100dvh;
+      background: #183f31;
+    }
+
+    .rakin-image {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .rakin-back {
+      position: fixed;
+      z-index: 5;
+      left: 50%;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(68%, 310px);
+      border: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    .rakin-back img { display:block; width:100%; height:auto; }
 
     /* FILU — siguiente plantilla */
     .filu-screen {
@@ -383,9 +411,18 @@
         <div class="consult-options">
           <a class="consult-option" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener">Diccionario Mapuche</a>
           <button class="consult-option" type="button" onclick="openGrammarFromConsult()">Apoyo — Guías de Gramática</button>
-          <button class="consult-option" type="button" disabled aria-disabled="true" title="Disponible cuando integremos la plantilla de números">Números del 1–40</button>
+          <button class="consult-option" type="button" onclick="openRakinNumbers()">Números del 1–40</button>
         </div>
         <button class="consult-back consult-back-image" type="button" onclick="showScreen(consultOrigin)" aria-label="Wiñotxekage — Volver atrás">
+          <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
+        </button>
+      </div>
+    </section>
+
+    <section id="rakin" class="screen">
+      <div class="rakin-screen">
+        <img class="rakin-image" src="./rakin_numeros.png" alt="Rakin — Números en Mapuzugun">
+        <button class="rakin-back" type="button" onclick="showScreen('consult')" aria-label="Wiñotxekage — Volver a Ramtuchi">
           <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
         </button>
       </div>
@@ -458,6 +495,10 @@
     function openRamtuchiFromFilu() {
       consultOrigin = "filu";
       showScreen("consult");
+    }
+
+    function openRakinNumbers() {
+      showScreen("rakin");
     }
 
     function openGrammarFromHome() {
