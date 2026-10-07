@@ -221,6 +221,7 @@
       const audio = document.getElementById("acknowledgementsAudio");
       if (audio) {
         audio.currentTime = 0;
+        audio.volume = 0.5;
         const playback = audio.play();
         if (playback && typeof playback.catch === "function") {
           playback.catch(() => {});
