@@ -393,11 +393,12 @@
     }
     /* FILU בלבד: reemplazo visual de la barra Nhewen completa al llegar a 20 */
     .filu-nhewen-complete {
-      position:absolute; z-index:6; left:27.9%; width:44.2%; top:85.78%; height:6.15%;
+      /* Cubre por completo la placa roja NHEWEN original al completar los 20. */
+      position:absolute; z-index:7; left:25.9%; width:48.2%; top:85.35%; height:6.95%;
       display:flex; align-items:center; justify-content:center;
-      border-radius:999px; border:3px solid #205f32;
+      border-radius:999px; border:4px solid #205f32;
       background:linear-gradient(#58ad62 0%, #378c48 52%, #2c7a3e 100%);
-      box-shadow:inset 0 0 0 3px rgba(255,238,184,.72), inset 0 2px 4px rgba(255,255,255,.35), 0 2px 3px rgba(45,25,10,.32);
+      box-shadow:inset 0 0 0 4px rgba(255,238,184,.72), inset 0 2px 4px rgba(255,255,255,.35), 0 2px 3px rgba(45,25,10,.32);
       color:#fff4c8; font-weight:900; font-size:clamp(1.05rem,5.4vw,1.75rem);
       line-height:1; letter-spacing:.02em; text-shadow:0 2px 0 #1d5d31, 0 0 3px rgba(0,0,0,.25);
       opacity:0; pointer-events:none; transition:opacity .28s ease;
