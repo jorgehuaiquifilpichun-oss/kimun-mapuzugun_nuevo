@@ -258,18 +258,31 @@
     .filu-screen {
       position: relative;
       width: 100%;
-      height: 100dvh;
       min-height: 100dvh;
       overflow: hidden;
-      background: #183f31;
+      background: #160d08;
+      padding-top: clamp(74px, 15dvh, 112px);
+      padding-bottom: clamp(74px, 14dvh, 108px);
     }
 
     .filu-image {
       display: block;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
+      height: auto;
+      object-fit: contain;
+      object-position: center top;
+    }
+
+    /* FILU: controles fijos alrededor de la plantilla, sin taparla */
+    .filu-screen .ack-back,
+    .filu-screen .ack-next {
+      top: max(14px, env(safe-area-inset-top));
+      width: 43%;
+    }
+
+    .filu-screen .ack-consult {
+      bottom: max(18px, env(safe-area-inset-bottom));
+      width: 68%;
     }
   </style>
 </head>
