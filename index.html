@@ -79,6 +79,56 @@
       text-decoration: none;
     }
 
+    .home-button {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .grammar-screen {
+      min-height: 100dvh;
+      padding: 22px 16px 28px;
+      background: #183f31;
+      color: #fffdf4;
+    }
+
+    .grammar-title {
+      margin: 0 0 6px;
+      text-align: center;
+      font-size: 1.55rem;
+    }
+
+    .grammar-subtitle {
+      margin: 0 0 18px;
+      text-align: center;
+      opacity: .88;
+    }
+
+    .guide-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .guide-link, .grammar-back {
+      display: block;
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 12px;
+      background: rgba(255,255,255,.10);
+      color: #fffdf4;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .grammar-back {
+      margin-top: 18px;
+      text-align: center;
+      cursor: pointer;
+    }
+
     .home-button-image {
       display: block;
       width: 100%;
@@ -98,10 +148,30 @@
 
         <div class="home-buttons" aria-label="Opciones principales">
           <img class="home-button-image" src="./boton_comenzar.png" alt="Comenzar">
-          <img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática">
+          <button class="home-link home-button" type="button" onclick="showScreen('grammar')" aria-label="Abrir Apoyo de Gramática"><img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática"></button>
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
         </div>
+      </div>
+    </section>
+
+    <section id="grammar" class="screen">
+      <div class="grammar-screen">
+        <h1 class="grammar-title">Apoyo de Gramática</h1>
+        <p class="grammar-subtitle">Guías oficiales de Daniel Pünolef</p>
+        <div class="guide-list">
+          <a class="guide-link" href="./01_A1.1_Kimeltun_0.pdf" target="_blank" rel="noopener">Guía 1 — Kimeltun 0</a>
+          <a class="guide-link" href="./02_A1.1_Mapuzugun_kimeltun_2.pdf" target="_blank" rel="noopener">Guía 2 — Kimeltun 2</a>
+          <a class="guide-link" href="./03_Mapuzugun_kimeltun_3.pdf" target="_blank" rel="noopener">Guía 3 — Kimeltun 3</a>
+          <a class="guide-link" href="./04_A1.1_2026_Kimeltun_6.pdf" target="_blank" rel="noopener">Guía 4 — Kimeltun 6</a>
+          <a class="guide-link" href="./05_A1.1_2026_Kimeltun_7.pdf" target="_blank" rel="noopener">Guía 5 — Kimeltun 7</a>
+          <a class="guide-link" href="./06_A1.1_2026_Kimeltun_9.pdf" target="_blank" rel="noopener">Guía 6 — Kimeltun 9</a>
+          <a class="guide-link" href="./07_A1.1_2026_Kimeltun_10.pdf" target="_blank" rel="noopener">Guía 7 — Kimeltun 10</a>
+          <a class="guide-link" href="./08_A1.1_2026_Kimeltun_11.pdf" target="_blank" rel="noopener">Guía 8 — Kimeltun 11</a>
+          <a class="guide-link" href="./09_A1.1_2026_Kimeltun_12.pdf" target="_blank" rel="noopener">Guía 9 — Kimeltun 12</a>
+          <a class="guide-link" href="./10_A1.1_2026_Kimeltun_13.pdf" target="_blank" rel="noopener">Guía 10 — Kimeltun 13</a>
+        </div>
+        <button class="grammar-back" type="button" onclick="showScreen('home')">Volver al inicio</button>
       </div>
     </section>
   </main>
