@@ -253,6 +253,24 @@
     .consult-back {
       margin-top: 20px;
     }
+
+    /* FILU — siguiente plantilla */
+    .filu-screen {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background: #183f31;
+    }
+
+    .filu-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
   </style>
 </head>
 
@@ -278,7 +296,7 @@
           <button class="ack-control ack-back" type="button" onclick="returnHome()" aria-label="Wiñotxekage, volver al inicio">
             <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
           </button>
-          <button class="ack-control ack-next" type="button" aria-label="Amulepe, seguir" title="Disponible para la siguiente etapa">
+          <button class="ack-control ack-next" type="button" onclick="openFilu()" aria-label="Amulepe, seguir a FILU">
             <img src="./boton_seguir.png" alt="Amulepe — Seguir">
           </button>
           <button class="ack-control ack-consult" type="button" onclick="openRamtuchi()" aria-label="Ramtuchi, consultar guías y diccionario">
@@ -292,6 +310,22 @@
       </div>
     </section>
 
+    <section id="filu" class="screen">
+      <div class="filu-screen">
+        <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU">
+        <div class="ack-controls" aria-label="Controles de FILU">
+          <button class="ack-control ack-back" type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás">
+            <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
+          </button>
+          <button class="ack-control ack-next" type="button" aria-label="Amulepe, disponible para la siguiente etapa" title="Disponible para la siguiente etapa">
+            <img src="./boton_seguir.png" alt="Amulepe — Seguir">
+          </button>
+          <button class="ack-control ack-consult" type="button" onclick="openRamtuchiFromFilu()" aria-label="Ramtuchi, consultar">
+            <img src="./boton_consultar.png" alt="Ramtuchi — Consultar">
+          </button>
+        </div>
+      </div>
+    </section>
 
     <section id="consult" class="screen">
       <div class="consult-screen">
@@ -302,7 +336,7 @@
           <button class="consult-option" type="button" onclick="openGrammarFromConsult()">Apoyo — Guías de Gramática</button>
           <button class="consult-option" type="button" disabled aria-disabled="true" title="Disponible cuando integremos la plantilla de números">Números del 1–40</button>
         </div>
-        <button class="consult-back" type="button" onclick="showScreen('acknowledgements')">Wiñotxekage — Volver</button>
+        <button class="consult-back" type="button" onclick="showScreen(consultOrigin)">Wiñotxekage — Volver</button>
       </div>
     </section>
 
@@ -357,9 +391,21 @@
     }
 
     let grammarOrigin = "home";
+    let consultOrigin = "acknowledgements";
+
+    function openFilu() {
+      stopAcknowledgementsAudio();
+      showScreen("filu");
+    }
 
     function openRamtuchi() {
+      consultOrigin = "acknowledgements";
       stopAcknowledgementsAudio();
+      showScreen("consult");
+    }
+
+    function openRamtuchiFromFilu() {
+      consultOrigin = "filu";
       showScreen("consult");
     }
 
