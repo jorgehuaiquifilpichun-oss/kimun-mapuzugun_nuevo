@@ -345,6 +345,42 @@
       background: rgba(126, 211, 120, 0.34);
       box-shadow: inset 0 0 0 2px rgba(64, 145, 78, 0.55);
     }
+
+    /* FILU — celebración al completar 1–20 */
+    .filu-celebration {
+      position: absolute; inset: 0; z-index: 12; display: none;
+      align-items: center; justify-content: center; overflow: hidden;
+      background: rgba(20, 10, 5, .12);
+    }
+    .filu-celebration.active { display: flex; }
+    .filu-celebration-card {
+      position: relative; width: 100%; max-width: 480px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .filu-celebration-image { display:block; width:100%; height:auto; }
+    .filu-celebration-copy {
+      position:absolute; left:22%; right:22%; top:27%; bottom:22%;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      text-align:center; color:#2b1b10; font-weight:700;
+    }
+    .filu-celebration-copy h2 { margin:0 0 4px; font-size:clamp(1.25rem,5vw,1.75rem); line-height:1.05; }
+    .filu-celebration-copy p { margin:2px 0 12px; font-size:clamp(.9rem,3.8vw,1.1rem); }
+    .filu-play {
+      border:2px solid #285f35; border-radius:999px; padding:10px 25px;
+      background:#3f8a4e; color:#fff; font:inherit; font-weight:800;
+      box-shadow:0 3px 7px rgba(0,0,0,.28); cursor:pointer;
+    }
+    .filu-repeat { margin-top:8px; border:0; background:transparent; color:#5a351d; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
+    .confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:13; }
+    .confetti-piece {
+      position:absolute; top:-8%; width:8px; height:15px; border-radius:2px;
+      background:hsl(var(--h),75%,58%); opacity:.95;
+      animation:filuConfetti var(--d) linear var(--delay) forwards;
+    }
+    @keyframes filuConfetti {
+      0% { transform:translate3d(0,-10vh,0) rotate(0deg); }
+      100% { transform:translate3d(var(--drift),115vh,0) rotate(760deg); }
+    }
   </style>
 </head>
 
@@ -394,12 +430,24 @@
           <button class="ack-control ack-back" type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás">
             <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
           </button>
-          <button class="ack-control ack-next" type="button" aria-label="Amulepe, disponible para la siguiente etapa" title="Disponible para la siguiente etapa">
+          <button class="ack-control ack-next" type="button" onclick="advanceFromFilu()" aria-label="Amulepe, seguir a la siguiente etapa">
             <img src="./boton_seguir.png" alt="Amulepe — Seguir">
           </button>
           <button class="ack-control ack-consult" type="button" onclick="openRamtuchiFromFilu()" aria-label="Ramtuchi, consultar">
             <img src="./boton_consultar.png" alt="Ramtuchi — Consultar">
           </button>
+        </div>
+        <div id="filuCelebration" class="filu-celebration" aria-hidden="true">
+          <div class="confetti-layer" id="filuConfetti"></div>
+          <div class="filu-celebration-card">
+            <img class="filu-celebration-image" src="./overlay_nhewen_txegul_v1.png" alt="Txegül celebrando">
+            <div class="filu-celebration-copy">
+              <h2>¡Completaste tu Nhewen!</h2>
+              <p>Ahora comencemos.</p>
+              <button class="filu-play" type="button" onclick="advanceFromFilu()">¡A jugar!</button>
+              <button class="filu-repeat" type="button" onclick="resetFiluActivity()">Repetir actividad</button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -582,7 +630,55 @@
         playback.catch((error) => console.warn(`No se pudo reproducir el número ${number}:`, src, error));
       }
 
-      if (filuExpectedNumber < 20) filuExpectedNumber += 1;
+      if (filuExpectedNumber < 20) {
+        filuExpectedNumber += 1;
+      } else {
+        window.setTimeout(showFiluCelebration, 450);
+      }
+    }
+
+    function showFiluCelebration() {
+      const overlay = document.getElementById("filuCelebration");
+      if (!overlay || overlay.classList.contains("active")) return;
+      overlay.classList.add("active");
+      overlay.setAttribute("aria-hidden", "false");
+      launchFiluConfetti();
+      window.setTimeout(launchFiluConfetti, 650);
+    }
+
+    function launchFiluConfetti() {
+      const layer = document.getElementById("filuConfetti");
+      if (!layer) return;
+      for (let i = 0; i < 52; i += 1) {
+        const piece = document.createElement("i");
+        piece.className = "confetti-piece";
+        const fromLeft = i % 2 === 0;
+        piece.style.left = `${fromLeft ? Math.random()*24 : 76+Math.random()*24}%`;
+        piece.style.setProperty("--h", String(Math.floor(Math.random()*360)));
+        piece.style.setProperty("--d", `${1.9 + Math.random()*1.5}s`);
+        piece.style.setProperty("--delay", `${Math.random()*.28}s`);
+        piece.style.setProperty("--drift", `${(fromLeft ? 1 : -1)*(25+Math.random()*80)}px`);
+        layer.appendChild(piece);
+        window.setTimeout(() => piece.remove(), 3900);
+      }
+    }
+
+    function resetFiluActivity() {
+      filuExpectedNumber = 1;
+      if (filuNumberAudio) {
+        try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
+      }
+      document.querySelectorAll(".filu-number-hit").forEach((button) => button.classList.remove("pressed"));
+      const overlay = document.getElementById("filuCelebration");
+      if (overlay) { overlay.classList.remove("active"); overlay.setAttribute("aria-hidden", "true"); }
+      const layer = document.getElementById("filuConfetti");
+      if (layer) layer.replaceChildren();
+    }
+
+    function advanceFromFilu() {
+      // Destino provisional: ambos accesos de avance comparten exactamente la misma función.
+      // Al integrar la siguiente etapa, solo se cambia este destino.
+      showScreen("acknowledgements");
     }
 
     buildFiluNumberHits();
