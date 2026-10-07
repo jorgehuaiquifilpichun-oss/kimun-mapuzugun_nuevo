@@ -5,51 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#183f31">
   <title>Kimün Mapuzungun</title>
+
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; width: 100%; min-height: 100%; }
     body { font-family: Arial, Helvetica, sans-serif; background: #183f31; }
-    #app { width: 100%; max-width: 480px; min-height: 100dvh; margin: 0 auto; overflow-x: hidden; }
-    .screen { display: none; min-height: 100dvh; }
-    .screen.active { display: block; }
 
-    /* PORTADA: solo visualización */
-    #home {
-      position: relative;
+    #app {
       width: 100%;
+      max-width: 480px;
       min-height: 100dvh;
-      overflow: hidden;
+      margin: 0 auto;
+      overflow-x: hidden;
       background: #183f31;
     }
 
-    .portada {
-      display: block;
+    .screen { display: none; min-height: 100dvh; }
+    .screen.active { display: block; }
+
+    /* PANTALLA DE INICIO — SOLO VISUALIZACIÓN */
+    .home-visual {
       width: 100%;
-      height: 100dvh;
-      object-fit: cover;
-      object-position: center top;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #183f31;
     }
 
-    .menu-inicio {
-      position: absolute;
-      left: 50%;
-      bottom: max(18px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      width: 82%;
-      display: grid;
+    .home-cover {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .home-buttons {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
       gap: 8px;
+      padding: 8px 4%;
+      background: #183f31;
     }
 
-    .boton-portada {
-      display: block;
-      width: 100%;
-      border: 0;
-      padding: 0;
-      margin: 0;
-      background: transparent;
-    }
-
-    .boton-portada img {
+    .home-button-image {
       display: block;
       width: 100%;
       height: auto;
@@ -57,17 +55,19 @@
     }
   </style>
 </head>
+
 <body>
   <main id="app">
-    <!-- CÓDIGO 0: base limpia. Sin recursos ni lógica heredada. -->
     <section id="home" class="screen active">
-      <img class="portada" src="portada.png" alt="Portada Kimün Mapuzungun">
+      <div class="home-visual">
+        <img class="home-cover" src="./portada.png" alt="Kimün Mapuzungun">
 
-      <div class="menu-inicio" aria-label="Menú principal">
-        <div class="boton-portada"><img src="boton_comenzar.png" alt="Comenzar"></div>
-        <div class="boton-portada"><img src="boton_gramatica.png" alt="Apoyo de Gramática"></div>
-        <div class="boton-portada"><img src="boton_diccionario.png" alt="Diccionario Mapuzungun"></div>
-        <div class="boton-portada"><img src="boton_grafemario.png" alt="Grafemario"></div>
+        <div class="home-buttons" aria-label="Opciones principales">
+          <img class="home-button-image" src="./boton_comenzar.png" alt="Comenzar">
+          <img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática">
+          <img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche">
+          <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
+        </div>
       </div>
     </section>
   </main>
@@ -75,7 +75,7 @@
   <script>
     "use strict";
 
-    // Único sistema de navegación de la nueva aplicación.
+    // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
       document.querySelectorAll(".screen").forEach((screen) => {
         screen.classList.remove("active");
