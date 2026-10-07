@@ -381,14 +381,17 @@
       pointer-events:none; padding:0 0.45%;
     }
     .nhewen-dot {
-      width:3.794772%; aspect-ratio:1/1; border-radius:50%;
+      /* +1% sobre el diámetro anterior; el flex mantiene cada punto centrado en su casilla. */
+      width:3.832720%; aspect-ratio:1/1; border-radius:50%;
       background:rgba(58,128,66,.10);
       box-shadow:inset 0 0 0 1px rgba(25,76,37,.18);
       transition:background .22s ease, box-shadow .22s ease, transform .22s ease;
+      flex:0 0 auto;
     }
     .nhewen-dot.filled {
-      background:#43a654;
-      box-shadow:inset 0 0 0 2px #1f642f, 0 0 8px rgba(72,180,88,.88);
+      /* Verde más vivo y luminoso, conservando el borde oscuro de la barra. */
+      background:#55c96a;
+      box-shadow:inset 0 0 0 2px #1f642f, 0 0 10px rgba(85,201,106,.98);
       transform:scale(1);
     }
     /* FILU בלבד: reemplazo visual de la barra Nhewen completa al llegar a 20 */
