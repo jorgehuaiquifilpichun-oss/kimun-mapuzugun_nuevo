@@ -54,7 +54,30 @@
       flex-direction: column;
       gap: clamp(4px, 0.8dvh, 8px);
       padding: clamp(8px, 1.2dvh, 12px) 4% max(10px, env(safe-area-inset-bottom));
-      background: #183f31;
+      /* Verde más sutil: deja ver la portada y evita un corte brusco */
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(24, 63, 49, 0.58) 0%,
+          rgba(24, 63, 49, 0.78) 18%,
+          rgba(24, 63, 49, 0.92) 55%,
+          rgba(24, 63, 49, 0.98) 100%
+        );
+    }
+
+    .home-buttons::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -28px;
+      height: 28px;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(24, 63, 49, 0),
+        rgba(24, 63, 49, 0.58)
+      );
     }
 
     .home-button-image {
