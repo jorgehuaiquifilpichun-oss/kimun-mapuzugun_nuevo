@@ -359,7 +359,7 @@
     }
     .filu-celebration-image { display:block; width:100%; height:auto; }
     .filu-celebration-copy {
-      position:absolute; left:22%; right:22%; top:27%; bottom:22%;
+      position:absolute; left:22%; right:22%; top:20%; bottom:29%;
       display:flex; flex-direction:column; align-items:center; justify-content:center;
       text-align:center; color:#2b1b10; font-weight:700;
     }
@@ -371,6 +371,32 @@
       box-shadow:0 3px 7px rgba(0,0,0,.28); cursor:pointer;
     }
     .filu-repeat { margin-top:8px; border:0; background:transparent; color:#5a351d; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
+
+    /* NHEWEN — la fuerza crece con cada número completado */
+    .nhewen-progress {
+      position:absolute; left:5.7%; right:5.7%; top:90.8%; height:4.5%;
+      z-index:5; display:flex; align-items:center; justify-content:space-between;
+      pointer-events:none; padding:0 1.2%;
+    }
+    .nhewen-dot {
+      width:4.15%; aspect-ratio:1/1; border-radius:50%;
+      background:rgba(58,128,66,.16);
+      box-shadow:inset 0 0 0 1px rgba(25,76,37,.22);
+      transition:background .22s ease, box-shadow .22s ease, transform .22s ease;
+    }
+    .nhewen-dot.filled {
+      background:#43a654;
+      box-shadow:inset 0 0 0 2px #256c35, 0 0 7px rgba(72,180,88,.78);
+      transform:scale(1.06);
+    }
+    .nhewen-word-green {
+      position:absolute; z-index:6; left:31%; right:31%; top:85.35%;
+      text-align:center; font-weight:900; font-size:clamp(1.25rem,6vw,2rem);
+      line-height:1; color:#23823b; opacity:0; pointer-events:none;
+      text-shadow:0 1px 0 #0d4e24, 0 0 5px rgba(255,238,184,.85);
+      transition:opacity .3s ease;
+    }
+    .nhewen-word-green.active { opacity:1; }
     .confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:13; }
     .confetti-piece {
       position:absolute; top:-8%; width:8px; height:15px; border-radius:2px;
@@ -425,6 +451,8 @@
         <div class="filu-board" style="position:relative; width:100%;">
           <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU">
           <div id="filuNumberHits" aria-label="Números FILU"></div>
+          <div id="nhewenProgress" class="nhewen-progress" aria-label="Progreso de Nhewen"></div>
+          <div id="nhewenWordGreen" class="nhewen-word-green" aria-hidden="true">NHEWEN</div>
         </div>
         <div class="ack-controls" aria-label="Controles de FILU">
           <button class="ack-control ack-back" type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás">
@@ -579,6 +607,25 @@
     let filuExpectedNumber = 1;
     let filuNumberAudio = null;
 
+    function buildNhewenProgress() {
+      const host = document.getElementById("nhewenProgress");
+      if (!host || host.children.length) return;
+      for (let i = 1; i <= 20; i += 1) {
+        const dot = document.createElement("span");
+        dot.className = "nhewen-dot";
+        dot.dataset.step = String(i);
+        host.appendChild(dot);
+      }
+    }
+
+    function updateNhewenProgress(completed) {
+      document.querySelectorAll(".nhewen-dot").forEach((dot, index) => {
+        dot.classList.toggle("filled", index < completed);
+      });
+      const word = document.getElementById("nhewenWordGreen");
+      if (word) word.classList.toggle("active", completed >= 20);
+    }
+
     // Posiciones porcentuales recalibradas sobre la plantilla FILU completa.
     // [número, centroX%, centroY%, diámetro%]. Cada zona sigue el círculo visible de su número.
     const FILU_NUMBER_POSITIONS = [
@@ -618,6 +665,9 @@
 
       // Marcar solamente el número correcto que acaba de pulsarse.
       if (button) button.classList.add("pressed");
+
+      // Cada número correcto aporta una unidad de fuerza a la barra Nhewen.
+      updateNhewenProgress(number);
 
       // Crear un reproductor nuevo para evitar que un audio anterior bloquee el siguiente.
       filuNumberAudio = new Audio();
@@ -669,6 +719,7 @@
         try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
       }
       document.querySelectorAll(".filu-number-hit").forEach((button) => button.classList.remove("pressed"));
+      updateNhewenProgress(0);
       const overlay = document.getElementById("filuCelebration");
       if (overlay) { overlay.classList.remove("active"); overlay.setAttribute("aria-hidden", "true"); }
       const layer = document.getElementById("filuConfetti");
@@ -682,6 +733,8 @@
     }
 
     buildFiluNumberHits();
+    buildNhewenProgress();
+    updateNhewenProgress(0);
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
