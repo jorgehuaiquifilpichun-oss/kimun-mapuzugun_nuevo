@@ -389,9 +389,19 @@
       flex:0 0 auto;
     }
     .nhewen-dot.filled {
-      /* Verde más vivo y luminoso, conservando el borde oscuro de la barra. */
-      background:#55c96a;
-      box-shadow:inset 0 0 0 2px #1f642f, 0 0 10px rgba(85,201,106,.98);
+      /* Acabado basado en la referencia: esfera verde lima, brillo superior izquierdo y aro claro. */
+      background:
+        radial-gradient(circle at 34% 28%,
+          #d8ff72 0%,
+          #b9ff55 15%,
+          #70e93e 40%,
+          #35c83a 68%,
+          #149638 100%);
+      box-shadow:
+        inset 0 0 0 2px rgba(224,255,204,.96),
+        inset 0 -3px 5px rgba(0,92,35,.34),
+        inset 2px 3px 5px rgba(255,255,210,.42),
+        0 0 5px rgba(127,255,72,.92);
       transform:scale(1);
     }
     /* FILU בלבד: reemplazo visual de la barra Nhewen completa al llegar a 20 */
