@@ -646,15 +646,40 @@ const NUMBER_WORDS={
   11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla",20:"epu mari"
 };
 
-/* PRUEBA DE AUDIO FILU: únicamente 1 = kiñe. */
-const FILU_KINE_AUDIO="Kimun_mapuzungun_01_kine.mp3?v=2";
-let filuKineAudio=null;
-function playFiluKineAudio(){
+/* === AUDIO AISLADO DE FILU ===
+   Este reproductor solo se invoca desde los botones numéricos creados por setupPairActivity. */
+const FILU_NUMBER_AUDIO={
+  1:"Kimun_mapuzungun_01_kine.mp3",
+  2:"Kimun_mapuzungun_02_epu.mp3",
+  3:"Kimun_mapuzungun_03_kula.mp3",
+  4:"Kimun_mapuzungun_04_meli.mp3",
+  5:"Kimun_mapuzungun_05_kechu.mp3",
+  6:"Kimun_mapuzungun_06_kayu.mp3",
+  7:"Kimun_mapuzungun_07_reqle.mp3",
+  8:"Kimun_mapuzungun_08_pura.mp3",
+  9:"Kimun_mapuzungun_09_aylla.mp3",
+  10:"Kimun_mapuzungun_10_mari.mp3",
+  11:"Kimun_mapuzungun_11_mari_kine.mp3",
+  12:"Kimun_mapuzungun_12_mari_epu.mp3",
+  13:"Kimun_mapuzungun_13_mari_kula.mp3",
+  14:"Kimun_mapuzungun_14_mari_meli.mp3",
+  15:"Kimun_mapuzungun_15_mari_kechu.mp3",
+  16:"Kimun_mapuzungun_16_mari_kayu.mp3",
+  17:"Kimun_mapuzungun_17_mari_reqle.mp3",
+  18:"Kimun_mapuzungun_18_mari_pura.mp3",
+  19:"Kimun_mapuzungun_19_mari_aylla.mp3",
+  20:"Kimun_mapuzungun_20_epu_mari.mp3"
+};
+let filuNumberAudio=null;
+function playFiluNumberAudio(number,sourceElement){
+  if(!sourceElement || !sourceElement.closest(".activity-hotspots.pair-activity"))return;
+  const src=FILU_NUMBER_AUDIO[Number(number)];
+  if(!src)return;
   try{
-    if(filuKineAudio){filuKineAudio.pause();filuKineAudio.currentTime=0;}
-    filuKineAudio=new Audio(FILU_KINE_AUDIO);
-    filuKineAudio.preload="auto";
-    const p=filuKineAudio.play();
+    if(filuNumberAudio){filuNumberAudio.pause();filuNumberAudio.currentTime=0;}
+    filuNumberAudio=new Audio(src);
+    filuNumberAudio.preload="auto";
+    const p=filuNumberAudio.play();
     if(p&&typeof p.catch==="function")p.catch(()=>{});
   }catch(_){}
 }
@@ -695,7 +720,7 @@ function setupPairActivity(layer,file){
     const y=start+i*step;
     addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word")}});
     const n=numberRows[i];
-    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");if(isLow&&n===1)playFiluKineAudio()}});
+    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");playFiluNumberAudio(n,this)}});
   });
   // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
 }
