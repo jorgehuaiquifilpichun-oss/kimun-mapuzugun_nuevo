@@ -111,36 +111,29 @@
 
     .grammar-screen {
       min-height: 100dvh;
-      padding: 22px 16px 28px;
+      padding: 18px 16px calc(42px + env(safe-area-inset-bottom));
       background:
-        linear-gradient(rgba(15, 48, 37, 0.10), rgba(15, 48, 37, 0.18)),
+        linear-gradient(rgba(15, 48, 37, 0.08), rgba(15, 48, 37, 0.16)),
         url("./fondo_guias_gramatica.png") center top / cover no-repeat;
       color: #fffdf4;
     }
 
     .grammar-title {
-      margin: 0 0 6px;
+      margin: 0 0 14px;
       text-align: center;
-      font-size: 1.55rem;
-      text-shadow: 0 2px 5px rgba(0,0,0,.65);
-    }
-
-    .grammar-subtitle {
-      margin: 0 0 18px;
-      text-align: center;
-      opacity: .96;
+      font-size: 1.42rem;
       text-shadow: 0 2px 5px rgba(0,0,0,.65);
     }
 
     .guide-list {
       display: grid;
-      gap: 10px;
+      gap: 8px;
     }
 
     .guide-link, .grammar-back {
       display: block;
       width: 100%;
-      padding: 13px 14px;
+      padding: 11px 14px;
       border: 1px solid rgba(111, 67, 30, 0.72);
       border-radius: 12px;
       background: rgba(239, 211, 160, 0.90);
@@ -435,8 +428,7 @@
 
     <section id="grammar" class="screen">
       <div class="grammar-screen">
-        <h1 class="grammar-title">Apoyo de Gramática</h1>
-        <p class="grammar-subtitle">Guías oficiales de Daniel Pünolef</p>
+        <h1 class="grammar-title">Kimelfe Daniel Pünolef</h1>
         <div class="guide-list">
           <a class="guide-link" href="./01_A1.1_Kimeltun_0.pdf" target="_blank" rel="noopener">Guía 1 — Kimeltun 0</a>
           <a class="guide-link" href="./02_A1.1_Mapuzugun_kimeltun_2.pdf" target="_blank" rel="noopener">Guía 2 — Kimeltun 2</a>
