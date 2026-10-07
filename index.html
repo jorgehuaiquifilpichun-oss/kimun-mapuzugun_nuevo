@@ -295,6 +295,12 @@
       cursor: pointer;
       border-radius: 50%;
       -webkit-tap-highlight-color: transparent;
+      transition: background .18s ease, box-shadow .18s ease;
+    }
+
+    .filu-number-hit.completed {
+      background: rgba(126, 211, 126, 0.38);
+      box-shadow: inset 0 0 0 2px rgba(211, 255, 211, 0.62);
     }
   </style>
 </head>
@@ -498,6 +504,8 @@
       if (number !== filuExpectedNumber) return;
       const src = FILU_NUMBER_AUDIO[number];
       if (!src) return;
+      const pressedButton = document.querySelector(`.filu-number-hit[aria-label="Número ${number}"]`);
+      if (pressedButton) pressedButton.classList.add("completed");
       if (filuNumberAudio) {
         try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
       }
