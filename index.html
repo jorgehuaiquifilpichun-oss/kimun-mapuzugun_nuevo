@@ -262,7 +262,6 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 }
 .activity-hit.matched::after{content:"✓";color:#16a43b;border:3px solid #16a43b;}
 .activity-hit.wrong::after{content:"✕";color:#d62020;border:3px solid #d62020;}
-.activity-hit.speaker-hit{border-radius:50%}
 
 
 
@@ -292,8 +291,6 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
 .number-options-piece{width:100%;margin-top:1.3%}
 .number-single-hit{position:absolute;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .number-single-hit:focus{outline:none}
-.number-single-speaker{left:2%;top:7%;width:24%;height:86%;border-radius:50%}
-.number-single-value{inset:0}
 .number-single-option{top:0;height:100%}
 .number-single-option.option-1{left:0;width:33.333%}
 .number-single-option.option-2{left:33.333%;width:33.334%}
@@ -391,11 +388,9 @@ h1{margin:18px 0 8px;font-size:clamp(26px,7vw,34px)}
   <div id="numberComposite" class="number-composite" hidden aria-label="Actividad de numeración">
     <div class="number-piece number-question-piece">
       <img id="numberQuestionImage" src="" alt="Pregunta de número">
-      <button id="numberQuestionSpeaker" class="number-single-hit number-single-speaker" type="button" aria-label="Escuchar pregunta"></button>
     </div>
     <div class="number-piece number-value-piece">
       <img id="numberValueImage" src="" alt="">
-      <button id="numberValueHit" class="number-single-hit number-single-value" type="button" aria-label="Escuchar número"></button>
     </div>
     <div class="number-piece number-options-piece">
       <img id="numberOptionsImage" src="" alt="Opciones de respuesta">
@@ -765,8 +760,6 @@ function renderNumberComposite(item){
   const questionImg=document.getElementById("numberQuestionImage");
   const numberImg=document.getElementById("numberValueImage");
   const optionsImg=document.getElementById("numberOptionsImage");
-  const questionSpeaker=document.getElementById("numberQuestionSpeaker");
-  const numberHit=document.getElementById("numberValueHit");
   if(!box||!questionImg||!numberImg||!optionsImg)return;
 
   questionImg.src=item.questionImage;
@@ -781,12 +774,6 @@ function renderNumberComposite(item){
     hit.setAttribute("aria-label","Opción "+(i+1)+": "+(item.options[i]||""));
     hit.onclick=()=>chooseCompositeNumberOption(i,hit);
   });
-
-  if(questionSpeaker){questionSpeaker.onclick=null;questionSpeaker.setAttribute("aria-label","Audio oficial de la pregunta no disponible");}
-  if(numberHit){
-    numberHit.setAttribute("aria-label","Número "+item.number);
-    numberHit.onclick=null;
-  }
 
   box.hidden=false;
   box.classList.add("show");
