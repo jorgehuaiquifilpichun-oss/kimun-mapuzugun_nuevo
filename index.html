@@ -201,6 +201,58 @@
       transform: translateX(-50%);
       width: 68%;
     }
+
+    /* RAMTUCHI — MENÚ DE CONSULTA */
+    .consult-screen {
+      min-height: 100dvh;
+      padding: 28px 18px;
+      background: #183f31;
+      color: #fffdf4;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .consult-title {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: 1.8rem;
+    }
+
+    .consult-subtitle {
+      margin: 0 0 24px;
+      text-align: center;
+      opacity: .88;
+    }
+
+    .consult-options {
+      display: grid;
+      gap: 14px;
+    }
+
+    .consult-option, .consult-back {
+      display: block;
+      width: 100%;
+      padding: 16px 14px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      color: #fffdf4;
+      text-align: center;
+      text-decoration: none;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .consult-option[disabled] {
+      opacity: .65;
+      cursor: default;
+    }
+
+    .consult-back {
+      margin-top: 20px;
+    }
   </style>
 </head>
 
@@ -212,7 +264,7 @@
 
         <div class="home-buttons" aria-label="Opciones principales">
           <button class="home-link home-button" type="button" onclick="openAcknowledgements()" aria-label="Comenzar"><img class="home-button-image" src="./boton_comenzar.png" alt="Comenzar"></button>
-          <button class="home-link home-button" type="button" onclick="showScreen('grammar')" aria-label="Abrir Apoyo de Gramática"><img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática"></button>
+          <button class="home-link home-button" type="button" onclick="openGrammarFromHome()" aria-label="Abrir Apoyo de Gramática"><img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática"></button>
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
         </div>
@@ -240,6 +292,20 @@
       </div>
     </section>
 
+
+    <section id="consult" class="screen">
+      <div class="consult-screen">
+        <h1 class="consult-title">Ramtuchi</h1>
+        <p class="consult-subtitle">Consulta de apoyo</p>
+        <div class="consult-options">
+          <a class="consult-option" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener">Diccionario Mapuche</a>
+          <button class="consult-option" type="button" onclick="openGrammarFromConsult()">Apoyo — Guías de Gramática</button>
+          <button class="consult-option" type="button" disabled aria-disabled="true" title="Disponible cuando integremos la plantilla de números">Números del 1–40</button>
+        </div>
+        <button class="consult-back" type="button" onclick="showScreen('acknowledgements')">Wiñotxekage — Volver</button>
+      </div>
+    </section>
+
     <section id="grammar" class="screen">
       <div class="grammar-screen">
         <h1 class="grammar-title">Apoyo de Gramática</h1>
@@ -256,7 +322,7 @@
           <a class="guide-link" href="./09_A1.1_2026_Kimeltun_12.pdf" target="_blank" rel="noopener">Guía 9 — Kimeltun 12</a>
           <a class="guide-link" href="./10_A1.1_2026_Kimeltun_13.pdf" target="_blank" rel="noopener">Guía 10 — Kimeltun 13</a>
         </div>
-        <button class="grammar-back" type="button" onclick="showScreen('home')">Volver al inicio</button>
+        <button class="grammar-back" type="button" onclick="returnFromGrammar()">Volver</button>
       </div>
     </section>
   </main>
@@ -290,9 +356,25 @@
       showScreen("home");
     }
 
+    let grammarOrigin = "home";
+
     function openRamtuchi() {
       stopAcknowledgementsAudio();
+      showScreen("consult");
+    }
+
+    function openGrammarFromHome() {
+      grammarOrigin = "home";
       showScreen("grammar");
+    }
+
+    function openGrammarFromConsult() {
+      grammarOrigin = "consult";
+      showScreen("grammar");
+    }
+
+    function returnFromGrammar() {
+      showScreen(grammarOrigin === "consult" ? "consult" : "home");
     }
 
     // Sistema central de navegación de la nueva aplicación.
