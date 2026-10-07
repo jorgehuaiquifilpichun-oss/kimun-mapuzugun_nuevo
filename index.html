@@ -284,6 +284,18 @@
       bottom: max(18px, env(safe-area-inset-bottom));
       width: 68%;
     }
+
+    /* FILU — zonas táctiles de los números 1–20 */
+    .filu-number-hit {
+      position: absolute;
+      z-index: 4;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 50%;
+      -webkit-tap-highlight-color: transparent;
+    }
   </style>
 </head>
 
@@ -325,7 +337,10 @@
 
     <section id="filu" class="screen">
       <div class="filu-screen">
-        <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU">
+        <div class="filu-board" style="position:relative; width:100%;">
+          <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU">
+          <div id="filuNumberHits" aria-label="Números FILU"></div>
+        </div>
         <div class="ack-controls" aria-label="Controles de FILU">
           <button class="ack-control ack-back" type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás">
             <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
@@ -435,6 +450,64 @@
     function returnFromGrammar() {
       showScreen(grammarOrigin === "consult" ? "consult" : "home");
     }
+
+    // Audios oficiales FILU 1–20. Los nombres coinciden exactamente con el repositorio.
+    const FILU_NUMBER_AUDIO = {
+      1:"./Kimun_mapuzungun_01_kine.mp3", 2:"./Kimun_mapuzungun_02_epu.mp3",
+      3:"./Kimun_mapuzungun_03_kula.mp3", 4:"./Kimun_mapuzungun_04_meli.mp3",
+      5:"./Kimun_mapuzungun_05_kechu.mp3", 6:"./Kimun_mapuzungun_06_kayu.mp3",
+      7:"./Kimun_mapuzungun_07_reqle.mp3", 8:"./Kimun_mapuzungun_08_pura.mp3",
+      9:"./Kimun_mapuzungun_09_aylla.mp3", 10:"./Kimun_mapuzungun_10_mari.mp3",
+      11:"./Kimun_mapuzungun_11_mari_kine.mp3", 12:"./Kimun_mapuzungun_12_mari_epu.mp3",
+      13:"./Kimun_mapuzungun_13_mari_kula.mp3", 14:"./Kimun_mapuzungun_14_mari_meli.mp3",
+      15:"./Kimun_mapuzungun_15_mari_kechu.mp3", 16:"./Kimun_mapuzungun_16_mari_kayu.mp3",
+      17:"./Kimun_mapuzungun_17_mari_reqle.mp3", 18:"./Kimun_mapuzungun_18_mari_pura.mp3",
+      19:"./Kimun_mapuzungun_19_mari_aylla.mp3", 20:"./Kimun_mapuzungun_20_epu_mari.mp3"
+    };
+
+    let filuExpectedNumber = 1;
+    let filuNumberAudio = null;
+
+    // Posiciones porcentuales sobre actividad_nhewen_filu_v1.png (imagen 708 × 774 aprox.).
+    const FILU_NUMBER_POSITIONS = [
+      [1,43.2,14.7],[2,58.5,18.2],[3,70.8,21.0],[4,82.0,24.8],[5,91.2,34.1],
+      [6,78.1,43.3],[7,63.7,47.0],[8,46.5,49.0],[9,30.5,51.8],[10,20.2,61.0],
+      [11,27.2,68.1],[12,41.6,71.5],[13,57.5,73.0],[14,70.6,73.1],[15,84.8,79.4],
+      [16,78.1,88.3],[17,61.0,91.8],[18,43.7,91.7],[19,28.0,91.1],[20,73.6,97.0]
+    ];
+
+    function buildFiluNumberHits() {
+      const host = document.getElementById("filuNumberHits");
+      if (!host || host.children.length) return;
+      FILU_NUMBER_POSITIONS.forEach(([number,left,top]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "filu-number-hit";
+        button.setAttribute("aria-label", `Número ${number}`);
+        button.style.left = `${left - 5.2}%`;
+        button.style.top = `${top - 4.5}%`;
+        button.style.width = "10.4%";
+        button.style.height = "9%";
+        button.addEventListener("click", () => playFiluNumber(number));
+        host.appendChild(button);
+      });
+    }
+
+    function playFiluNumber(number) {
+      // Avance estrictamente correlativo: 1, 2, 3 ... 20.
+      if (number !== filuExpectedNumber) return;
+      const src = FILU_NUMBER_AUDIO[number];
+      if (!src) return;
+      if (filuNumberAudio) {
+        try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
+      }
+      filuNumberAudio = new Audio(src);
+      const playback = filuNumberAudio.play();
+      if (playback && typeof playback.catch === "function") playback.catch(() => {});
+      if (filuExpectedNumber < 20) filuExpectedNumber += 1;
+    }
+
+    buildFiluNumberHits();
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
