@@ -640,27 +640,7 @@ function playNhewenRecovery(){
 }
 
 /* === SELECCIÓN DE PARES FILU === */
-/* Audio reactivado SOLO para la primera lámina FILU (1 al 5). */
-const FILU_1_5_AUDIO={
-  1:"Kimun_mapuzungun_01_kine.mp3",
-  2:"Kimun_mapuzungun_02_epu.mp3",
-  3:"Kimun_mapuzungun_03_kula.mp3",
-  4:"Kimun_mapuzungun_04_meli.mp3",
-  5:"Kimun_mapuzungun_05_kechu.mp3"
-};
-let filu15Audio=null;
-function playFilu15Audio(number){
-  const src=FILU_1_5_AUDIO[Number(number)];
-  if(!src)return;
-  try{
-    if(filu15Audio){filu15Audio.pause();filu15Audio.currentTime=0;}
-    filu15Audio=new Audio(src);
-    filu15Audio.preload="auto";
-    const p=filu15Audio.play();
-    if(p&&typeof p.catch==="function")p.catch(()=>{});
-  }catch(_){}
-}
-
+/* Base limpia: sin programación de audio. */
 const NUMBER_WORDS={
   1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"reqle",8:"pura",9:"aylla",10:"mari",
   11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla",20:"epu mari"
@@ -690,7 +670,6 @@ function setupActivityInteractions(item){
 function setupPairActivity(layer,file){
   const isLow=file.includes("01_05");
   // Primera lámina FILU: pares del 1 al 5.
-  // El audio se reproduce SOLO en esta lámina; la segunda FILU continúa sin audio.
   const wordRows=isLow
     ? [{word:"meli",number:4},{word:"kechu",number:5},{word:"kiñe",number:1},{word:"epu",number:2},{word:"küla",number:3}]
     : [{word:"mari",number:10},{word:"reqle",number:7},{word:"kayu",number:6},{word:"aylla",number:9},{word:"pura",number:8},{word:"kechu",number:5}];
@@ -700,9 +679,9 @@ function setupPairActivity(layer,file){
   const step=(end-start)/rowCount;
   wordRows.forEach((entry,i)=>{
     const y=start+i*step;
-    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word");if(isLow)playFilu15Audio(entry.number)}});
+    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word")}});
     const n=numberRows[i];
-    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");if(isLow)playFilu15Audio(n)}});
+    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number")}});
   });
   // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
 }
