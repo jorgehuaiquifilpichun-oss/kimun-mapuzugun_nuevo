@@ -390,14 +390,18 @@
       box-shadow:inset 0 0 0 2px #1f642f, 0 0 8px rgba(72,180,88,.88);
       transform:scale(1.08);
     }
-    .nhewen-word-green {
-      position:absolute; z-index:6; left:31%; right:31%; top:85.35%;
-      text-align:center; font-weight:900; font-size:clamp(1.25rem,6vw,2rem);
-      line-height:1; color:#23823b; opacity:0; pointer-events:none;
-      text-shadow:0 1px 0 #0d4e24, 0 0 5px rgba(255,238,184,.85);
-      transition:opacity .3s ease;
+    /* FILU בלבד: reemplazo visual de la barra Nhewen completa al llegar a 20 */
+    .filu-nhewen-complete {
+      position:absolute; z-index:6; left:30.6%; width:38.8%; top:84.55%; height:5.35%;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:999px; border:3px solid #205f32;
+      background:linear-gradient(#58ad62 0%, #378c48 52%, #2c7a3e 100%);
+      box-shadow:inset 0 0 0 3px rgba(255,238,184,.72), inset 0 2px 4px rgba(255,255,255,.35), 0 2px 3px rgba(45,25,10,.32);
+      color:#fff4c8; font-weight:900; font-size:clamp(1.05rem,5.4vw,1.75rem);
+      line-height:1; letter-spacing:.02em; text-shadow:0 2px 0 #1d5d31, 0 0 3px rgba(0,0,0,.25);
+      opacity:0; pointer-events:none; transition:opacity .28s ease;
     }
-    .nhewen-word-green.active { opacity:1; }
+    .filu-nhewen-complete.active { opacity:1; }
     .confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:13; }
     .confetti-piece {
       position:absolute; top:-8%; width:8px; height:15px; border-radius:2px;
@@ -453,7 +457,7 @@
           <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU">
           <div id="filuNumberHits" aria-label="Números FILU"></div>
           <div id="nhewenProgress" class="nhewen-progress" aria-label="Progreso de Nhewen"></div>
-          <div id="nhewenWordGreen" class="nhewen-word-green" aria-hidden="true">NHEWEN</div>
+          <div id="filuNhewenComplete" class="filu-nhewen-complete" aria-hidden="true">NHEWEN</div>
         </div>
         <div class="ack-controls" aria-label="Controles de FILU">
           <button class="ack-control ack-back" type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás">
@@ -478,6 +482,15 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+
+    <section id="numeration1" class="screen">
+      <div class="grammar-screen" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;min-height:100dvh;">
+        <h1 class="grammar-title">Numeración</h1>
+        <p style="max-width:390px;font-weight:700;line-height:1.45;">Chumgechi pigey tüfachi numeru mapuzugun mew?</p>
+        <p style="max-width:390px;line-height:1.45;">¿Cómo se dice este número en mapudungun?</p>
       </div>
     </section>
 
@@ -623,8 +636,8 @@
       document.querySelectorAll(".nhewen-dot").forEach((dot, index) => {
         dot.classList.toggle("filled", index < completed);
       });
-      const word = document.getElementById("nhewenWordGreen");
-      if (word) word.classList.toggle("active", completed >= 20);
+      const completeBar = document.getElementById("filuNhewenComplete");
+      if (completeBar) completeBar.classList.toggle("active", completed >= 20);
     }
 
     // Posiciones porcentuales recalibradas sobre la plantilla FILU completa.
@@ -728,9 +741,8 @@
     }
 
     function advanceFromFilu() {
-      // Destino provisional: ambos accesos de avance comparten exactamente la misma función.
-      // Al integrar la siguiente etapa, solo se cambia este destino.
-      showScreen("acknowledgements");
+      // FILU termina aquí; la dinámica de sus 20 puntos no se reutiliza en la siguiente actividad.
+      showScreen("numeration1");
     }
 
     buildFiluNumberHits();
