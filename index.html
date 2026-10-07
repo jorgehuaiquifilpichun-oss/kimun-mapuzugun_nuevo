@@ -693,7 +693,7 @@ function setupPairActivity(layer,file){
   const step=(end-start)/rowCount;
   wordRows.forEach((entry,i)=>{
     const y=start+i*step;
-    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word");if(isLow&&entry.number===1)playFiluKineAudio()}});
+    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word")}});
     const n=numberRows[i];
     addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");if(isLow&&n===1)playFiluKineAudio()}});
   });
