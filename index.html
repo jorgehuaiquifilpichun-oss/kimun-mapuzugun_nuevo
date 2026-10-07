@@ -645,6 +645,20 @@ const NUMBER_WORDS={
   1:"kiñe",2:"epu",3:"küla",4:"meli",5:"kechu",6:"kayu",7:"reqle",8:"pura",9:"aylla",10:"mari",
   11:"mari kiñe",12:"mari epu",13:"mari küla",14:"mari meli",15:"mari kechu",16:"mari kayu",17:"mari reqle",18:"mari pura",19:"mari aylla",20:"epu mari"
 };
+
+/* PRUEBA DE AUDIO FILU: únicamente 1 = kiñe. */
+const FILU_KINE_AUDIO="Kimun_mapuzungun_01_kine.mp3";
+let filuKineAudio=null;
+function playFiluKineAudio(){
+  try{
+    if(filuKineAudio){filuKineAudio.pause();filuKineAudio.currentTime=0;}
+    filuKineAudio=new Audio(FILU_KINE_AUDIO);
+    filuKineAudio.preload="auto";
+    const p=filuKineAudio.play();
+    if(p&&typeof p.catch==="function")p.catch(()=>{});
+  }catch(_){}
+}
+
 let pairSelection={word:null,number:null};
 
 function addActivityHit(parent,opts){
@@ -679,9 +693,9 @@ function setupPairActivity(layer,file){
   const step=(end-start)/rowCount;
   wordRows.forEach((entry,i)=>{
     const y=start+i*step;
-    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word")}});
+    addActivityHit(layer,{x:4,y:y,w:43,h:step*0.82,label:entry.word,kind:"word",value:entry.word,onClick:function(){selectPair(this,entry.word,"word");if(isLow&&entry.number===1)playFiluKineAudio()}});
     const n=numberRows[i];
-    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number")}});
+    addActivityHit(layer,{x:59,y:y,w:37,h:step*0.82,label:String(n),kind:"number",value:n,onClick:function(){selectPair(this,n,"number");if(isLow&&n===1)playFiluKineAudio()}});
   });
   // No restaurar vistos buenos al volver atrás. El avance real queda guardado por separado.
 }
