@@ -295,12 +295,11 @@
       cursor: pointer;
       border-radius: 50%;
       -webkit-tap-highlight-color: transparent;
-      transition: background .18s ease, box-shadow .18s ease;
     }
 
-    .filu-number-hit.completed {
-      background: rgba(126, 211, 126, 0.38);
-      box-shadow: inset 0 0 0 2px rgba(211, 255, 211, 0.62);
+    .filu-number-hit.pressed {
+      background: rgba(126, 211, 120, 0.34);
+      box-shadow: inset 0 0 0 2px rgba(64, 145, 78, 0.55);
     }
   </style>
 </head>
@@ -475,43 +474,55 @@
     let filuNumberAudio = null;
 
     // Posiciones porcentuales sobre actividad_nhewen_filu_v1.png (imagen 708 × 774 aprox.).
+    // [número, centroX%, centroY%, diámetro%]. Cada zona sigue el círculo visible de su número.
     const FILU_NUMBER_POSITIONS = [
-      [1,43.2,14.7],[2,58.5,18.2],[3,70.8,21.0],[4,82.0,24.8],[5,91.2,34.1],
-      [6,78.1,43.3],[7,63.7,47.0],[8,46.5,49.0],[9,30.5,51.8],[10,20.2,61.0],
-      [11,27.2,68.1],[12,41.6,71.5],[13,57.5,73.0],[14,70.6,73.1],[15,84.8,79.4],
-      [16,78.1,88.3],[17,61.0,91.8],[18,43.7,91.7],[19,28.0,91.1],[20,73.6,97.0]
+      [1,43.2,14.7,9.2],[2,58.5,18.2,9.2],[3,70.8,21.0,9.0],[4,82.0,24.8,9.2],[5,91.2,34.1,11.0],
+      [6,78.1,43.3,9.2],[7,63.7,47.0,9.2],[8,46.5,49.0,9.2],[9,30.5,51.8,9.4],[10,20.2,61.0,11.0],
+      [11,27.2,68.1,9.0],[12,41.6,71.5,9.2],[13,57.5,73.0,9.2],[14,70.6,73.1,9.2],[15,84.8,79.4,11.0],
+      [16,78.1,88.3,9.2],[17,61.0,91.8,9.2],[18,43.7,91.7,9.2],[19,28.0,91.1,9.4],[20,73.6,97.0,11.0]
     ];
 
     function buildFiluNumberHits() {
       const host = document.getElementById("filuNumberHits");
       if (!host || host.children.length) return;
-      FILU_NUMBER_POSITIONS.forEach(([number,left,top]) => {
+      FILU_NUMBER_POSITIONS.forEach(([number,left,top,size]) => {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "filu-number-hit";
         button.setAttribute("aria-label", `Número ${number}`);
-        button.style.left = `${left - 5.2}%`;
-        button.style.top = `${top - 4.5}%`;
-        button.style.width = "10.4%";
-        button.style.height = "9%";
-        button.addEventListener("click", () => playFiluNumber(number));
+        button.style.left = `${left - size / 2}%`;
+        button.style.top = `${top - size / 2}%`;
+        button.style.width = `${size}%`;
+        button.style.aspectRatio = "1 / 1";
+        button.addEventListener("click", () => playFiluNumber(number, button));
         host.appendChild(button);
       });
     }
 
-    function playFiluNumber(number) {
+    function playFiluNumber(number, button) {
       // Avance estrictamente correlativo: 1, 2, 3 ... 20.
       if (number !== filuExpectedNumber) return;
       const src = FILU_NUMBER_AUDIO[number];
       if (!src) return;
-      const pressedButton = document.querySelector(`.filu-number-hit[aria-label="Número ${number}"]`);
-      if (pressedButton) pressedButton.classList.add("completed");
+
       if (filuNumberAudio) {
         try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
       }
-      filuNumberAudio = new Audio(src);
+
+      // Marcar solamente el número correcto que acaba de pulsarse.
+      if (button) button.classList.add("pressed");
+
+      // Crear un reproductor nuevo para evitar que un audio anterior bloquee el siguiente.
+      filuNumberAudio = new Audio();
+      filuNumberAudio.preload = "auto";
+      filuNumberAudio.src = src;
+      filuNumberAudio.volume = 1;
+      filuNumberAudio.load();
       const playback = filuNumberAudio.play();
-      if (playback && typeof playback.catch === "function") playback.catch(() => {});
+      if (playback && typeof playback.catch === "function") {
+        playback.catch((error) => console.warn(`No se pudo reproducir el número ${number}:`, src, error));
+      }
+
       if (filuExpectedNumber < 20) filuExpectedNumber += 1;
     }
 
