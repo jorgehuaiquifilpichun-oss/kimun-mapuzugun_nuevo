@@ -106,12 +106,7 @@
     }
 
     .ack-audio {
-      position: absolute;
-      left: 5%;
-      right: 5%;
-      bottom: max(14px, env(safe-area-inset-bottom));
-      z-index: 2;
-      width: 90%;
+      display: none;
     }
 
     .grammar-screen {
@@ -185,7 +180,7 @@
     <section id="acknowledgements" class="screen">
       <div class="ack-screen">
         <img class="ack-image" src="./pantalla_agradecimientos.png" alt="Agradecimientos">
-        <audio id="acknowledgementsAudio" class="ack-audio" controls preload="metadata">
+        <audio id="acknowledgementsAudio" class="ack-audio" preload="metadata">
           <source src="./audio_agradecimientos.mp3" type="audio/mpeg">
           Tu navegador no puede reproducir este audio.
         </audio>
