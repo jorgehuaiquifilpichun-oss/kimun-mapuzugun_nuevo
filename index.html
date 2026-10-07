@@ -159,6 +159,48 @@
       margin: 0 auto;
       object-fit: contain;
     }
+
+    /* CONTROLES DE AGRADECIMIENTOS */
+    .ack-controls {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .ack-control {
+      position: absolute;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .ack-control img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .ack-back {
+      top: max(14px, env(safe-area-inset-top));
+      left: 7%;
+      width: 36%;
+    }
+
+    .ack-next {
+      top: max(14px, env(safe-area-inset-top));
+      right: 7%;
+      width: 36%;
+    }
+
+    .ack-consult {
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: 50%;
+    }
   </style>
 </head>
 
@@ -180,6 +222,17 @@
     <section id="acknowledgements" class="screen">
       <div class="ack-screen">
         <img class="ack-image" src="./pantalla_agradecimientos.png" alt="Agradecimientos">
+        <div class="ack-controls" aria-label="Controles de Agradecimientos">
+          <button class="ack-control ack-back" type="button" onclick="returnHome()" aria-label="Wiñotxekage, volver al inicio">
+            <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
+          </button>
+          <button class="ack-control ack-next" type="button" aria-label="Amulepe, seguir" title="Disponible para la siguiente etapa">
+            <img src="./boton_seguir.png" alt="Amulepe — Seguir">
+          </button>
+          <button class="ack-control ack-consult" type="button" onclick="openRamtuchi()" aria-label="Ramtuchi, consultar guías y diccionario">
+            <img src="./boton_consultar.png" alt="Ramtuchi — Consultar">
+          </button>
+        </div>
         <audio id="acknowledgementsAudio" class="ack-audio" preload="metadata">
           <source src="./audio_agradecimientos.mp3" type="audio/mpeg">
           Tu navegador no puede reproducir este audio.
@@ -222,6 +275,24 @@
           playback.catch(() => {});
         }
       }
+    }
+
+    function stopAcknowledgementsAudio() {
+      const audio = document.getElementById("acknowledgementsAudio");
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    }
+
+    function returnHome() {
+      stopAcknowledgementsAudio();
+      showScreen("home");
+    }
+
+    function openRamtuchi() {
+      stopAcknowledgementsAudio();
+      showScreen("grammar");
     }
 
     // Sistema central de navegación de la nueva aplicación.
