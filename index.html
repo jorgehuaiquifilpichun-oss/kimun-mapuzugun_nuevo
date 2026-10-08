@@ -648,6 +648,28 @@
       </div>
     </section>
 
+    <section id="activityThree" class="screen">
+      <div class="activity-one-screen">
+        <img class="activity-one-image" src="./actividad_casa_01.png" alt="Tercera actividad">
+        <div class="activity-one-question-wrap">
+          <img class="activity-one-question" src="./encabezado_pregunta_numeros.png" alt="Chumgechi pigey tüfachi numeru mapuzugun mew?">
+          <button class="activity-one-speaker" type="button" onclick="playActivityThreeQuestion()" aria-label="Escuchar la pregunta en mapuzugun"></button>
+        </div>
+        <img class="activity-one-number" src="./archivo_00000000bf90820e87f87081b5e0e636.png" alt="Número 3">
+        <div class="activity-one-choices" aria-label="Alternativas del número 3">
+          <img class="activity-one-alternatives" src="./actividad_numero_03.png" alt="Alternativas Epu, Küla y Meli">
+          <button class="activity-one-choice" type="button" data-choice="2" onclick="answerActivityThree(2)" aria-label="EPU"></button>
+          <button class="activity-one-choice" type="button" data-choice="3" onclick="answerActivityThree(3)" aria-label="KÜLA"></button>
+          <button class="activity-one-choice" type="button" data-choice="4" onclick="answerActivityThree(4)" aria-label="MELI"></button>
+        </div>
+        <div class="ack-controls" aria-label="Controles de la tercera actividad">
+          <button class="ack-control ack-back" type="button" onclick="showScreen('activityTwo')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
+          <button class="ack-control ack-next" type="button" onclick="advanceFromActivityThree()" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button>
+          <button class="ack-control ack-consult" type="button" onclick="openRamtuchiFromActivityThree()" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button>
+        </div>
+      </div>
+    </section>
+
     <section id="consult" class="screen">
       <div class="consult-screen">
         <h1 class="consult-title">Ramtuchi</h1>
@@ -790,6 +812,54 @@
       // Ejercicio 3 pendiente: no navegar a una pantalla inexistente.
       const next = document.getElementById('activityThree');
       if (next) showScreen('activityThree');
+    }
+
+    function openRamtuchiFromActivityThree() { consultOrigin = 'activityThree'; showScreen('consult'); }
+    function playActivityThreeQuestion() { playActivityOneQuestion(); }
+    let activityThreeCompleted = false;
+    let activityThreeAnswerAudio = null;
+    let activityThreeAudioToken = 0;
+    function stopActivityThreeAnswerAudio() {
+      activityThreeAudioToken++;
+      if (activityThreeAnswerAudio) {
+        activityThreeAnswerAudio.pause();
+        activityThreeAnswerAudio.currentTime = 0;
+        activityThreeAnswerAudio.onended = null;
+        activityThreeAnswerAudio.onerror = null;
+        activityThreeAnswerAudio = null;
+      }
+    }
+    function answerActivityThree(number) {
+      if (activityThreeCompleted) return;
+      const choice = document.querySelector('#activityThree .activity-one-choice[data-choice="' + number + '"]');
+      if (!choice) return;
+      const correct = number === 3;
+      choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (correct) {
+        activityThreeCompleted = true;
+        document.querySelectorAll('#activityThree .activity-one-choice').forEach(button => button.disabled = true);
+      }
+      const questionAudio = document.getElementById('activityOneQuestionAudio');
+      if (questionAudio) questionAudio.pause();
+      stopActivityThreeAnswerAudio();
+      const token = activityThreeAudioToken;
+      const file = FILU_NUMBER_AUDIO[number];
+      if (!file) return;
+      activityThreeAnswerAudio = new Audio(file);
+      activityThreeAnswerAudio.volume = 1;
+      activityThreeAnswerAudio.onended = () => {
+        if (token === activityThreeAudioToken && correct && document.getElementById('activityThree').classList.contains('active')) {
+          advanceFromActivityThree();
+        }
+      };
+      activityThreeAnswerAudio.onerror = () => console.warn('Audio de la alternativa 3 no disponible:', file);
+      const playback = activityThreeAnswerAudio.play();
+      if (playback && typeof playback.catch === 'function') playback.catch(error => console.warn('No se pudo reproducir:', error));
+    }
+    function advanceFromActivityThree() {
+      // El ejercicio 4 todavía no está integrado.
+      const next = document.getElementById('activityFour');
+      if (next) showScreen('activityFour');
     }
 
     function playActivityOneQuestion() {
@@ -1022,6 +1092,7 @@
     function showScreen(screenId) {
       if (screenId !== 'activityOne') stopActivityOneAnswerAudio();
       if (screenId !== 'activityTwo') stopActivityTwoAnswerAudio();
+      if (screenId !== 'activityThree') stopActivityThreeAnswerAudio();
       if (screenId !== "activityOne") {
         const questionAudio = document.getElementById("activityOneQuestionAudio");
         if (questionAudio) { questionAudio.pause(); questionAudio.currentTime = 0; }
