@@ -620,13 +620,8 @@
       from { transform:translate3d(0,-10vh,0) rotate(10deg); }
       to { transform:translate3d(-8vw,130vh,0) rotate(10deg); }
     }
-    .newen-sunshine {
-      position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0;
-      background:radial-gradient(ellipse 75% 57% at 28% 12%,rgba(255,242,171,.56),rgba(255,192,71,.19) 54%,transparent 100%);
-      transition:opacity 1.5s ease-out;
-    }
-    .newen-recovery-screen.sunrise .newen-sunshine { opacity:1; }
-    .newen-recovery-screen.sunrise .newen-rain { opacity:0; transition:opacity 1.2s ease-out; }
+    /* Al terminar el baile, la lluvia se desvanece sin efectos de sol ni destellos. */
+    .newen-recovery-screen.rain-finished .newen-rain { opacity:0; transition:opacity 1.2s ease-out; }
     .newen-recovery-heading {
       position:absolute; z-index:6; bottom:12%; left:3%; width:94%; text-align:center;
       margin:0; color:#b9ff55; font:900 clamp(1.18rem,5.3vw,1.95rem)/1.12 Arial,sans-serif;
@@ -892,7 +887,6 @@
         <video id="newenDanceVideo" class="newen-recovery-video" src="./video_final.mp4"
                preload="none" playsinline webkit-playsinline disablepictureinpicture></video>
         <div id="newenRain" class="newen-rain" aria-hidden="true"></div>
-        <div class="newen-sunshine" aria-hidden="true"></div>
         <div class="newen-recovery-meter" role="img" aria-label="Newen recuperándose">
           <img class="newen-meter-image" src="./nhewen_10_vidas.png" alt="">
           <div id="newenRecoveryOrbs" class="newen-meter-orbs" aria-hidden="true"></div>
@@ -1069,7 +1063,7 @@
       const video = document.getElementById('newenDanceVideo');
       const scene = document.getElementById('newenRecoveryScene');
       if (!video || !scene || newenRecoveryFinishing) return;
-      scene.classList.remove('sunrise');
+      scene.classList.remove('rain-finished');
       const title = document.getElementById('newenRecoveryHeading');
       const count = document.getElementById('newenRecoveryCount');
       const retry = document.getElementById('newenRetry');
@@ -1102,7 +1096,7 @@
       if (newenRecoveryFinishing || !document.getElementById('newenRecovery').classList.contains('active')) return;
       newenRecoveryFinishing = true;
       const scene = document.getElementById('newenRecoveryScene');
-      if (scene) scene.classList.add('sunrise');
+      if (scene) scene.classList.add('rain-finished');
       renderNewenRecoveryMeter(NEWEN_MAX_LIVES);
       newenLives = NEWEN_MAX_LIVES;
       saveNewenLives();
