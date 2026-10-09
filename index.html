@@ -503,10 +503,12 @@
     }
     .activity-one-speaker:focus-visible { outline: 2px solid #ffffff; border-radius: 50%; }
 
-    /* Alternativas: tres zonas independientes sobre una sola imagen. */
+    /* Todas las actividades comparten el mismo centro de alternativas.
+       El PNG se recorta solo de sus márgenes transparentes (ver script).
+       Así, la imagen y las tres zonas táctiles tienen la misma altura real. */
     .activity-one-choices { position:absolute; z-index:5; left:50%; top:78%; transform:translate(-50%,-50%); width:94%; }
-    .activity-one-choices .activity-one-alternatives { position:static; transform:none; width:100%; display:block; }
-    .activity-one-choice { position:absolute; top:0; height:100%; width:33.3333%; padding:0; border:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .activity-one-choices .activity-one-alternatives { position:relative; transform:none; width:100%; height:auto; display:block; }
+    .activity-one-choice { position:absolute; top:0; bottom:0; height:auto; width:33.3333%; padding:0; border:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; overflow:hidden; }
     .activity-one-choice:nth-of-type(1) { left:0; }
     .activity-one-choice:nth-of-type(2) { left:33.3333%; }
     .activity-one-choice:nth-of-type(3) { left:66.6666%; }
@@ -1319,6 +1321,57 @@
       // Al completar FILU, abrir la primera actividad usando su plantilla oficial.
       showScreen("activityOne");
     }
+
+    /* Alineación de las alternativas 1 a 6.
+       Algunos PNG (especialmente el número 6) incluyen amplias franjas
+       transparentes que no pertenecen a los botones. No se modifican
+       los archivos originales ni las funciones que evalúan respuestas. */
+    function ajustarImagenesAlternativas() {
+      document.querySelectorAll('.activity-one-choices .activity-one-alternatives').forEach(img => {
+        const recortar = () => {
+          if (img.dataset.alternativasAjustadas === 'si' || !img.naturalWidth || !img.naturalHeight) return;
+          img.dataset.alternativasAjustadas = 'si';
+          try {
+            const ancho = img.naturalWidth, alto = img.naturalHeight;
+            const fuente = document.createElement('canvas');
+            fuente.width = ancho; fuente.height = alto;
+            const ctx = fuente.getContext('2d', {willReadFrequently:true});
+            if (!ctx) return;
+            ctx.drawImage(img, 0, 0);
+            const rgba = ctx.getImageData(0, 0, ancho, alto).data;
+            let xMin = ancho, yMin = alto, xMax = -1, yMax = -1;
+            /* Muestreo fino: encuentra los bordes visibles y elimina solo transparencia. */
+            for (let y=0; y<alto; y+=2) {
+              for (let x=0; x<ancho; x+=2) {
+                if (rgba[(y*ancho+x)*4+3] > 12) {
+                  if(x<xMin) xMin=x;
+                  if(y<yMin) yMin=y;
+                  if(x>xMax) xMax=x;
+                  if(y>yMax) yMax=y;
+                }
+              }
+            }
+            if (xMax<0 || yMax<0) return;
+            const margen = Math.max(2, Math.ceil(Math.min(ancho,alto)*0.006));
+            xMin=Math.max(0,xMin-margen); yMin=Math.max(0,yMin-margen);
+            xMax=Math.min(ancho-1,xMax+margen+2); yMax=Math.min(alto-1,yMax+margen+2);
+            const w=xMax-xMin+1, h=yMax-yMin+1;
+            /* No actuar sobre archivos ya ajustados ni sobre imágenes anómalas. */
+            if (w < ancho*0.65 || h < alto*0.12 || (w >= ancho*0.975 && h >= alto*0.975)) return;
+            const destino=document.createElement('canvas');
+            destino.width=w; destino.height=h;
+            destino.getContext('2d').drawImage(fuente,xMin,yMin,w,h,0,0,w,h);
+            img.src=destino.toDataURL('image/png');
+          } catch (error) {
+            /* Si el navegador restringe Canvas, mantener el PNG sin alterarlo. */
+            console.warn('No se pudo ajustar el margen de las alternativas:',error);
+          }
+        };
+        if (img.complete && img.naturalWidth) recortar();
+        else img.addEventListener('load', recortar, {once:true});
+      });
+    }
+    ajustarImagenesAlternativas();
 
     buildFiluNumberHits();
     buildNhewenProgress();
