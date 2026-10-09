@@ -540,6 +540,88 @@
     .activity-one-choice.correct::after { content:"✓"; color:#168b32; }
     .activity-one-choice.incorrect::after { content:"✕"; color:#c92121; }
     .activity-one-choice:disabled { cursor:default; }
+
+    /* Recuperación Newen: capa independiente, sin modificar FILU ni las plantillas. */
+    .newen-recovery-screen {
+      position:relative; width:100%; height:100dvh; min-height:100dvh;
+      overflow:hidden; isolation:isolate; background:#101b18; color:#fff;
+    }
+    .newen-recovery-video {
+      position:absolute; inset:0; display:block; width:100%; height:100%;
+      object-fit:cover; object-position:center center; z-index:0;
+    }
+    .newen-recovery-screen::before {
+      content:""; position:absolute; inset:0; pointer-events:none; z-index:1;
+      background:linear-gradient(to bottom,rgba(0,0,0,.42),transparent 30%,transparent 75%,rgba(0,0,0,.50));
+    }
+    .newen-rain { position:absolute; inset:0; z-index:2; overflow:hidden; pointer-events:none; }
+    .newen-raindrop {
+      position:absolute; top:-20%; width:2px; height:clamp(14px,3vh,30px);
+      opacity:.67; border-radius:100%; pointer-events:none;
+      background:linear-gradient(to bottom,transparent,rgba(217,243,255,.88));
+      animation:newenRainFall var(--rain-duration) linear var(--rain-delay) infinite;
+    }
+    @keyframes newenRainFall {
+      from { transform:translate3d(0,-10vh,0) rotate(10deg); }
+      to { transform:translate3d(-8vw,130vh,0) rotate(10deg); }
+    }
+    .newen-sunshine {
+      position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0;
+      background:radial-gradient(ellipse 75% 57% at 28% 12%,rgba(255,242,171,.56),rgba(255,192,71,.19) 54%,transparent 100%);
+      transition:opacity 1.5s ease-out;
+    }
+    .newen-recovery-screen.sunrise .newen-sunshine { opacity:1; }
+    .newen-recovery-screen.sunrise .newen-rain { opacity:0; transition:opacity 1.2s ease-out; }
+    .newen-recovery-image {
+      position:absolute; z-index:4; top:8%; right:1%; width:22%; height:68%;
+      object-fit:contain; object-position:top center; pointer-events:none;
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,.60));
+    }
+    .newen-recovery-heading {
+      position:absolute; z-index:5; top:4%; left:3%; width:76%; text-align:center;
+      margin:0; color:#b9ff55; font:900 clamp(1.18rem,5.3vw,1.95rem)/1.12 Arial,sans-serif;
+      -webkit-text-stroke:.3px #16321b;
+      text-shadow:0 2px 3px #08290d,0 0 10px rgba(111,245,51,.95),0 0 20px rgba(111,245,51,.48);
+      animation:newenEnergyPulse 2s ease-in-out infinite;
+    }
+    @keyframes newenEnergyPulse { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.35); } }
+    .newen-recovery-footer {
+      position:absolute; z-index:6; bottom:max(5%,env(safe-area-inset-bottom)); left:3%; right:3%;
+      display:flex; flex-direction:column; align-items:center; gap:9px; pointer-events:none;
+    }
+    .newen-recovery-orbs { width:100%; max-width:325px; display:flex; justify-content:center; gap:clamp(4px,1.2vw,9px); }
+    .newen-recovery-orb {
+      width:calc((100% - 9 * 6px)/10); max-width:29px; aspect-ratio:1; border-radius:50%;
+      border:2px solid rgba(184,235,137,.48); background:rgba(16,50,22,.65);
+      box-shadow:inset 0 1px 4px rgba(0,0,0,.8); transition:background .35s,box-shadow .35s;
+    }
+    .newen-recovery-orb.filled {
+      background:radial-gradient(circle at 35% 25%,#ebffad 0%,#b9ff55 23%,#47d343 70%,#168e37 100%);
+      box-shadow:0 0 9px rgba(142,255,74,.9),inset 0 0 2px white;
+    }
+    .newen-recovery-count {
+      margin:0; padding:4px 15px; border-radius:999px;
+      background:rgba(8,22,12,.76); color:#eaffd5;
+      font:800 clamp(.86rem,3.7vw,1rem)/1.15 Arial,sans-serif;
+      text-shadow:0 1px 2px #000;
+    }
+    .newen-retry {
+      position:relative; z-index:8; pointer-events:auto; border:2px solid #a9f66b;
+      border-radius:18px; padding:10px 22px; background:#285f35; color:white;
+      font:800 1rem Arial,sans-serif; cursor:pointer;
+    }
+    .newen-retry[hidden] {display:none;}
+    .newen-life-toast {
+      position:fixed; z-index:55; left:50%; bottom:16%; transform:translateX(-50%);
+      width:max-content; max-width:90vw; padding:11px 16px; border-radius:12px;
+      color:#fff8dc; background:rgba(43,26,11,.92); font:800 .93rem Arial,sans-serif;
+      text-align:center; opacity:0; pointer-events:none; transition:opacity .2s;
+    }
+    .newen-life-toast.visible {opacity:1;}
+    @media (prefers-reduced-motion:reduce) {
+      .newen-raindrop,.newen-recovery-heading {animation:none;}
+      .newen-raindrop {display:none;}
+    }
   </style>
 </head>
 
@@ -763,6 +845,24 @@
       </div>
     </section>
 
+
+    <!-- Pantalla independiente: baile de Txegül para recuperar Newen. -->
+    <section id="newenRecovery" class="screen" aria-label="Recuperación de Newen">
+      <div id="newenRecoveryScene" class="newen-recovery-screen">
+        <video id="newenDanceVideo" class="newen-recovery-video" src="./video_final.mp4"
+               preload="none" playsinline webkit-playsinline disablepictureinpicture></video>
+        <div id="newenRain" class="newen-rain" aria-hidden="true"></div>
+        <div class="newen-sunshine" aria-hidden="true"></div>
+        <img class="newen-recovery-image" src="./nhewen_10_vidas.png" alt="Contenedor de Newen">
+        <h2 id="newenRecoveryHeading" class="newen-recovery-heading">¡RECUPERANDO TU NEWEN!</h2>
+        <div class="newen-recovery-footer">
+          <div id="newenRecoveryOrbs" class="newen-recovery-orbs" aria-hidden="true"></div>
+          <p id="newenRecoveryCount" class="newen-recovery-count" role="status">Recuperando Newen…</p>
+          <button id="newenRetry" class="newen-retry" type="button" onclick="retryNewenVideo()" hidden>Reproducir el baile</button>
+        </div>
+      </div>
+    </section>
+
     <section id="consult" class="screen">
       <div class="consult-screen">
         <h1 class="consult-title">Ramtuchi</h1>
@@ -805,10 +905,163 @@
         <button class="grammar-back" type="button" onclick="returnFromGrammar()">Volver</button>
       </div>
     </section>
+    <div id="newenLifeToast" class="newen-life-toast" role="status" aria-live="polite"></div>
   </main>
 
   <script>
     "use strict";
+
+
+    // Sistema general de vidas; independiente del progreso de los 20 números FILU.
+    // El modo ?pruebaNewen=1 comienza con dos vidas SOLO para pruebas y no guarda esa cantidad.
+    const NEWEN_MAX_LIVES = 20;
+    const NEWEN_STORAGE_KEY = 'kimun_mapuzugun_vidas_v1';
+    const NEWEN_TEST_MODE = new URLSearchParams(window.location.search).get('pruebaNewen') === '1';
+    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix']);
+    function initialNewenLives() {
+      if (NEWEN_TEST_MODE) return 2;
+      try {
+        const saved = window.localStorage.getItem(NEWEN_STORAGE_KEY);
+        if (saved !== null && /^\d+$/.test(saved)) return Math.min(NEWEN_MAX_LIVES, Number(saved));
+      } catch (_) { /* El almacenamiento podría estar deshabilitado. */ }
+      return NEWEN_MAX_LIVES;
+    }
+    let newenLives = initialNewenLives();
+    let newenResumeScreen = 'activityOne';
+    let newenToastTimer = null;
+    let newenRecoveryFinishing = false;
+    let newenRecoveryReturnTimer = null;
+
+    function saveNewenLives() {
+      if (NEWEN_TEST_MODE) return;
+      try { window.localStorage.setItem(NEWEN_STORAGE_KEY, String(newenLives)); }
+      catch (_) { /* Conservar estado en memoria si falla el almacenamiento. */ }
+    }
+    function showNewenLifeToast(message) {
+      const toast = document.getElementById('newenLifeToast');
+      if (!toast) return;
+      if (newenToastTimer) clearTimeout(newenToastTimer);
+      toast.textContent = message;
+      toast.classList.add('visible');
+      newenToastTimer = setTimeout(() => toast.classList.remove('visible'), 2300);
+    }
+    function penalizeNewenMistake(screenId, choice) {
+      // No descontar dos veces por tocar repetidamente la misma alternativa equivocada.
+      if (choice.dataset.newenPenalized === 'yes') return false;
+      choice.dataset.newenPenalized = 'yes';
+      newenLives = Math.max(0, newenLives - 1);
+      saveNewenLives();
+      if (newenLives === 0) {
+        openNewenRecovery(screenId);
+        return true; // Al cambiar de pantalla, no reproducir después el audio anterior.
+      }
+      showNewenLifeToast(`Perdiste una vida · Newen: ${newenLives}/${NEWEN_MAX_LIVES}`);
+      return false;
+    }
+    function buildNewenRecoveryOrbs() {
+      const host = document.getElementById('newenRecoveryOrbs');
+      if (!host || host.children.length) return;
+      for (let i=0; i<10; i++) {
+        const orb = document.createElement('span');
+        orb.className = 'newen-recovery-orb';
+        host.appendChild(orb);
+      }
+    }
+    function buildNewenRain() {
+      const host = document.getElementById('newenRain');
+      if (!host || host.children.length) return;
+      // Gotas CSS: no bloquean toques ni consumen decodificación de otro vídeo.
+      for (let i=0; i<55; i++) {
+        const drop = document.createElement('i');
+        drop.className = 'newen-raindrop';
+        drop.style.left = `${(i*37.3)%100}%`;
+        drop.style.setProperty('--rain-duration', `${.65+(i%9)*.055}s`);
+        drop.style.setProperty('--rain-delay', `${-(i%13)*.17}s`);
+        host.appendChild(drop);
+      }
+    }
+    function updateNewenRecoveryProgress() {
+      const video = document.getElementById('newenDanceVideo');
+      const scene = document.getElementById('newenRecoveryScene');
+      if (!video || !scene || newenRecoveryFinishing) return;
+      const denominator = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 12;
+      const fraction = Math.min(1,Math.max(0,video.currentTime / denominator));
+      document.querySelectorAll('#newenRecoveryOrbs .newen-recovery-orb')
+        .forEach((orb,index) => orb.classList.toggle('filled', fraction >= (index+1)/10));
+      if (fraction >= .83) scene.classList.add('sunrise');
+    }
+    function setNewenVideoProblem(message) {
+      const title = document.getElementById('newenRecoveryHeading');
+      const count = document.getElementById('newenRecoveryCount');
+      const retry = document.getElementById('newenRetry');
+      if (title) title.textContent = 'RECUPERA TU NEWEN';
+      if (count) count.textContent = message;
+      if (retry) retry.hidden = false;
+    }
+    function retryNewenVideo() { startNewenDanceVideo(); }
+    function startNewenDanceVideo() {
+      const video = document.getElementById('newenDanceVideo');
+      const scene = document.getElementById('newenRecoveryScene');
+      if (!video || !scene || newenRecoveryFinishing) return;
+      scene.classList.remove('sunrise');
+      const title = document.getElementById('newenRecoveryHeading');
+      const count = document.getElementById('newenRecoveryCount');
+      const retry = document.getElementById('newenRetry');
+      if (title) title.textContent = '¡RECUPERANDO TU NEWEN!';
+      if (count) count.textContent = 'Los Txegül están recuperando tu fuerza…';
+      if (retry) retry.hidden = true;
+      document.querySelectorAll('#newenRecoveryOrbs .newen-recovery-orb')
+        .forEach(orb => orb.classList.remove('filled'));
+      try { video.pause(); video.currentTime = 0; }
+      catch (_) { /* Algunos teléfonos aún no pueden establecer currentTime. */ }
+      const play = video.play();
+      if (play && typeof play.catch==='function') {
+        play.catch(() => {
+          if (document.getElementById('newenRecovery').classList.contains('active'))
+            setNewenVideoProblem('Pulsa el botón para iniciar el baile.');
+        });
+      }
+    }
+    function openNewenRecovery(origin) {
+      if (NEWEN_EXERCISES.has(origin)) newenResumeScreen = origin;
+      newenRecoveryFinishing = false;
+      if (newenRecoveryReturnTimer) clearTimeout(newenRecoveryReturnTimer);
+      buildNewenRecoveryOrbs();
+      buildNewenRain();
+      showScreen('newenRecovery');
+      startNewenDanceVideo();
+    }
+    function completeNewenDance() {
+      if (newenRecoveryFinishing || !document.getElementById('newenRecovery').classList.contains('active')) return;
+      newenRecoveryFinishing = true;
+      const scene = document.getElementById('newenRecoveryScene');
+      if (scene) scene.classList.add('sunrise');
+      document.querySelectorAll('#newenRecoveryOrbs .newen-recovery-orb')
+        .forEach(orb => orb.classList.add('filled'));
+      newenLives = NEWEN_MAX_LIVES;
+      saveNewenLives();
+      const title = document.getElementById('newenRecoveryHeading');
+      const count = document.getElementById('newenRecoveryCount');
+      const retry = document.getElementById('newenRetry');
+      if (title) title.textContent = '¡RECUPERASTE TU NEWEN!';
+      if (count) count.textContent = `Newen recuperado: ${newenLives}/${NEWEN_MAX_LIVES}`;
+      if (retry) retry.hidden = true;
+      newenRecoveryReturnTimer = setTimeout(() => {
+        newenRecoveryFinishing = false;
+        showScreen(newenResumeScreen);
+      }, 1650);
+    }
+    function initializeNewenRecovery() {
+      const video = document.getElementById('newenDanceVideo');
+      if (!video) return;
+      video.addEventListener('timeupdate', updateNewenRecoveryProgress);
+      video.addEventListener('ended', completeNewenDance);
+      video.addEventListener('error', () => {
+        if (document.getElementById('newenRecovery').classList.contains('active'))
+          setNewenVideoProblem('No se pudo cargar video_final.mp4. Revisa el archivo en el repositorio.');
+      });
+    }
+    initializeNewenRecovery();
 
     function openAcknowledgements() {
       showScreen("acknowledgements");
@@ -880,6 +1133,7 @@
       if (!choice) return;
       const correct = number === 2;
       choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake('activityTwo', choice)) return;
       if (correct) {
         activityTwoCompleted = true;
         document.querySelectorAll('#activityTwo .activity-one-choice').forEach(button => button.disabled = true);
@@ -928,6 +1182,7 @@
       if (!choice) return;
       const correct = number === 3;
       choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake('activityThree', choice)) return;
       if (correct) {
         activityThreeCompleted = true;
         document.querySelectorAll('#activityThree .activity-one-choice').forEach(button => button.disabled = true);
@@ -976,6 +1231,7 @@
       if (!choice) return;
       const correct = number === 4;
       choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake('activityFour', choice)) return;
       if (correct) {
         activityFourCompleted = true;
         document.querySelectorAll('#activityFour .activity-one-choice').forEach(button => button.disabled = true);
@@ -1025,6 +1281,7 @@
       if (!choice) return;
       const correct = number === 5;
       choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake('activityFive', choice)) return;
       if (correct) {
         activityFiveCompleted = true;
         document.querySelectorAll('#activityFive .activity-one-choice').forEach(button => button.disabled = true);
@@ -1074,6 +1331,7 @@
       if (!choice) return;
       const correct = number === 6;
       choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake('activitySix', choice)) return;
       if (correct) {
         activitySixCompleted = true;
         document.querySelectorAll('#activitySix .activity-one-choice').forEach(button => button.disabled = true);
@@ -1133,6 +1391,7 @@
       if (!choice) return;
       const correct = number === 1;
       choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake('activityOne', choice)) return;
       if (correct) {
         activityOneCompleted = true;
         document.querySelectorAll('#activityOne .activity-one-choice').forEach(button => button.disabled = true);
@@ -1380,6 +1639,10 @@
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
+      if (NEWEN_EXERCISES.has(screenId) && newenLives === 0) {
+        openNewenRecovery(screenId);
+        return;
+      }
       if (screenId !== 'activityOne') stopActivityOneAnswerAudio();
       if (screenId !== 'activityTwo') stopActivityTwoAnswerAudio();
       if (screenId !== 'activityThree') stopActivityThreeAnswerAudio();
