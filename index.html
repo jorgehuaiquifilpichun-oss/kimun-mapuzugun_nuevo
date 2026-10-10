@@ -1008,6 +1008,43 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 .np-final-photo{width:100%;max-height:235px;object-fit:contain;margin:0 auto 8px;display:block;border-radius:12px;}
 @media(max-height:740px){.number-hint{padding:4px 6px;margin:0 0 6px}.number-hint-digit{min-width:30px;height:33px;font-size:1.3rem}.number-hint-question span{font-size:.69rem}.number-hint-question small{font-size:.62rem}.np-final-photo{max-height:180px}}
 @media(max-height:760px){.app{padding-top:5px;padding-bottom:4px}.headpiece{min-height:80px}.work-area{margin-top:5px}.challenge{padding-top:6px;padding-bottom:6px}.number-hint{margin-bottom:4px}.tabs{margin:4px 0 6px}.mode-desc{margin-bottom:5px}.subhint{margin:4px 0 5px}.footer{margin-top:5px;padding:5px}}
+
+/* SIMPLIFICACIÓN VISUAL: solo en el ejercicio de recuperación, no en FILU. */
+.headpiece{min-height:82px;padding:10px 68px;display:flex;align-items:center;justify-content:center;}
+.headpiece h1{margin:0;font-size:clamp(1.12rem,4.5vw,1.48rem);line-height:1.12;}
+.txegul{height:78px;bottom:0;}
+.work-area{grid-template-columns:minmax(0,1fr) clamp(39px,11.6vw,51px);gap:8px;margin-top:13px;}
+.challenge{padding:12px 10px 13px;}
+.progress-rail{display:none;}
+.number-hint{margin:12px 0 13px;padding:9px 7px;}
+.number-hint-digit{font-size:1.6rem;min-width:36px;height:40px;}
+.tabs{margin:14px 0 12px;}
+.feedback:empty{display:none;}
+.feedback{min-height:0;margin-top:9px;}
+#nextBtn{display:none;}
+/* Reutiliza la misma imagen y orbes de la barra de Nhewen existente. */
+.np-newen-side{
+  position:relative;top:-10px;width:100%;aspect-ratio:1 / 5.2;
+  align-self:start;border-radius:9px;
+  background:linear-gradient(95deg,#49301e,#8d623b 40%,#3f2818);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.48));
+  pointer-events:none;
+}
+.np-newen-image{display:block;width:100%;height:100%;object-fit:fill;}
+.np-newen-side .orbs{
+  position:absolute;top:19%;bottom:6.8%;left:32%;width:36%;
+  height:auto;margin:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:space-around;gap:0;
+}
+.np-newen-side .orb{width:100%;height:auto;aspect-ratio:1 / 1;flex:0 0 auto;border-width:1px;}
+.np-newen-side .life-count{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  white-space:nowrap;background:#263321;color:#fff8df;border:1px solid #bba46c;
+  padding:2px 4px;border-radius:20px;font:900 clamp(.7rem,2.8vw,.85rem)/1.1 Arial,sans-serif;
+  text-shadow:0 1px 3px #000;
+}
+@media(max-width:350px){.np-newen-side{top:-7px}.headpiece{padding-inline:54px}.work-area{gap:6px}}
+@media(max-height:740px){.headpiece{min-height:74px}.txegul{height:69px}.np-newen-side{top:-5px}}
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
@@ -1015,25 +1052,25 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 &lt;header class=&quot;top&quot;&gt;&lt;div class=&quot;brand&quot;&gt;&lt;strong&gt;KIMÜN&lt;/strong&gt;&lt;small&gt;MAPUZUGUN&lt;/small&gt;&lt;/div&gt;&lt;button class=&quot;exit&quot; id=&quot;exitBtn&quot; type=&quot;button&quot;&gt;Salir de la práctica&lt;/button&gt;&lt;/header&gt;
 &lt;section class=&quot;headpiece&quot; aria-label=&quot;Ejercicio de recuperación de Newen&quot;&gt;
 &lt;img class=&quot;txegul left&quot; src=&quot;https://raw.githubusercontent.com/jorgehuaiquifilpichun-oss/kimun-mapuzugun_nuevo/main/txegul_hembra.png&quot; alt=&quot;Txegül hembra&quot;&gt;
-&lt;h1&gt;Recupera tu&lt;br&gt;Newen aprendiendo&lt;/h1&gt;&lt;p&gt;Escucha · Escribe · Practica con tu voz&lt;/p&gt;
+&lt;h1&gt;Recupera tu Newen&lt;/h1&gt;
 &lt;img class=&quot;txegul right&quot; src=&quot;https://raw.githubusercontent.com/jorgehuaiquifilpichun-oss/kimun-mapuzugun_nuevo/main/txegul_macho.png&quot; alt=&quot;Txegül macho&quot;&gt;
 &lt;/section&gt;
 &lt;section class=&quot;work-area&quot;&gt;&lt;div class=&quot;challenge&quot; id=&quot;challenge&quot;&gt;
-&lt;div class=&quot;eyebrow&quot; id=&quot;stepLabel&quot;&gt;Palabra 1 de 10&lt;/div&gt;
+&lt;div class=&quot;eyebrow&quot; id=&quot;stepLabel&quot;&gt;1 de 10&lt;/div&gt;
 &lt;div class=&quot;progress-rail&quot; aria-label=&quot;Progreso&quot;&gt;&lt;div class=&quot;progress-fill&quot; id=&quot;progressFill&quot;&gt;&lt;/div&gt;&lt;/div&gt;
-&lt;div class=&quot;prompt&quot;&gt;Escucha la palabra en mapuzugun&lt;/div&gt;
+
 &lt;div class=&quot;number-hint&quot; aria-label=&quot;Número del desafío y pregunta oficial&quot;&gt;&lt;span class=&quot;number-hint-digit&quot; id=&quot;numberShown&quot; aria-label=&quot;Número actual&quot;&gt;1&lt;/span&gt;&lt;div class=&quot;number-hint-question&quot;&gt;&lt;span&gt;Chumgechi pigey tüfachi numeru mapuzugun mew?&lt;/span&gt;&lt;small&gt;¿Cómo se dice este número en mapudungun?&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;button class=&quot;listen&quot; type=&quot;button&quot; id=&quot;listenBtn&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;m11 5-6 4H2v6h3l6 4V5Z&quot;/&gt;&lt;path d=&quot;M15.5 8.5a5 5 0 0 1 0 7&quot;/&gt;&lt;path d=&quot;M19 5a10 10 0 0 1 0 14&quot;/&gt;&lt;/svg&gt; Escuchar audio&lt;/button&gt;
-&lt;p class=&quot;subhint&quot; id=&quot;audioHint&quot;&gt;Audio original del kimelfe Daniel Pünolef&lt;/p&gt;
+
 &lt;div class=&quot;tabs&quot; role=&quot;tablist&quot; aria-label=&quot;Modalidad de práctica&quot;&gt;
 &lt;button class=&quot;tab&quot; id=&quot;writeTab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;true&quot;&gt;✎ Escribir&lt;/button&gt;
 &lt;button class=&quot;tab&quot; id=&quot;voiceTab&quot; type=&quot;button&quot; role=&quot;tab&quot; aria-selected=&quot;false&quot;&gt;◉ Mi voz&lt;/button&gt;
 &lt;/div&gt;
-&lt;div id=&quot;writePanel&quot; role=&quot;tabpanel&quot;&gt;&lt;p class=&quot;mode-desc&quot;&gt;Escribe lo que escuchaste. Puedes intentar todas las veces que necesites.&lt;/p&gt;
+&lt;div id=&quot;writePanel&quot; role=&quot;tabpanel&quot;&gt;
 &lt;form id=&quot;writeForm&quot; autocomplete=&quot;off&quot;&gt;&lt;label class=&quot;eyebrow&quot; for=&quot;answer&quot;&gt;Tu respuesta&lt;/label&gt;&lt;input id=&quot;answer&quot; class=&quot;entry&quot; autocomplete=&quot;off&quot; autocorrect=&quot;off&quot; spellcheck=&quot;false&quot; placeholder=&quot;Escribe aquí...&quot; maxlength=&quot;40&quot; aria-label=&quot;Palabra en mapuzugun&quot;&gt;
 &lt;div id=&quot;writingCorrection&quot; class=&quot;writing-correction&quot; aria-live=&quot;polite&quot; hidden&gt;Así se escribe correctamente: &lt;strong id=&quot;writingCorrectWord&quot;&gt;&lt;/strong&gt;&lt;/div&gt;
 &lt;button class=&quot;primary&quot; type=&quot;submit&quot; id=&quot;checkBtn&quot;&gt;Comprobar respuesta&lt;/button&gt;&lt;/form&gt;&lt;/div&gt;
-&lt;div id=&quot;voicePanel&quot; role=&quot;tabpanel&quot; hidden&gt;&lt;p class=&quot;mode-desc&quot;&gt;Escucha el audio y graba tu voz. No calificamos la pronunciación.&lt;/p&gt;
+&lt;div id=&quot;voicePanel&quot; role=&quot;tabpanel&quot; hidden&gt;
 &lt;div class=&quot;record-row&quot;&gt;&lt;button class=&quot;primary&quot; id=&quot;recordBtn&quot; type=&quot;button&quot;&gt;● Grabar mi voz&lt;/button&gt;&lt;/div&gt;
 &lt;div id=&quot;voiceStatus&quot; class=&quot;voice-status&quot; aria-live=&quot;polite&quot;&gt;Pulsa «Grabar mi voz» para empezar.&lt;/div&gt;
 &lt;audio class=&quot;voice-playback&quot; id=&quot;voicePlayback&quot; controls hidden aria-label=&quot;Escuchar mi grabación&quot;&gt;&lt;/audio&gt;
@@ -1042,9 +1079,9 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 &lt;div class=&quot;completed&quot; id=&quot;completedBox&quot; hidden&gt;✓ Recuperaste 1 vida.&lt;span id=&quot;correctWord&quot; hidden&gt;&lt;/span&gt;&lt;/div&gt;
 &lt;button class=&quot;primary next&quot; type=&quot;button&quot; id=&quot;nextBtn&quot; disabled&gt;Amulepe · Siguiente palabra&lt;/button&gt;
 &lt;/div&gt;
-&lt;aside class=&quot;life-pillar&quot; aria-label=&quot;Barra de diez vidas Newen&quot;&gt;&lt;div class=&quot;pillar-caption&quot;&gt;NEWEN&lt;/div&gt;&lt;div class=&quot;orbs&quot; id=&quot;lifeOrbs&quot;&gt;&lt;/div&gt;&lt;div class=&quot;life-count&quot; id=&quot;lifeCount&quot;&gt;0/10&lt;/div&gt;&lt;/aside&gt;
+&lt;aside class=&quot;np-newen-side&quot; aria-label=&quot;Barra vertical de diez vidas Newen&quot;&gt;&lt;img class=&quot;np-newen-image&quot; src=&quot;./nhewen_10_vidas.png&quot; alt=&quot;&quot; onerror=&quot;if(!this.dataset.remote){this.dataset.remote=&#x27;1&#x27;;this.src=&#x27;https://raw.githubusercontent.com/jorgehuaiquifilpichun-oss/kimun-mapuzugun_nuevo/main/nhewen_10_vidas.png&#x27;;}else{this.style.display=&#x27;none&#x27;;}&quot;/&gt;&lt;div class=&quot;orbs&quot; id=&quot;lifeOrbs&quot;&gt;&lt;/div&gt;&lt;div class=&quot;life-count&quot; id=&quot;lifeCount&quot;&gt;0/10&lt;/div&gt;&lt;/aside&gt;
 &lt;/section&gt;
-&lt;footer class=&quot;footer&quot;&gt;Cada palabra completada recupera 1 vida. Los errores de escritura no descuentan vidas. Puedes salir cuando quieras.&lt;/footer&gt;
+
 &lt;audio id=&quot;originalAudio&quot; preload=&quot;none&quot;&gt;&lt;/audio&gt;
 &lt;/main&gt;
 &lt;div class=&quot;overlay&quot; id=&quot;confirmExit&quot; hidden&gt;&lt;section class=&quot;dialog&quot; role=&quot;dialog&quot; aria-modal=&quot;true&quot; aria-labelledby=&quot;exitTitle&quot;&gt;&lt;h2 id=&quot;exitTitle&quot;&gt;¿Salir de la práctica?&lt;/h2&gt;&lt;p id=&quot;exitText&quot;&gt;&lt;/p&gt;&lt;button class=&quot;primary&quot; id=&quot;keepPracticing&quot; type=&quot;button&quot;&gt;Seguir practicando&lt;/button&gt;&lt;button class=&quot;secondary&quot; id=&quot;confirmLeave&quot; type=&quot;button&quot;&gt;Salir con 0 vidas&lt;/button&gt;&lt;/section&gt;&lt;/div&gt;
@@ -1088,8 +1125,8 @@ function scheduleWritingAdvance(){
 function updateMeters(){drawOrbs($(&#x27;lifeOrbs&#x27;),countLives());$(&#x27;lifeCount&#x27;).textContent=countLives()+&#x27;/10&#x27;;$(&#x27;progressFill&#x27;).style.width=(countLives()*10)+&#x27;%&#x27;;}
 function stopMedia(){if(mediaRecorder&amp;&amp;mediaRecorder.state!==&#x27;inactive&#x27;){try{mediaRecorder.stop();}catch(e){}}if(stream){for(const t of stream.getTracks())t.stop();stream=null;}}
 function freeRecording(){if(recordingUrl){URL.revokeObjectURL(recordingUrl);recordingUrl=null;}refs.playback.hidden=true;refs.playback.removeAttribute(&#x27;src&#x27;);refs.playback.load();$(&#x27;retryRecording&#x27;).hidden=true;}
-function switchMode(next){if(next!==&#x27;write&#x27;&amp;&amp;next!==&#x27;voice&#x27;)return;if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;){setFeedback(&#x27;Detén primero la grabación para cambiar de modalidad.&#x27;,&#x27;bad&#x27;);return;}state.mode=next;$(&#x27;writeTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;write&#x27;));$(&#x27;voiceTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;voice&#x27;));$(&#x27;writePanel&#x27;).hidden=(next!==&#x27;write&#x27;);$(&#x27;voicePanel&#x27;).hidden=(next!==&#x27;voice&#x27;);save();setFeedback();updateVisualGuide();}
-function render(){cancelAutoNext();audioUsedOnWord=false;refs.original.pause();const index=state.current,done=state.completed[index];$(&#x27;stepLabel&#x27;).textContent=&#x27;Palabra &#x27;+(index+1)+&#x27; de 10&#x27;;$(&#x27;numberShown&#x27;).textContent=String(index+1);$(&#x27;answer&#x27;).value=&#x27;&#x27;;$(&#x27;writingCorrection&#x27;).hidden=true;$(&#x27;writingCorrectWord&#x27;).textContent=&#x27;&#x27;;$(&#x27;answer&#x27;).disabled=done;$(&#x27;checkBtn&#x27;).disabled=done;$(&#x27;completedBox&#x27;).hidden=!done;$(&#x27;correctWord&#x27;).textContent=done?WORDS[index].word:&#x27;&#x27;;$(&#x27;nextBtn&#x27;).disabled=!done;$(&#x27;nextBtn&#x27;).textContent=index===9?&#x27;Finalizar recuperación&#x27;:&#x27;Amulepe · Siguiente palabra&#x27;;refs.original.src=WORDS[index].audio;refs.voiceStatus.textContent=&#x27;Pulsa «Grabar mi voz» para empezar.&#x27;;$(&#x27;recordBtn&#x27;).textContent=&#x27;● Grabar mi voz&#x27;;$(&#x27;recordBtn&#x27;).classList.remove(&#x27;recording&#x27;);freeRecording();switchMode(state.mode);updateMeters();}
+function switchMode(next){if(next!==&#x27;write&#x27;&amp;&amp;next!==&#x27;voice&#x27;)return;if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;){setFeedback(&#x27;Detén primero la grabación para cambiar de modalidad.&#x27;,&#x27;bad&#x27;);return;}state.mode=next;$(&#x27;writeTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;write&#x27;));$(&#x27;voiceTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;voice&#x27;));$(&#x27;writePanel&#x27;).hidden=(next!==&#x27;write&#x27;);$(&#x27;voicePanel&#x27;).hidden=(next!==&#x27;voice&#x27;);$(&#x27;nextBtn&#x27;).style.display=next===&#x27;voice&#x27;?&#x27;block&#x27;:&#x27;none&#x27;;save();setFeedback();updateVisualGuide();}
+function render(){cancelAutoNext();audioUsedOnWord=false;refs.original.pause();const index=state.current,done=state.completed[index];$(&#x27;stepLabel&#x27;).textContent=(index+1)+&#x27; de 10&#x27;;$(&#x27;numberShown&#x27;).textContent=String(index+1);$(&#x27;answer&#x27;).value=&#x27;&#x27;;$(&#x27;writingCorrection&#x27;).hidden=true;$(&#x27;writingCorrectWord&#x27;).textContent=&#x27;&#x27;;$(&#x27;answer&#x27;).disabled=done;$(&#x27;checkBtn&#x27;).disabled=done;$(&#x27;completedBox&#x27;).hidden=!done;$(&#x27;correctWord&#x27;).textContent=done?WORDS[index].word:&#x27;&#x27;;$(&#x27;nextBtn&#x27;).disabled=!done;$(&#x27;nextBtn&#x27;).textContent=index===9?&#x27;Finalizar recuperación&#x27;:&#x27;Amulepe · Siguiente palabra&#x27;;refs.original.src=WORDS[index].audio;refs.voiceStatus.textContent=&#x27;Pulsa «Grabar mi voz» para empezar.&#x27;;$(&#x27;recordBtn&#x27;).textContent=&#x27;● Grabar mi voz&#x27;;$(&#x27;recordBtn&#x27;).classList.remove(&#x27;recording&#x27;);freeRecording();switchMode(state.mode);updateMeters();}
 function grantLife(){if(state.completed[state.current])return;state.completed[state.current]=true;save();updateMeters();$(&#x27;answer&#x27;).disabled=true;$(&#x27;checkBtn&#x27;).disabled=true;$(&#x27;completedBox&#x27;).hidden=false;$(&#x27;correctWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;nextBtn&#x27;).disabled=false;setFeedback(&#x27;¡Bien! Has recuperado una vida.&#x27;,&#x27;good&#x27;);updateVisualGuide();}
 function playOriginal(){audioUsedOnWord=true;updateVisualGuide();try{refs.original.pause();refs.original.currentTime=0;const p=refs.original.play();if(p)p.catch(()=&gt;setFeedback(&#x27;Toca nuevamente para permitir el audio en Chrome.&#x27;,&#x27;bad&#x27;));}catch(e){setFeedback(&#x27;No se pudo reproducir el audio.&#x27;,&#x27;bad&#x27;);}}
 function checkAnswer(e){e.preventDefault();if(state.completed[state.current])return;const value=$(&#x27;answer&#x27;).value;if(!value.trim()){setFeedback(&#x27;Primero escribe la palabra que escuchaste.&#x27;,&#x27;bad&#x27;);updateVisualGuide();return;}$(&#x27;writingCorrectWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;writingCorrection&#x27;).hidden=false;if(normalize(value)===normalize(WORDS[state.current].word)){grantLife();scheduleWritingAdvance();}else{setFeedback(&#x27;Aún no es correcto. Escucha de nuevo e inténtalo, sin perder vidas.&#x27;,&#x27;bad&#x27;);updateVisualGuide();}}
