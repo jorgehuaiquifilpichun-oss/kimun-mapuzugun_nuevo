@@ -541,6 +541,19 @@
     .activity-one-choice.incorrect::after { content:"✕"; color:#c92121; }
     .activity-one-choice:disabled { cursor:default; }
 
+    /* Actividades 7 a 20 (motor único). Ajustes rápidos: --dyn-col-top y --dyn-col-width. */
+    :root { --dyn-col-top:78.5%; --dyn-col-width:52%; }
+    .activity-one-number.dyn-number { width:34%; }
+    .activity-one-choices.dyn { display:grid; align-items:center; gap:2.4%; }
+    .activity-one-choices.dyn.row { grid-template-columns:repeat(3,1fr); }
+    .activity-one-choices.dyn.col { grid-template-columns:1fr; width:var(--dyn-col-width); top:var(--dyn-col-top); gap:6px; }
+    .activity-one-choices.dyn .activity-one-choice { position:relative; left:auto !important; top:auto; bottom:auto; width:100%; padding:0; overflow:visible; transition:transform .12s ease; }
+    .activity-one-choices.dyn .activity-one-choice:active:not(:disabled) { transform:scale(.97); }
+    .activity-one-choices.dyn .activity-one-choice img { display:block; width:100%; height:auto; pointer-events:none; }
+    .activity-one-choices.dyn .activity-one-choice::before { content:none; }
+    .activity-one-choices.dyn .activity-one-choice::after { position:absolute; left:auto; right:6%; top:50%; margin:0; transform:translateY(-50%); font-size:clamp(20px,6vw,30px); }
+    .activity-one-choices.dyn.col .activity-one-choice::after { right:3.5%; font-size:clamp(18px,5.2vw,26px); }
+
 
     /* Medidor único para las actividades posteriores a FILU. No modifica sus 20 números. */
     .newen-game-meter {
@@ -2058,6 +2071,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (screenId !== 'activityFour') stopActivityFourAnswerAudio();
       if (screenId !== 'activityFive') stopActivityFiveAnswerAudio();
       if (screenId !== 'activitySix') stopActivitySixAnswerAudio();
+      if (DYN_ACTIVITIES) DYN_ACTIVITIES.forEach(d => { if (screenId !== d.id) stopDynAnswerAudio(d.id); });
       if (screenId !== "activityOne") {
         const questionAudio = document.getElementById("activityOneQuestionAudio");
         if (questionAudio) { questionAudio.pause(); questionAudio.currentTime = 0; }
@@ -2073,6 +2087,98 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         !!target && NEWEN_EXERCISES.has(screenId));
       if (NEWEN_EXERCISES.has(screenId)) renderNewenGameMeter();
     }
+
+
+    /* ===== Actividades 7 a 20: un solo motor basado en datos =====
+       Para cambiar una pregunta basta editar DYN_ACTIVITIES (n = respuesta correcta,
+       alts = las tres alternativas, en el orden en que se muestran). */
+    var DYN_ACTIVITIES = null;
+    var DYN_STATE = {};
+    const DYN_WORDS = {6:'KAYU',7:'REQLE',8:'PURA',9:'AYLLA',10:'MARI',11:'MARI KIÑE',12:'MARI EPU',13:'MARI KÜLA',14:'MARI MELI',15:'MARI KECHU',16:'MARI KAYU',17:'MARI REQLE',18:'MARI PURA',19:'MARI AYLLA',20:'EPU MARI'};
+    const DYN_TILE = {6:'kayu',7:'reqle',8:'pura',9:'aylla',10:'mari',11:'mari_kine'};
+    const DYN_NAMES = ['Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty'];
+    const DYN_PLAN = [[7,[7,8,9]],[8,[6,7,8]],[9,[8,9,10]],[10,[9,10,11]],[11,[11,12,13]],[12,[11,12,13]],[13,[12,13,14]],
+                      [14,[13,14,15]],[15,[15,16,17]],[16,[14,15,16]],[17,[16,17,18]],[18,[18,19,20]],[19,[18,19,20]],[20,[18,19,20]]];
+    DYN_ACTIVITIES = DYN_PLAN.map(([n, alts], i) => ({ id:'activity' + DYN_NAMES[i], n, alts }));
+
+    function dynImage(num, kind) {
+      return kind === 'tile' ? './act/tile_' + DYN_TILE[num] + '.webp' : './act/placa_' + num + '.webp';
+    }
+    function buildDynamicActivities() {
+      let anchor = document.getElementById('activitySix');
+      if (!anchor) return;
+      DYN_ACTIVITIES.forEach((def, i) => {
+        const id = def.id;
+        const prev = i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id;
+        const kind = def.alts.every(n => DYN_TILE[n]) ? 'tile' : 'plaque';
+        const choices = def.alts.map(n =>
+          '<button class="activity-one-choice" type="button" data-choice="' + n + '" onclick="answerDyn(\'' + id + '\',' + n + ')" aria-label="' + DYN_WORDS[n] + '">' +
+          '<img src="' + dynImage(n, kind) + '" alt="" draggable="false"></button>').join('');
+        const sec = document.createElement('section');
+        sec.id = id; sec.className = 'screen';
+        sec.innerHTML =
+          '<div class="activity-one-screen">' +
+            '<img class="activity-one-image" src="./actividad_casa_01.png" alt="Actividad ' + def.n + '">' +
+            '<div class="activity-one-question-wrap">' +
+              '<img class="activity-one-question" src="./encabezado_pregunta_numeros.png" alt="Chumgechi pigey tüfachi numeru mapuzugun mew?">' +
+              '<button class="activity-one-speaker" type="button" onclick="playActivityOneQuestion()" aria-label="Escuchar la pregunta en mapuzugun"></button>' +
+            '</div>' +
+            '<img class="activity-one-number dyn-number" src="./act/ficha_' + String(def.n).padStart(2, '0') + '.webp" alt="Número ' + def.n + '">' +
+            '<div class="activity-one-choices dyn ' + (kind === 'tile' ? 'row' : 'col') + '" aria-label="Alternativas del número ' + def.n + '">' + choices + '</div>' +
+            '<div class="ack-controls" aria-label="Controles de la actividad ' + def.n + '">' +
+              '<button class="ack-control ack-back" type="button" onclick="showScreen(\'' + prev + '\')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>' +
+              '<button class="ack-control ack-next" type="button" onclick="advanceFromDyn(\'' + id + '\')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button>' +
+              '<button class="ack-control ack-consult" type="button" onclick="openRamtuchiDyn(\'' + id + '\')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button>' +
+            '</div>' +
+          '</div>';
+        anchor.insertAdjacentElement('afterend', sec);
+        anchor = sec;
+        NEWEN_EXERCISES.add(id);
+        DYN_STATE[id] = { completed:false, audio:null, token:0 };
+      });
+    }
+    function openRamtuchiDyn(id) { consultOrigin = id; showScreen('consult'); }
+    function stopDynAnswerAudio(id) {
+      const st = DYN_STATE[id];
+      if (!st) return;
+      st.token++;
+      if (st.audio) { st.audio.pause(); st.audio.currentTime = 0; st.audio.onended = null; st.audio.onerror = null; }
+    }
+    function answerDyn(id, number) {
+      const def = DYN_ACTIVITIES.find(d => d.id === id), st = DYN_STATE[id];
+      if (!def || !st || st.completed || newenLives <= 0 ||
+          !document.getElementById(id).classList.contains('active')) return;
+      const choice = document.querySelector('#' + id + ' .activity-one-choice[data-choice="' + number + '"]');
+      if (!choice) return;
+      const correct = number === def.n;
+      choice.classList.add(correct ? 'correct' : 'incorrect');
+      if (!correct && penalizeNewenMistake(id, choice)) return;
+      if (correct) {
+        st.completed = true;
+        document.querySelectorAll('#' + id + ' .activity-one-choice').forEach(b => b.disabled = true);
+      }
+      const questionAudio = document.getElementById('activityOneQuestionAudio');
+      if (questionAudio) questionAudio.pause();
+      stopDynAnswerAudio(id);
+      const token = st.token, file = FILU_NUMBER_AUDIO[number];
+      if (!file) return;
+      st.audio = new Audio(file);
+      st.audio.volume = 1;
+      st.audio.onended = () => {
+        if (token === st.token && correct && document.getElementById(id).classList.contains('active')) advanceFromDyn(id);
+      };
+      st.audio.onerror = () => console.warn('Audio de la alternativa no disponible:', file);
+      const playback = st.audio.play();
+      if (playback && typeof playback.catch === 'function') playback.catch(e => console.warn('No se pudo reproducir:', e));
+    }
+    function advanceFromDyn(id) {
+      const i = DYN_ACTIVITIES.findIndex(d => d.id === id);
+      const next = DYN_ACTIVITIES[i + 1];
+      if (next) { showScreen(next.id); return; }
+      showNewenLifeToast('¡Completaste las 20 actividades! Küme zugu');
+      showScreen('home');
+    }
+    buildDynamicActivities();
 
     showScreen("home");
   </script>
