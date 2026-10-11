@@ -556,6 +556,29 @@
     .activity-one-choices.dyn.col .activity-one-choice::after { right:3.5%; font-size:clamp(18px,5.2vw,26px); }
 
 
+    /* 11–20: distribuir pregunta, número, alternativas y Ramtuchi dentro
+       del alto visible. No se aplica a las actividades 1–10. */
+    .dyn-plaque-screen { height:100dvh; min-height:0; overflow:hidden; }
+    .dyn-plaque-screen > .activity-one-image {
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    }
+    .dyn-plaque-screen .activity-one-question-wrap { top:44%; }
+    .dyn-plaque-screen .activity-one-number.dyn-number { top:60%; width:30%; max-height:16dvh; object-fit:contain; }
+    .dyn-plaque-screen .activity-one-choices.dyn.col {
+      top:70%; transform:translateX(-50%); width:min(52%,250px);
+      display:flex; flex-direction:column; gap:clamp(2px,.4dvh,5px);
+    }
+    .dyn-plaque-screen .activity-one-choices.dyn.col .activity-one-choice {
+      height:clamp(35px,5.6dvh,57px); flex:0 0 auto;
+    }
+    .dyn-plaque-screen .activity-one-choices.dyn.col .activity-one-choice img {
+      width:100%; height:100%; object-fit:fill;
+    }
+    .dyn-plaque-screen .ack-consult {
+      bottom:max(4px,env(safe-area-inset-bottom)); width:min(52%,245px);
+    }
+    .dyn-plaque-screen .ack-consult img { max-height:6.5dvh; object-fit:contain; }
+
     /* Medidor único para las actividades posteriores a FILU. No modifica sus 20 números. */
     .newen-game-meter {
       position:fixed;
@@ -2146,7 +2169,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const sec = document.createElement('section');
         sec.id = id; sec.className = 'screen';
         sec.innerHTML =
-          '<div class="activity-one-screen">' +
+          '<div class="activity-one-screen' + (kind === 'plaque' ? ' dyn-plaque-screen' : '') + '">' +
             '<img class="activity-one-image" src="./actividad_casa_01.png" alt="Actividad ' + def.n + '">' +
             '<div class="activity-one-question-wrap">' +
               '<img class="activity-one-question" src="./encabezado_pregunta_numeros.png" alt="Chumgechi pigey tüfachi numeru mapuzugun mew?">' +
