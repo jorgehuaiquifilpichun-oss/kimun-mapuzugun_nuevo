@@ -1299,6 +1299,17 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       } catch (_) { return 'dance'; }
     }
     let newenNextMode = initialNewenNextMode();
+    // Migración puntual de la versión 40: comenzar por el baile en la primera
+    // recuperación posterior a esta actualización. No modifica vidas ni progreso.
+    // La marca impide reiniciar la alternancia al volver a abrir la aplicación.
+    const NEWEN_ORDER_MIGRATION_KEY = 'kimun_mapuzugun_orden_recuperacion_v41';
+    try {
+      if (window.localStorage.getItem(NEWEN_ORDER_MIGRATION_KEY) !== 'done') {
+        newenNextMode = 'dance';
+        window.localStorage.setItem(NEWEN_NEXT_MODE_KEY, 'dance');
+        window.localStorage.setItem(NEWEN_ORDER_MIGRATION_KEY, 'done');
+      }
+    } catch (_) { /* Si no hay almacenamiento, se conserva el estado en memoria. */ }
     function saveNewenNextMode(mode) {
       newenNextMode = mode;
       try { window.localStorage.setItem(NEWEN_NEXT_MODE_KEY, mode); }
