@@ -546,38 +546,14 @@
     .activity-one-number.dyn-number { width:34%; }
     .activity-one-choices.dyn { display:grid; align-items:center; gap:2.4%; }
     .activity-one-choices.dyn.row { grid-template-columns:repeat(3,1fr); }
-    /* Solo 11–20: tres placas debajo del número grande y antes de Ramtuchi. */
-    .activity-one-choices.dyn.col { grid-template-columns:1fr; width:min(60%, 285px); top:82%; gap:4px; }
+    .activity-one-choices.dyn.col { grid-template-columns:1fr; width:var(--dyn-col-width); top:var(--dyn-col-top); gap:6px; }
     .activity-one-choices.dyn .activity-one-choice { position:relative; left:auto !important; top:auto; bottom:auto; width:100%; padding:0; overflow:visible; transition:transform .12s ease; }
     .activity-one-choices.dyn .activity-one-choice:active:not(:disabled) { transform:scale(.97); }
-    .activity-one-choices.dyn .activity-one-choice img { display:block; width:100%; height:auto; object-fit:contain; pointer-events:none; }
+    .activity-one-choices.dyn .activity-one-choice img { display:block; width:100%; height:auto; pointer-events:none; }
     .activity-one-choices.dyn .activity-one-choice::before { content:none; }
     .activity-one-choices.dyn .activity-one-choice::after { position:absolute; left:auto; right:6%; top:50%; margin:0; transform:translateY(-50%); font-size:clamp(20px,6vw,30px); }
     .activity-one-choices.dyn.col .activity-one-choice::after { right:3.5%; font-size:clamp(18px,5.2vw,26px); }
 
-
-    /* 11–20: distribuir pregunta, número, alternativas y Ramtuchi dentro
-       del alto visible. No se aplica a las actividades 1–10. */
-    .dyn-plaque-screen { height:100dvh; min-height:0; overflow:hidden; }
-    .dyn-plaque-screen > .activity-one-image {
-      position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-    }
-    .dyn-plaque-screen .activity-one-question-wrap { top:44%; }
-    .dyn-plaque-screen .activity-one-number.dyn-number { top:60%; width:30%; max-height:16dvh; object-fit:contain; }
-    .dyn-plaque-screen .activity-one-choices.dyn.col {
-      top:70%; transform:translateX(-50%); width:min(52%,250px);
-      display:flex; flex-direction:column; gap:clamp(2px,.4dvh,5px);
-    }
-    .dyn-plaque-screen .activity-one-choices.dyn.col .activity-one-choice {
-      height:clamp(35px,5.6dvh,57px); flex:0 0 auto;
-    }
-    .dyn-plaque-screen .activity-one-choices.dyn.col .activity-one-choice img {
-      width:100%; height:100%; object-fit:fill;
-    }
-    .dyn-plaque-screen .ack-consult {
-      bottom:max(4px,env(safe-area-inset-bottom)); width:min(52%,245px);
-    }
-    .dyn-plaque-screen .ack-consult img { max-height:6.5dvh; object-fit:contain; }
 
     /* Medidor único para las actividades posteriores a FILU. No modifica sus 20 números. */
     .newen-game-meter {
@@ -1323,17 +1299,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       } catch (_) { return 'dance'; }
     }
     let newenNextMode = initialNewenNextMode();
-    // Migración puntual de la versión 40: comenzar por el baile en la primera
-    // recuperación posterior a esta actualización. No modifica vidas ni progreso.
-    // La marca impide reiniciar la alternancia al volver a abrir la aplicación.
-    const NEWEN_ORDER_MIGRATION_KEY = 'kimun_mapuzugun_orden_recuperacion_v41';
-    try {
-      if (window.localStorage.getItem(NEWEN_ORDER_MIGRATION_KEY) !== 'done') {
-        newenNextMode = 'dance';
-        window.localStorage.setItem(NEWEN_NEXT_MODE_KEY, 'dance');
-        window.localStorage.setItem(NEWEN_ORDER_MIGRATION_KEY, 'done');
-      }
-    } catch (_) { /* Si no hay almacenamiento, se conserva el estado en memoria. */ }
     function saveNewenNextMode(mode) {
       newenNextMode = mode;
       try { window.localStorage.setItem(NEWEN_NEXT_MODE_KEY, mode); }
@@ -2132,29 +2097,12 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     const DYN_WORDS = {6:'KAYU',7:'REQLE',8:'PURA',9:'AYLLA',10:'MARI',11:'MARI KIÑE',12:'MARI EPU',13:'MARI KÜLA',14:'MARI MELI',15:'MARI KECHU',16:'MARI KAYU',17:'MARI REQLE',18:'MARI PURA',19:'MARI AYLLA',20:'EPU MARI'};
     const DYN_TILE = {6:'kayu',7:'reqle',8:'pura',9:'aylla',10:'mari',11:'mari_kine'};
     const DYN_NAMES = ['Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen','Twenty'];
-    const DYN_PLAN = [[7,[7,8,9]],[8,[6,7,8]],[9,[8,9,10]],[10,[10,9,11]],[11,[11,12,13]],[12,[11,12,13]],[13,[12,13,14]],
+    const DYN_PLAN = [[7,[7,8,9]],[8,[6,7,8]],[9,[8,9,10]],[10,[9,10,11]],[11,[11,12,13]],[12,[11,12,13]],[13,[12,13,14]],
                       [14,[13,14,15]],[15,[15,16,17]],[16,[14,15,16]],[17,[16,17,18]],[18,[18,19,20]],[19,[18,19,20]],[20,[18,19,20]]];
     DYN_ACTIVITIES = DYN_PLAN.map(([n, alts], i) => ({ id:'activity' + DYN_NAMES[i], n, alts }));
 
-    function dynImage(num, kind, activityNumber) {
-      // Actividades 7–9: conservar exactamente las placas PNG ya configuradas.
-      if (activityNumber >= 7 && activityNumber <= 9 && kind === 'tile') {
-        return './tile_' + DYN_TILE[num] + '.png';
-      }
-      // Actividad 10: MARI, AYLLA y MARI KIÑE, desde la raíz del repositorio.
-      if (activityNumber === 10 && kind === 'tile') {
-        return './tile_' + DYN_TILE[num] + '.png';
-      }
-      // Actividades 11–20: nuevas placas n11_...png a n20_...png.
-      if (activityNumber >= 11 && num >= 11 && num <= 20) {
-        const nombres = {
-          11:'mari_kine',12:'mari_epu',13:'mari_kula',14:'mari_meli',
-          15:'mari_kechu',16:'mari_kayu',17:'mari_reqle',18:'mari_pura',
-          19:'mari_aylla',20:'epu_mari'
-        };
-        return './n' + num + '_' + nombres[num] + '.png';
-      }
-      return './tile_' + DYN_TILE[num] + '.png'; // Respaldo solo para placas anteriores
+    function dynImage(num, kind) {
+      return kind === 'tile' ? './act/tile_' + DYN_TILE[num] + '.webp' : './act/placa_' + num + '.webp';
     }
     function buildDynamicActivities() {
       let anchor = document.getElementById('activitySix');
@@ -2162,20 +2110,20 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       DYN_ACTIVITIES.forEach((def, i) => {
         const id = def.id;
         const prev = i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id;
-        const kind = def.n >= 11 ? 'plaque' : 'tile';
+        const kind = def.alts.every(n => DYN_TILE[n]) ? 'tile' : 'plaque';
         const choices = def.alts.map(n =>
           '<button class="activity-one-choice" type="button" data-choice="' + n + '" onclick="answerDyn(\'' + id + '\',' + n + ')" aria-label="' + DYN_WORDS[n] + '">' +
-          '<img src="' + dynImage(n, kind, def.n) + '" alt="" draggable="false"></button>').join('');
+          '<img src="' + dynImage(n, kind) + '" alt="" draggable="false"></button>').join('');
         const sec = document.createElement('section');
         sec.id = id; sec.className = 'screen';
         sec.innerHTML =
-          '<div class="activity-one-screen' + (kind === 'plaque' ? ' dyn-plaque-screen' : '') + '">' +
+          '<div class="activity-one-screen">' +
             '<img class="activity-one-image" src="./actividad_casa_01.png" alt="Actividad ' + def.n + '">' +
             '<div class="activity-one-question-wrap">' +
               '<img class="activity-one-question" src="./encabezado_pregunta_numeros.png" alt="Chumgechi pigey tüfachi numeru mapuzugun mew?">' +
               '<button class="activity-one-speaker" type="button" onclick="playActivityOneQuestion()" aria-label="Escuchar la pregunta en mapuzugun"></button>' +
             '</div>' +
-            '<img class="activity-one-number dyn-number" src="' + './ficha_' + String(def.n).padStart(2, '0') + '.webp" alt="Número ' + def.n + '">' +
+            '<img class="activity-one-number dyn-number" src="./act/ficha_' + String(def.n).padStart(2, '0') + '.webp" alt="Número ' + def.n + '">' +
             '<div class="activity-one-choices dyn ' + (kind === 'tile' ? 'row' : 'col') + '" aria-label="Alternativas del número ' + def.n + '">' + choices + '</div>' +
             '<div class="ack-controls" aria-label="Controles de la actividad ' + def.n + '">' +
               '<button class="ack-control ack-back" type="button" onclick="showScreen(\'' + prev + '\')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>' +
