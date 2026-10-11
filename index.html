@@ -1252,6 +1252,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         if (!Number.isInteger(amount) || amount < 1 || amount > NEWEN_MAX_LIVES) return;
         newenLives = amount;
         saveNewenLives();
+        // Una recuperación por aprendizaje completada da paso al baile la próxima vez.
+        saveNewenNextMode('dance');
         renderNewenGameMeter();
         showScreen(newenResumeScreen);
       }
@@ -1266,6 +1268,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     // Sistema general de vidas; independiente del progreso de los 20 números FILU.
     const NEWEN_MAX_LIVES = 10;
     const NEWEN_STORAGE_KEY = 'kimun_mapuzugun_vidas_v1';
+    const NEWEN_NEXT_MODE_KEY = 'kimun_mapuzugun_recuperacion_siguiente_v1';
     const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix']);
     function initialNewenLives() {
       try {
@@ -1275,6 +1278,19 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       return NEWEN_MAX_LIVES;
     }
     let newenLives = initialNewenLives();
+    // La primera recuperación es con baile. Guardar el siguiente método evita
+    // perder la alternancia al retroceder, avanzar o cerrar la aplicación.
+    function initialNewenNextMode() {
+      try {
+        return window.localStorage.getItem(NEWEN_NEXT_MODE_KEY) === 'practice' ? 'practice' : 'dance';
+      } catch (_) { return 'dance'; }
+    }
+    let newenNextMode = initialNewenNextMode();
+    function saveNewenNextMode(mode) {
+      newenNextMode = mode;
+      try { window.localStorage.setItem(NEWEN_NEXT_MODE_KEY, mode); }
+      catch (_) { /* Seguir en memoria cuando el almacenamiento no esté disponible. */ }
+    }
     let newenResumeScreen = 'activityOne';
     let newenToastTimer = null;
     let newenRecoveryFinishing = false;
@@ -1292,6 +1308,15 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       toast.classList.add('visible');
       newenToastTimer = setTimeout(() => toast.classList.remove('visible'), 2300);
     }
+    // Solo cambiar de método cuando termina una recuperación, no al entrar:
+    // si el usuario cierra la app con cero vidas, continuará con el mismo método.
+    function beginNewenRecovery(origin) {
+      if (NEWEN_EXERCISES.has(origin)) newenResumeScreen = origin;
+      if (document.getElementById('newenRecovery').classList.contains('active') ||
+          document.getElementById('newenPractice').classList.contains('active')) return;
+      if (newenNextMode === 'practice') openNewenPractice(newenResumeScreen);
+      else openNewenRecovery(newenResumeScreen);
+    }
     function penalizeNewenMistake(screenId, choice) {
       // Cada pulsación incorrecta equivale a UNA vida, incluso sobre el mismo botón.
       // Las respuestas correctas ya bloquean todos los botones en sus propias funciones.
@@ -1301,7 +1326,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       saveNewenLives();
       renderNewenGameMeter();
       if (newenLives === 0) {
-        openNewenPractice(screenId);
+        beginNewenRecovery(screenId);
         return true; // Al cambiar de pantalla, detener el audio de la actividad.
       }
       showNewenLifeToast('Perdiste una vida');
@@ -1409,6 +1434,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       renderNewenRecoveryMeter(NEWEN_MAX_LIVES);
       newenLives = NEWEN_MAX_LIVES;
       saveNewenLives();
+      // El baile devuelve las 10 vidas: el siguiente agotamiento será aprendizaje.
+      // También cubre la salida con 0 vidas desde la práctica.
+      saveNewenNextMode('practice');
       renderNewenGameMeter();
       const title = document.getElementById('newenRecoveryHeading');
       const count = document.getElementById('newenRecoveryCount');
@@ -2017,7 +2045,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
       if (NEWEN_EXERCISES.has(screenId) && newenLives === 0) {
-        openNewenPractice(screenId);
+        beginNewenRecovery(screenId);
         return;
       }
       if (screenId !== 'newenRecovery') {
