@@ -2112,7 +2112,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
                       [14,[13,14,15]],[15,[15,16,17]],[16,[14,15,16]],[17,[16,17,18]],[18,[18,19,20]],[19,[18,19,20]],[20,[18,19,20]]];
     DYN_ACTIVITIES = DYN_PLAN.map(([n, alts], i) => ({ id:'activity' + DYN_NAMES[i], n, alts }));
 
-    function dynImage(num, kind) {
+    function dynImage(num, kind, activityNumber) {
+      // Solo actividades 7–9: placas PNG en la raíz del repositorio.
+      if (activityNumber >= 7 && activityNumber <= 9 && kind === 'tile') {
+        return './tile_' + DYN_TILE[num] + '.png';
+      }
       return kind === 'tile' ? './act/tile_' + DYN_TILE[num] + '.webp' : './act/placa_' + num + '.webp';
     }
     function buildDynamicActivities() {
@@ -2124,7 +2128,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const kind = def.alts.every(n => DYN_TILE[n]) ? 'tile' : 'plaque';
         const choices = def.alts.map(n =>
           '<button class="activity-one-choice" type="button" data-choice="' + n + '" onclick="answerDyn(\'' + id + '\',' + n + ')" aria-label="' + DYN_WORDS[n] + '">' +
-          '<img src="' + dynImage(n, kind) + '" alt="" draggable="false"></button>').join('');
+          '<img src="' + dynImage(n, kind, def.n) + '" alt="" draggable="false"></button>').join('');
         const sec = document.createElement('section');
         sec.id = id; sec.className = 'screen';
         sec.innerHTML =
