@@ -672,14 +672,6 @@
       .newen-raindrop {display:none;}
     }
   
-/* Etiquetas de estado de grabación: mismas posiciones del contador y ondas */
-#voicePanel .voice-console #voiceStatus.recording-label,
-#voicePanel .voice-console #voiceStatus.playback-label{
-  font-weight:900;font-size:clamp(1rem,4.3vw,1.35rem);line-height:1.15;
-  text-align:center;letter-spacing:.015em;margin:0;padding:2px 0 6px;
-}
-#voicePanel .voice-console #voiceStatus.recording-label{color:#39FF75;}
-#voicePanel .voice-console #voiceStatus.playback-label{color:#FF8C00;}
 </style>
 </head>
 
@@ -1224,6 +1216,23 @@ body.writing-keyboard-open .app{min-height:100%;padding-bottom:12px;}
 #checkBtn.writing-ready{animation:writingButtonPulse 1.35s ease-in-out infinite;transform-origin:center;}
 @keyframes writingButtonPulse{0%,100%{box-shadow:0 0 0 0 rgba(70,221,74,.12)}50%{box-shadow:0 0 0 7px rgba(70,221,74,.30),0 0 14px rgba(70,221,74,.35)}}
 @media(prefers-reduced-motion:reduce){#checkBtn.writing-ready{animation:none;outline:3px solid #74d86b}}
+
+/* Etiquetas de grabación dentro de la pantalla real de recuperación */
+#voicePanel .voice-console #voiceStatus.recording-label,
+#voicePanel .voice-console #voiceStatus.playback-label {
+  font-family: Arial, sans-serif !important;
+  font-size: clamp(27px, 7.4vw, 36px) !important;
+  font-weight: 900 !important;
+  line-height: 1.08 !important;
+  letter-spacing: .01em !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: 0 0 4px !important;
+  min-height: 0 !important;
+  background: transparent !important;
+}
+#voicePanel .voice-console #voiceStatus.recording-label {color: #39FF75 !important;}
+#voicePanel .voice-console #voiceStatus.playback-label {color: #FF8C00 !important;}
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
@@ -1312,7 +1321,7 @@ function setMicStatus(t){
     status.textContent=&#x27;GRABANDO&#x27;;
     status.classList.add(&#x27;recording-label&#x27;);
   }else if(t===&#x27;Grabación finalizada. Escucha tu voz…&#x27;){
-    status.textContent=&#x27;REPRODUCIENDO RESPUESTA&#x27;;
+    status.textContent=&#x27;REPRODUCIENDO TU RESPUESTA&#x27;;
     status.classList.add(&#x27;playback-label&#x27;);
   }else{status.textContent=t;}
 }
