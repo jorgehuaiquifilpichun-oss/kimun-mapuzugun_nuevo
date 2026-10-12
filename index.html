@@ -1173,6 +1173,20 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 .challenge{padding-top:6px}
 .number-hint{margin-top:0;padding-top:0}
 
+
+/* CORRECCIÓN 05: aprovechar el espacio inferior en pantallas altas.
+   Se desplaza el bloque de escucha/opciones/respuesta como unidad,
+   sin modificar alturas de controles ni la lógica de los dos modos. */
+.challenge{
+  display:flex;
+  flex-direction:column;
+  min-height:calc(100dvh - 116px);
+}
+.listen{margin-top:auto;flex-shrink:0;}
+.tabs,#writePanel,#voicePanel{flex-shrink:0;}
+/* En móviles bajos, priorizar que no se corten los controles. */
+@media(max-height:680px){.challenge{min-height:0}.listen{margin-top:0}}
+
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
