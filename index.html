@@ -1295,7 +1295,7 @@ function switchMode(next){if(next!==&#x27;write&#x27;&amp;&amp;next!==&#x27;voic
 function render(){cancelAutoNext();audioUsedOnWord=false;refs.original.pause();const index=state.current,done=state.completed[index];$(&#x27;stepLabel&#x27;).textContent=(index+1)+&#x27; de 10&#x27;;$(&#x27;numberShown&#x27;).textContent=String(index+1);$(&#x27;answer&#x27;).value=&#x27;&#x27;;$(&#x27;writingCorrection&#x27;).hidden=true;$(&#x27;writingCorrectWord&#x27;).textContent=&#x27;&#x27;;$(&#x27;answer&#x27;).disabled=done;$(&#x27;checkBtn&#x27;).disabled=done;$(&#x27;completedBox&#x27;).hidden=!done;$(&#x27;correctWord&#x27;).textContent=done?WORDS[index].word:&#x27;&#x27;;$(&#x27;nextBtn&#x27;).disabled=!done;$(&#x27;nextBtn&#x27;).textContent=index===9?&#x27;Finalizar recuperación&#x27;:&#x27;Amulepe · Siguiente palabra&#x27;;refs.original.src=WORDS[index].audio;refs.voiceStatus.textContent=&#x27;Toca «Mi voz» para grabar tu respuesta.&#x27;;updateVoiceClock(0);freeRecording();switchMode(&#x27;write&#x27;);updateMeters();}
 function grantLife(){if(state.completed[state.current])return;state.completed[state.current]=true;save();updateMeters();$(&#x27;answer&#x27;).disabled=true;$(&#x27;checkBtn&#x27;).disabled=true;$(&#x27;completedBox&#x27;).hidden=false;$(&#x27;correctWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;nextBtn&#x27;).disabled=false;setFeedback(&#x27;¡Bien! Has recuperado una vida.&#x27;,&#x27;good&#x27;);updateVisualGuide();}
 function playOriginal(){audioUsedOnWord=true;updateVisualGuide();try{refs.original.pause();refs.original.currentTime=0;const p=refs.original.play();if(p)p.catch(()=&gt;setFeedback(&#x27;Toca nuevamente para permitir el audio en Chrome.&#x27;,&#x27;bad&#x27;));}catch(e){setFeedback(&#x27;No se pudo reproducir el audio.&#x27;,&#x27;bad&#x27;);}}
-function checkAnswer(e){e.preventDefault();if(state.completed[state.current])return;const value=$(&#x27;answer&#x27;).value;if(!value.trim()){setFeedback(&#x27;Primero escribe la palabra que escuchaste.&#x27;,&#x27;bad&#x27;);updateVisualGuide();return;}$(&#x27;writingCorrectWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;writingCorrection&#x27;).hidden=false;if(normalize(value)===normalize(WORDS[state.current].word)){grantLife();scheduleWritingAdvance();}else{setFeedback(&#x27;Aún no es correcto. Escucha de nuevo e inténtalo, sin perder vidas.&#x27;,&#x27;bad&#x27;);updateVisualGuide();}}
+function checkAnswer(e){e.preventDefault();restoreWritingLayout();if(state.completed[state.current])return;const value=$(&#x27;answer&#x27;).value;if(!value.trim()){setFeedback(&#x27;Primero escribe la palabra que escuchaste.&#x27;,&#x27;bad&#x27;);updateVisualGuide();return;}$(&#x27;writingCorrectWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;writingCorrection&#x27;).hidden=false;if(normalize(value)===normalize(WORDS[state.current].word)){grantLife();scheduleWritingAdvance();}else{setFeedback(&#x27;Aún no es correcto. Escucha de nuevo e inténtalo, sin perder vidas.&#x27;,&#x27;bad&#x27;);updateVisualGuide();}}
 function setMicStatus(t){refs.voiceStatus.textContent=t;}
 async function beginRecord(){if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;)return;refs.playback.pause();refs.playback.onended=null;setFeedback();if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder===&#x27;undefined&#x27;){setMicStatus(&#x27;Para grabar, abre el prototipo en Chrome mediante HTTPS y acepta el micrófono.&#x27;);return;}
 try{stream=await navigator.mediaDevices.getUserMedia({audio:true});const allowed=[&#x27;audio/webm;codecs=opus&#x27;,&#x27;audio/webm&#x27;,&#x27;audio/mp4&#x27;];const mime=allowed.find(t=&gt;MediaRecorder.isTypeSupported(t));mediaRecorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);chunks=[];recordingStarted=Date.now();mediaRecorder.ondataavailable=ev=&gt;{if(ev.data&amp;&amp;ev.data.size)chunks.push(ev.data);};mediaRecorder.onstop=()=&gt;{clearInterval(voiceTick);voiceTick=null;updateVoiceClock(Math.min(5,Math.round((Date.now()-recordingStarted)/1000)));if(stream){stream.getTracks().forEach(t=&gt;t.stop());stream=null;}const len=Date.now()-recordingStarted;const blob=new Blob(chunks,{type:mediaRecorder.mimeType||&#x27;audio/webm&#x27;});if(len&lt;500||blob.size&lt;300){setMicStatus(&#x27;Grabación demasiado corta. Prueba de nuevo.&#x27;);return;}freeRecording();recordingUrl=URL.createObjectURL(blob);refs.playback.src=recordingUrl;refs.playback.hidden=true;setMicStatus(&#x27;Grabación finalizada. Escucha tu voz…&#x27;);refs.playback.onended=()=&gt;{if(state.mode!==&#x27;voice&#x27;||state.completed[state.current])return;setMicStatus(&#x27;¡Recuperaste una vida!&#x27;);grantLife();scheduleWritingAdvance();};const p=refs.playback.play();if(p)p.catch(()=&gt;{setMicStatus(&#x27;Chrome bloqueó la reproducción automática. Toca «Mi voz» para volver a intentarlo.&#x27;);$(&#x27;retryRecording&#x27;).hidden=false;});};mediaRecorder.start();updateVoiceClock(0);clearInterval(voiceTick);voiceTick=setInterval(()=&gt;updateVoiceClock(Math.min(5,Math.floor((Date.now()-recordingStarted)/1000))),150);setMicStatus(&#x27;Te escucho… ¡Habla ahora! (máximo 5 segundos)&#x27;);setTimeout(()=&gt;{if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;)mediaRecorder.stop();},5000);}catch(e){setMicStatus(&#x27;No se pudo acceder al micrófono. Revisa permisos y conexión HTTPS.&#x27;);if(stream){stream.getTracks().forEach(t=&gt;t.stop());stream=null;}}}
@@ -1314,6 +1314,24 @@ try{video.currentTime=0;const p=video.play();if(p)p.catch(()=&gt;{$(&#x27;danceN
 danceTicker=setInterval(()=&gt;{if(danceDone)return;const elapsed=Date.now()-begin;const fromVideo=video.readyState&gt;=2&amp;&amp;Number.isFinite(video.duration)&amp;&amp;video.duration&gt;0?video.currentTime/video.duration:-1;const proportion=fromVideo&gt;=0?Math.max(fromVideo,Math.min(1,elapsed/dur)):Math.min(1,elapsed/dur);const lit=Math.min(10,Math.floor(proportion*10));drawOrbs($(&#x27;danceOrbs&#x27;),lit);$(&#x27;danceCount&#x27;).textContent=lit+&#x27;/10&#x27;;if(elapsed&gt;=dur||fromVideo&gt;=.999)finishDance();},250);}
 function restart(){cancelAutoNext();cleanDance();stopMedia();state={current:0,mode:&#x27;write&#x27;,completed:Array(10).fill(false)};save();$(&#x27;completeOverlay&#x27;).hidden=true;$(&#x27;danceLayer&#x27;).hidden=true;$(&#x27;confirmExit&#x27;).hidden=true;render();}
 
+// Al comprobar, cerrar el teclado y recuperar la vista normal del desafio.
+let writingParentScrollY=null;
+function restoreWritingLayout(){
+  const field=$(&#x27;answer&#x27;);
+  if(document.activeElement===field)field.blur();
+  document.body.classList.remove(&#x27;writing-keyboard-open&#x27;);
+  writingVisibilityTimers.forEach(clearTimeout);
+  writingVisibilityTimers=[];
+  const originalScroll=writingParentScrollY;
+  writingParentScrollY=null;
+  const reset=()=>{
+    window.scrollTo(0,0);
+    try{if(parent&amp;&amp;parent!==window&amp;&amp;originalScroll!==null)parent.scrollTo(0,originalScroll);}catch(e){}
+  };
+  reset();
+  setTimeout(reset,180);
+  setTimeout(reset,420);
+}
 // Reubicar el contenido dentro del iframe cuando el teclado reduce el área visible.
 let writingVisibilityTimers=[];
 function positionWritingControls(){
@@ -1353,6 +1371,7 @@ function scheduleWritingVisibility(){
   requestAnimationFrame(positionWritingControls);
 }
 $(&#x27;answer&#x27;).addEventListener(&#x27;focus&#x27;,()=&gt;{
+  if(writingParentScrollY===null){try{writingParentScrollY=parent&amp;&amp;parent!==window?parent.scrollY:window.scrollY;}catch(e){writingParentScrollY=0;}}
   document.body.classList.add(&#x27;writing-keyboard-open&#x27;);
   scheduleWritingVisibility();
 });
