@@ -1143,6 +1143,29 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 .voice-playback{display:none!important}
 .completed{font-weight:900}
 @media(max-height:740px){.number-hint-digit{height:68px;font-size:4.5rem}.listen{min-height:60px}.tab{min-height:65px}.number-hint-question{font-size:1rem}.challenge{padding:7px}}
+
+/* CORRECCIÓN 01: área Escribir y área Mi voz con dimensiones idénticas.
+   Los controles y su lógica original permanecen intactos. */
+#writePanel[hidden],#voicePanel[hidden]{display:none!important}
+#writePanel,#voicePanel{width:100%;min-height:0}
+#writePanel .entry,#voicePanel .voice-console{
+  width:100%;height:clamp(190px,23dvh,224px);min-height:0;
+  box-sizing:border-box;border-radius:15px;
+}
+#writePanel .entry{display:block;text-align:center;font-weight:800;font-size:clamp(1.2rem,4.6vw,1.5rem);}
+#voicePanel .voice-console{display:flex;flex-direction:column;justify-content:space-around;overflow:hidden;}
+@media(max-height:700px){#writePanel .entry,#voicePanel .voice-console{height:180px}}
+
+/* CORRECCIÓN 02: ESCUCHA EL NÚMERO llega hasta la línea inferior de Escribir.
+   Las dos opciones permanecen grandes, accesibles y por delante del fondo verde. */
+.listen{min-height:calc(clamp(68px,10dvh,90px) * 2 + 8px) !important;
+  padding-bottom:calc(clamp(68px,10dvh,90px) + 8px) !important;
+  position:relative;z-index:1;}
+.tabs{position:relative;z-index:2;
+  margin-top:calc(-1 * (clamp(68px,10dvh,90px) + 8px)) !important;
+  margin-bottom:8px !important;}
+.tab{position:relative;z-index:2;}
+
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
@@ -1153,7 +1176,7 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 &lt;div class=&quot;eyebrow&quot; id=&quot;stepLabel&quot;&gt;1 de 10&lt;/div&gt;
 &lt;div class=&quot;progress-rail&quot; aria-label=&quot;Progreso&quot; hidden&gt;&lt;div class=&quot;progress-fill&quot; id=&quot;progressFill&quot;&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p class=&quot;newen-caption&quot;&gt;Recupera aquí tu Nhewen&lt;/p&gt;&lt;div class=&quot;number-hint&quot; aria-label=&quot;Número del desafío&quot;&gt;&lt;div class=&quot;number-hint-title&quot;&gt;¡Tu desafío!&lt;/div&gt;&lt;span class=&quot;number-hint-digit&quot; id=&quot;numberShown&quot; aria-label=&quot;Número actual&quot;&gt;1&lt;/span&gt;&lt;div class=&quot;number-hint-question&quot;&gt;¿Cómo se escribe este número en mapuzungun?&lt;/div&gt;&lt;/div&gt;
+&lt;p class=&quot;newen-caption&quot;&gt;Recupera aquí tu Nhewen&lt;/p&gt;&lt;div class=&quot;number-hint&quot; aria-label=&quot;Número del desafío&quot;&gt;&lt;div class=&quot;number-hint-title&quot;&gt;¡Tu desafío!&lt;/div&gt;&lt;span class=&quot;number-hint-digit&quot; id=&quot;numberShown&quot; aria-label=&quot;Número actual&quot;&gt;1&lt;/span&gt;&lt;div class=&quot;number-hint-question&quot;&gt;¿CÓMO SE ESCRIBE ESTE NÚMERO EN MAPUZUNGUN?&lt;/div&gt;&lt;/div&gt;
 &lt;button class=&quot;listen&quot; type=&quot;button&quot; id=&quot;listenBtn&quot;&gt;&lt;svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; stroke-width=&quot;2&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;m11 5-6 4H2v6h3l6 4V5Z&quot;/&gt;&lt;path d=&quot;M15.5 8.5a5 5 0 0 1 0 7&quot;/&gt;&lt;path d=&quot;M19 5a10 10 0 0 1 0 14&quot;/&gt;&lt;/svg&gt; ESCUCHA EL NÚMERO&lt;/button&gt;
 
 &lt;div class=&quot;tabs&quot; role=&quot;tablist&quot; aria-label=&quot;Modalidad de práctica&quot;&gt;
