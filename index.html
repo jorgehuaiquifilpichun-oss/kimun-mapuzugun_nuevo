@@ -671,7 +671,16 @@
       .newen-raindrop,.newen-recovery-heading {animation:none;}
       .newen-raindrop {display:none;}
     }
-  </style>
+  
+/* Etiquetas de estado de grabación: mismas posiciones del contador y ondas */
+#voicePanel .voice-console #voiceStatus.recording-label,
+#voicePanel .voice-console #voiceStatus.playback-label{
+  font-weight:900;font-size:clamp(1rem,4.3vw,1.35rem);line-height:1.15;
+  text-align:center;letter-spacing:.015em;margin:0;padding:2px 0 6px;
+}
+#voicePanel .voice-console #voiceStatus.recording-label{color:#39FF75;}
+#voicePanel .voice-console #voiceStatus.playback-label{color:#FF8C00;}
+</style>
 </head>
 
 <body>
@@ -1296,7 +1305,17 @@ function render(){cancelAutoNext();audioUsedOnWord=false;refs.original.pause();c
 function grantLife(){if(state.completed[state.current])return;state.completed[state.current]=true;save();updateMeters();$(&#x27;answer&#x27;).disabled=true;$(&#x27;checkBtn&#x27;).disabled=true;$(&#x27;completedBox&#x27;).hidden=false;$(&#x27;correctWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;nextBtn&#x27;).disabled=false;setFeedback(&#x27;¡Bien! Has recuperado una vida.&#x27;,&#x27;good&#x27;);updateVisualGuide();}
 function playOriginal(){audioUsedOnWord=true;updateVisualGuide();try{refs.original.pause();refs.original.currentTime=0;const p=refs.original.play();if(p)p.catch(()=&gt;setFeedback(&#x27;Toca nuevamente para permitir el audio en Chrome.&#x27;,&#x27;bad&#x27;));}catch(e){setFeedback(&#x27;No se pudo reproducir el audio.&#x27;,&#x27;bad&#x27;);}}
 function checkAnswer(e){e.preventDefault();restoreWritingLayout();if(state.completed[state.current])return;const value=$(&#x27;answer&#x27;).value;if(!value.trim()){setFeedback(&#x27;Primero escribe la palabra que escuchaste.&#x27;,&#x27;bad&#x27;);updateVisualGuide();return;}$(&#x27;writingCorrectWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;writingCorrection&#x27;).hidden=false;if(normalize(value)===normalize(WORDS[state.current].word)){grantLife();scheduleWritingAdvance();}else{setFeedback(&#x27;Aún no es correcto. Escucha de nuevo e inténtalo, sin perder vidas.&#x27;,&#x27;bad&#x27;);updateVisualGuide();}}
-function setMicStatus(t){refs.voiceStatus.textContent=t;}
+function setMicStatus(t){
+  const status=refs.voiceStatus;
+  status.classList.remove(&#x27;recording-label&#x27;,&#x27;playback-label&#x27;);
+  if(t===&#x27;Te escucho… ¡Habla ahora! (máximo 5 segundos)&#x27;){
+    status.textContent=&#x27;GRABANDO&#x27;;
+    status.classList.add(&#x27;recording-label&#x27;);
+  }else if(t===&#x27;Grabación finalizada. Escucha tu voz…&#x27;){
+    status.textContent=&#x27;REPRODUCIENDO RESPUESTA&#x27;;
+    status.classList.add(&#x27;playback-label&#x27;);
+  }else{status.textContent=t;}
+}
 async function beginRecord(){if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;)return;refs.playback.pause();refs.playback.onended=null;setFeedback();if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder===&#x27;undefined&#x27;){setMicStatus(&#x27;Para grabar, abre el prototipo en Chrome mediante HTTPS y acepta el micrófono.&#x27;);return;}
 try{stream=await navigator.mediaDevices.getUserMedia({audio:true});const allowed=[&#x27;audio/webm;codecs=opus&#x27;,&#x27;audio/webm&#x27;,&#x27;audio/mp4&#x27;];const mime=allowed.find(t=&gt;MediaRecorder.isTypeSupported(t));mediaRecorder=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);chunks=[];recordingStarted=Date.now();mediaRecorder.ondataavailable=ev=&gt;{if(ev.data&amp;&amp;ev.data.size)chunks.push(ev.data);};mediaRecorder.onstop=()=&gt;{clearInterval(voiceTick);voiceTick=null;updateVoiceClock(Math.min(5,Math.round((Date.now()-recordingStarted)/1000)));if(stream){stream.getTracks().forEach(t=&gt;t.stop());stream=null;}const len=Date.now()-recordingStarted;const blob=new Blob(chunks,{type:mediaRecorder.mimeType||&#x27;audio/webm&#x27;});if(len&lt;500||blob.size&lt;300){setMicStatus(&#x27;Grabación demasiado corta. Prueba de nuevo.&#x27;);return;}freeRecording();recordingUrl=URL.createObjectURL(blob);refs.playback.src=recordingUrl;refs.playback.hidden=true;setMicStatus(&#x27;Grabación finalizada. Escucha tu voz…&#x27;);refs.playback.onended=()=&gt;{if(state.mode!==&#x27;voice&#x27;||state.completed[state.current])return;setMicStatus(&#x27;¡Recuperaste una vida!&#x27;);grantLife();scheduleWritingAdvance();};const p=refs.playback.play();if(p)p.catch(()=&gt;{setMicStatus(&#x27;Chrome bloqueó la reproducción automática. Toca «Mi voz» para volver a intentarlo.&#x27;);$(&#x27;retryRecording&#x27;).hidden=false;});};mediaRecorder.start();updateVoiceClock(0);clearInterval(voiceTick);voiceTick=setInterval(()=&gt;updateVoiceClock(Math.min(5,Math.floor((Date.now()-recordingStarted)/1000))),150);setMicStatus(&#x27;Te escucho… ¡Habla ahora! (máximo 5 segundos)&#x27;);setTimeout(()=&gt;{if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;)mediaRecorder.stop();},5000);}catch(e){setMicStatus(&#x27;No se pudo acceder al micrófono. Revisa permisos y conexión HTTPS.&#x27;);if(stream){stream.getTracks().forEach(t=&gt;t.stop());stream=null;}}}
 function toggleRecord(){beginRecord();}
