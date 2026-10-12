@@ -1318,14 +1318,34 @@ function restart(){cancelAutoNext();cleanDance();stopMedia();state={current:0,mo
 let writingVisibilityTimers=[];
 function positionWritingControls(){
   if(state.mode!==&#x27;write&#x27;||document.activeElement!==$(&#x27;answer&#x27;))return;
-  const button=$(&#x27;checkBtn&#x27;);
-  const viewport=window.visualViewport;
-  const visibleBottom=(viewport ? viewport.offsetTop+viewport.height : window.innerHeight);
-  const rect=button.getBoundingClientRect();
-  const desiredBottom=visibleBottom-12;
-  if(rect.bottom&gt;desiredBottom || rect.top&lt;8){
-    window.scrollBy({top:rect.bottom-desiredBottom,behavior:&#x27;instant&#x27;});
+  const field=$(&#x27;answer&#x27;), button=$(&#x27;checkBtn&#x27;);
+  const vv=window.visualViewport;
+  const localBottom=vv ? vv.offsetTop+vv.height : window.innerHeight;
+  // Keep the input and submit button in the same visible region of the iframe.
+  const br=button.getBoundingClientRect();
+  if(br.bottom&gt;localBottom-12){
+    window.scrollBy(0,Math.ceil(br.bottom-(localBottom-12)));
   }
+  // On Chrome Android the virtual keyboard belongs to the parent page,
+  // not to the iframe. Scroll the parent viewport as well.
+  try{
+    const frame=window.frameElement;
+    if(frame&amp;&amp;parent&amp;&amp;parent!==window){
+      const pv=parent.visualViewport;
+      const parentBottom=pv ? pv.offsetTop+pv.height : parent.innerHeight;
+      const frameRect=frame.getBoundingClientRect();
+      const buttonRect=button.getBoundingClientRect();
+      const fieldRect=field.getBoundingClientRect();
+      const buttonBottom=frameRect.top+buttonRect.bottom;
+      const fieldTop=frameRect.top+fieldRect.top;
+      const availableTop=pv ? pv.offsetTop : 0;
+      if(buttonBottom&gt;parentBottom-12){
+        parent.scrollBy(0,Math.ceil(buttonBottom-(parentBottom-12)));
+      }else if(fieldTop&lt;availableTop+8 &amp;&amp; buttonBottom&lt;parentBottom-80){
+        parent.scrollBy(0,Math.floor(fieldTop-(availableTop+8)));
+      }
+    }
+  }catch(e){/* Parent access may be restricted outside same-origin embeds. */}
 }
 function scheduleWritingVisibility(){
   writingVisibilityTimers.forEach(clearTimeout);
