@@ -1209,6 +1209,12 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 @media(max-height:680px){.challenge{min-height:0}}
 
 
+
+/* Ajuste de teclado Android: conservar a la vista el texto y la comprobación. */
+body.writing-keyboard-open .app{min-height:100%;padding-bottom:12px;}
+#checkBtn.writing-ready{animation:writingButtonPulse 1.35s ease-in-out infinite;transform-origin:center;}
+@keyframes writingButtonPulse{0%,100%{box-shadow:0 0 0 0 rgba(70,221,74,.12)}50%{box-shadow:0 0 0 7px rgba(70,221,74,.30),0 0 14px rgba(70,221,74,.35)}}
+@media(prefers-reduced-motion:reduce){#checkBtn.writing-ready{animation:none;outline:3px solid #74d86b}}
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
@@ -1285,7 +1291,7 @@ function updateMeters(){const h=$(&#x27;npHorizontalOrbs&#x27;);if(h)h.innerHTML
 function stopMedia(){refs.playback.pause();refs.playback.onended=null;clearInterval(voiceTick);voiceTick=null;if(mediaRecorder&amp;&amp;mediaRecorder.state!==&#x27;inactive&#x27;){try{mediaRecorder.stop();}catch(e){}}if(stream){for(const t of stream.getTracks())t.stop();stream=null;}}
 function freeRecording(){if(recordingUrl){URL.revokeObjectURL(recordingUrl);recordingUrl=null;}refs.playback.hidden=true;refs.playback.removeAttribute(&#x27;src&#x27;);refs.playback.load();$(&#x27;retryRecording&#x27;).hidden=true;}
 let voiceTick=null;function updateVoiceClock(sec){const el=$(&quot;voiceTimer&quot;);if(el)el.textContent=&quot;00:0&quot;+Math.min(5,sec);const bars=$(&quot;voiceBars&quot;);if(bars)Array.from(bars.children).forEach((b,i)=&gt;b.classList.toggle(&quot;lit&quot;,i&lt;sec));}
-function switchMode(next){if(next!==&#x27;write&#x27;&amp;&amp;next!==&#x27;voice&#x27;)return;if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;){setFeedback(&#x27;Detén primero la grabación para cambiar de modalidad.&#x27;,&#x27;bad&#x27;);return;}if(next===&#x27;write&#x27;){refs.playback.pause();refs.playback.onended=null;}state.mode=next;$(&#x27;writeTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;write&#x27;));$(&#x27;voiceTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;voice&#x27;));$(&#x27;writePanel&#x27;).hidden=(next!==&#x27;write&#x27;);$(&#x27;voicePanel&#x27;).hidden=(next!==&#x27;voice&#x27;);$(&#x27;nextBtn&#x27;).style.display=&#x27;none&#x27;;save();setFeedback();updateVisualGuide();if(next===&#x27;write&#x27;&amp;&amp;!$(&#x27;answer&#x27;).disabled &amp;&amp; document.activeElement===$(&#x27;writeTab&#x27;)){const field=$(&#x27;answer&#x27;);field.focus({preventScroll:true});}if(next===&#x27;voice&#x27;&amp;&amp;!state.completed[state.current])beginRecord();}
+function switchMode(next){if(next!==&#x27;write&#x27;&amp;&amp;next!==&#x27;voice&#x27;)return;if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;){setFeedback(&#x27;Detén primero la grabación para cambiar de modalidad.&#x27;,&#x27;bad&#x27;);return;}if(next===&#x27;write&#x27;){refs.playback.pause();refs.playback.onended=null;}state.mode=next;$(&#x27;writeTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;write&#x27;));$(&#x27;voiceTab&#x27;).setAttribute(&#x27;aria-selected&#x27;,String(next===&#x27;voice&#x27;));$(&#x27;writePanel&#x27;).hidden=(next!==&#x27;write&#x27;);$(&#x27;voicePanel&#x27;).hidden=(next!==&#x27;voice&#x27;);$(&#x27;nextBtn&#x27;).style.display=&#x27;none&#x27;;save();setFeedback();updateVisualGuide();if(next===&#x27;write&#x27;&amp;&amp;!$(&#x27;answer&#x27;).disabled &amp;&amp; document.activeElement===$(&#x27;writeTab&#x27;)){const field=$(&#x27;answer&#x27;);field.focus({preventScroll:true});scheduleWritingVisibility();}if(next===&#x27;voice&#x27;&amp;&amp;!state.completed[state.current])beginRecord();}
 function render(){cancelAutoNext();audioUsedOnWord=false;refs.original.pause();const index=state.current,done=state.completed[index];$(&#x27;stepLabel&#x27;).textContent=(index+1)+&#x27; de 10&#x27;;$(&#x27;numberShown&#x27;).textContent=String(index+1);$(&#x27;answer&#x27;).value=&#x27;&#x27;;$(&#x27;writingCorrection&#x27;).hidden=true;$(&#x27;writingCorrectWord&#x27;).textContent=&#x27;&#x27;;$(&#x27;answer&#x27;).disabled=done;$(&#x27;checkBtn&#x27;).disabled=done;$(&#x27;completedBox&#x27;).hidden=!done;$(&#x27;correctWord&#x27;).textContent=done?WORDS[index].word:&#x27;&#x27;;$(&#x27;nextBtn&#x27;).disabled=!done;$(&#x27;nextBtn&#x27;).textContent=index===9?&#x27;Finalizar recuperación&#x27;:&#x27;Amulepe · Siguiente palabra&#x27;;refs.original.src=WORDS[index].audio;refs.voiceStatus.textContent=&#x27;Toca «Mi voz» para grabar tu respuesta.&#x27;;updateVoiceClock(0);freeRecording();switchMode(&#x27;write&#x27;);updateMeters();}
 function grantLife(){if(state.completed[state.current])return;state.completed[state.current]=true;save();updateMeters();$(&#x27;answer&#x27;).disabled=true;$(&#x27;checkBtn&#x27;).disabled=true;$(&#x27;completedBox&#x27;).hidden=false;$(&#x27;correctWord&#x27;).textContent=WORDS[state.current].word;$(&#x27;nextBtn&#x27;).disabled=false;setFeedback(&#x27;¡Bien! Has recuperado una vida.&#x27;,&#x27;good&#x27;);updateVisualGuide();}
 function playOriginal(){audioUsedOnWord=true;updateVisualGuide();try{refs.original.pause();refs.original.currentTime=0;const p=refs.original.play();if(p)p.catch(()=&gt;setFeedback(&#x27;Toca nuevamente para permitir el audio en Chrome.&#x27;,&#x27;bad&#x27;));}catch(e){setFeedback(&#x27;No se pudo reproducir el audio.&#x27;,&#x27;bad&#x27;);}}
@@ -1307,6 +1313,39 @@ video.addEventListener(&#x27;ended&#x27;,finishDance,{once:true});video.addEvent
 try{video.currentTime=0;const p=video.play();if(p)p.catch(()=&gt;{$(&#x27;danceNotice&#x27;).textContent=&#x27;Para ver el baile, añade video_final.mp4 y pulsa reproducir en Chrome. La recuperación continúa como demostración.&#x27;;});}catch(e){}
 danceTicker=setInterval(()=&gt;{if(danceDone)return;const elapsed=Date.now()-begin;const fromVideo=video.readyState&gt;=2&amp;&amp;Number.isFinite(video.duration)&amp;&amp;video.duration&gt;0?video.currentTime/video.duration:-1;const proportion=fromVideo&gt;=0?Math.max(fromVideo,Math.min(1,elapsed/dur)):Math.min(1,elapsed/dur);const lit=Math.min(10,Math.floor(proportion*10));drawOrbs($(&#x27;danceOrbs&#x27;),lit);$(&#x27;danceCount&#x27;).textContent=lit+&#x27;/10&#x27;;if(elapsed&gt;=dur||fromVideo&gt;=.999)finishDance();},250);}
 function restart(){cancelAutoNext();cleanDance();stopMedia();state={current:0,mode:&#x27;write&#x27;,completed:Array(10).fill(false)};save();$(&#x27;completeOverlay&#x27;).hidden=true;$(&#x27;danceLayer&#x27;).hidden=true;$(&#x27;confirmExit&#x27;).hidden=true;render();}
+
+// Reubicar el contenido dentro del iframe cuando el teclado reduce el área visible.
+let writingVisibilityTimers=[];
+function positionWritingControls(){
+  if(state.mode!==&#x27;write&#x27;||document.activeElement!==$(&#x27;answer&#x27;))return;
+  const button=$(&#x27;checkBtn&#x27;);
+  const viewport=window.visualViewport;
+  const visibleBottom=(viewport ? viewport.offsetTop+viewport.height : window.innerHeight);
+  const rect=button.getBoundingClientRect();
+  const desiredBottom=visibleBottom-12;
+  if(rect.bottom&gt;desiredBottom || rect.top&lt;8){
+    window.scrollBy({top:rect.bottom-desiredBottom,behavior:&#x27;instant&#x27;});
+  }
+}
+function scheduleWritingVisibility(){
+  writingVisibilityTimers.forEach(clearTimeout);
+  writingVisibilityTimers=[80,220,420,700].map(ms=&gt;setTimeout(positionWritingControls,ms));
+  requestAnimationFrame(positionWritingControls);
+}
+$(&#x27;answer&#x27;).addEventListener(&#x27;focus&#x27;,()=&gt;{
+  document.body.classList.add(&#x27;writing-keyboard-open&#x27;);
+  scheduleWritingVisibility();
+});
+$(&#x27;answer&#x27;).addEventListener(&#x27;blur&#x27;,()=&gt;document.body.classList.remove(&#x27;writing-keyboard-open&#x27;));
+$(&#x27;answer&#x27;).addEventListener(&#x27;input&#x27;,()=&gt;{
+  $(&#x27;checkBtn&#x27;).classList.toggle(&#x27;writing-ready&#x27;,Boolean($(&#x27;answer&#x27;).value.trim()));
+  scheduleWritingVisibility();
+});
+if(window.visualViewport){
+  window.visualViewport.addEventListener(&#x27;resize&#x27;,scheduleWritingVisibility);
+  window.visualViewport.addEventListener(&#x27;scroll&#x27;,scheduleWritingVisibility);
+}
+
 $(&#x27;listenBtn&#x27;).addEventListener(&#x27;click&#x27;,playOriginal);$(&#x27;writeTab&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;switchMode(&#x27;write&#x27;));$(&#x27;voiceTab&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;switchMode(&#x27;voice&#x27;));
 $(&#x27;answer&#x27;).addEventListener(&#x27;input&#x27;,updateVisualGuide);$(&#x27;writeForm&#x27;).addEventListener(&#x27;submit&#x27;,checkAnswer);$(&#x27;recordBtn&#x27;).addEventListener(&#x27;click&#x27;,toggleRecord);$(&#x27;retryRecording&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{if(mediaRecorder&amp;&amp;mediaRecorder.state===&#x27;recording&#x27;)return;beginRecord();});
 $(&#x27;nextBtn&#x27;).addEventListener(&#x27;click&#x27;,nextWord);$(&#x27;exitBtn&#x27;).addEventListener(&#x27;click&#x27;,exitPrompt);$(&#x27;keepPracticing&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{$(&#x27;confirmExit&#x27;).hidden=true;});$(&#x27;confirmLeave&#x27;).addEventListener(&#x27;click&#x27;,exitConfirmed);$(&#x27;restartBtn&#x27;).addEventListener(&#x27;click&#x27;,()=&gt;{parent.postMessage({type:&#x27;kimun:newen-practice&#x27;,action:&#x27;resume&#x27;,lives:10},&#x27;*&#x27;);});
