@@ -1186,6 +1186,28 @@ box-shadow:0 0 0 1px #133828,0 7px 30px rgba(0,0,0,.4);}
 .tabs,#writePanel,#voicePanel{flex-shrink:0;}
 /* En móviles bajos, priorizar que no se corten los controles. */
 @media(max-height:680px){.challenge{min-height:0}.listen{margin-top:1%}}
+/* CORRECCIÓN DEFINITIVA DE DISTRIBUCIÓN: sin superposición ni hueco superior.
+   Se elimina el margen negativo heredado y se reduce 10% la altura
+   del botón de escucha, conservando los dos botones de modalidad. */
+.challenge{justify-content:flex-start;min-height:calc(100dvh - 116px)}
+.number-hint{margin-bottom:0!important}
+.listen{
+  margin-top:1%!important;
+  min-height:calc((clamp(68px,10dvh,90px) * 2 + 8px) * .9)!important;
+  height:auto!important;
+  padding:12px 8px!important;
+  box-sizing:border-box!important;
+  flex-shrink:0;
+}
+.tabs{
+  margin-top:8px!important;
+  margin-bottom:8px!important;
+  position:relative;
+}
+.tab{min-height:clamp(68px,10dvh,90px)}
+#writePanel,#voicePanel{margin-top:0}
+@media(max-height:680px){.challenge{min-height:0}}
+
 
 &lt;/style&gt;
 &lt;/head&gt;
