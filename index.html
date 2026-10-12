@@ -289,28 +289,38 @@
 
     .rakin-back img { display:block; width:100%; height:auto; }
 
-         /* FILU: cartel independiente y tablero escalado sin alterar zonas táctiles. */
-     .filu-screen {
-       position: relative; width: 100%; height: 100dvh; min-height: 0;
-       overflow: hidden; background: #160d08;
-       display: flex; flex-direction: column; align-items: center;
-       padding: max(8px, env(safe-area-inset-top)) 0 max(4px, env(safe-area-inset-bottom));
-     }
-     .filu-word-sign {
-       flex: 0 0 auto; width: min(86%, 385px); min-height: 75px;
-       display: flex; flex-direction: column; justify-content: center; align-items: center;
-       padding: 8px 16px; margin: 0 auto 5px;
-       border: 4px ridge #c78b4a; border-radius: 18px;
-       background: linear-gradient(175deg, #b87b3e 0%, #875027 45%, #673818 100%);
-       box-shadow: inset 0 2px 3px #f3c78a, 0 3px 7px #0008;
-       color: #fff0c9; text-align: center; pointer-events: none;
-     }
-     .filu-word-hint { font: 700 clamp(10px,2.8vw,13px)/1.15 Arial,sans-serif; letter-spacing:.08em; }
-     .filu-word-value { font: 900 clamp(24px,7vw,36px)/1.15 Arial,sans-serif; text-shadow: 0 2px 2px #351708; }
-     .filu-board { position: relative; flex: 0 0 auto; width: 100%; margin: 0 auto; }
-     .filu-image { display:block; width:100%; height:auto; }
+    /* FILU — siguiente plantilla */
+    .filu-screen {
+      position: relative;
+      width: 100%;
+      min-height: 100dvh;
+      overflow: hidden;
+      background: #160d08;
+      padding-top: clamp(58px, 8dvh, 76px);
+      padding-bottom: clamp(74px, 14dvh, 108px);
+    }
 
-/* FILU — zonas táctiles de los números 1–20 */
+    .filu-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      object-position: center top;
+    }
+
+    /* FILU: controles fijos alrededor de la plantilla, sin taparla */
+    .filu-screen .ack-back,
+    .filu-screen .ack-next {
+      top: 0;
+      width: 48%;
+    }
+
+    .filu-screen .ack-consult {
+      bottom: max(18px, env(safe-area-inset-bottom));
+      width: 68%;
+    }
+
+    /* FILU — zonas táctiles de los números 1–20 */
     #filuNumberHits {
       position: absolute;
       inset: 0;
@@ -537,13 +547,25 @@
     .activity-one-choices.dyn { display:grid; align-items:center; gap:2.4%; }
     .activity-one-choices.dyn.row { grid-template-columns:repeat(3,1fr); }
     /* Solo 11–20: tres placas debajo del número grande y antes de Ramtuchi. */
-    .activity-one-choices.dyn.col { grid-template-columns:1fr; width:min(39%, 187px); top:77.8%; gap:3px; }
+    /* Solo ejercicios 11–20: dos placas arriba y la tercera centrada abajo. */
+    .activity-one-choices.dyn.plaque-two-one {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      width:96%;
+      top:77.8%;
+      column-gap:1.5%;
+      row-gap:clamp(6px, 1dvh, 12px);
+    }
+    .activity-one-choices.dyn.plaque-two-one .activity-one-choice:nth-of-type(3) {
+      grid-column:1 / -1;
+      width:50%;
+      justify-self:center;
+    }
     .activity-one-choices.dyn .activity-one-choice { position:relative; left:auto !important; top:auto; bottom:auto; width:100%; padding:0; overflow:visible; transition:transform .12s ease; }
     .activity-one-choices.dyn .activity-one-choice:active:not(:disabled) { transform:scale(.97); }
     .activity-one-choices.dyn .activity-one-choice img { display:block; width:100%; height:auto; object-fit:contain; pointer-events:none; }
     .activity-one-choices.dyn .activity-one-choice::before { content:none; }
     .activity-one-choices.dyn .activity-one-choice::after { position:absolute; left:auto; right:6%; top:50%; margin:0; transform:translateY(-50%); font-size:clamp(20px,6vw,30px); }
-    .activity-one-choices.dyn.col .activity-one-choice::after { right:3.5%; font-size:clamp(18px,5.2vw,26px); }
+    .activity-one-choices.dyn.plaque-two-one .activity-one-choice::after { right:3.5%; font-size:clamp(18px,5.2vw,26px); }
 
 
     /* Medidor único para las actividades posteriores a FILU. No modifica sus 20 números. */
@@ -703,15 +725,22 @@
 
     <section id="filu" class="screen">
       <div class="filu-screen">
-        <div class="filu-word-sign" role="status" aria-live="polite" aria-atomic="true">
-          <span class="filu-word-hint">ESCUCHA Y APRENDE</span>
-          <span id="filuWordValue" class="filu-word-value">PRESIONA EL 1</span>
-        </div>
-        <div class="filu-board" id="filuBoard">
+        <div class="filu-board" style="position:relative; width:100%;">
           <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU">
           <div id="filuNumberHits" aria-label="Números FILU"></div>
           <div id="nhewenProgress" class="nhewen-progress" aria-label="Progreso de Nhewen"></div>
           <div id="filuNhewenComplete" class="filu-nhewen-complete" aria-hidden="true">NHEWEN</div>
+        </div>
+        <div class="ack-controls" aria-label="Controles de FILU">
+          <button class="ack-control ack-back" type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás">
+            <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
+          </button>
+          <button class="ack-control ack-next" type="button" onclick="advanceFromFilu()" aria-label="Amulepe, seguir a la siguiente etapa">
+            <img src="./boton_seguir.png" alt="Amulepe — Seguir">
+          </button>
+          <button class="ack-control ack-consult" type="button" onclick="openRamtuchiFromFilu()" aria-label="Ramtuchi, consultar">
+            <img src="./boton_consultar.png" alt="Ramtuchi — Consultar">
+          </button>
         </div>
         <div id="filuCelebration" class="filu-celebration" aria-hidden="true">
           <div class="confetti-layer" id="filuConfetti"></div>
@@ -2179,30 +2208,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       19:"./Kimun_mapuzungun_19_mari_aylla.mp3", 20:"./Kimun_mapuzungun_20_epu_mari.mp3"
     };
 
-    const FILU_NUMBER_WORDS = [
-      'KIÑE','EPU','KÜLA','MELI','KECHU','KAYU','REQLE','PURA','AYLLA','MARI',
-      'MARI KIÑE','MARI EPU','MARI KÜLA','MARI MELI','MARI KECHU',
-      'MARI KAYU','MARI REQLE','MARI PURA','MARI AYLLA','EPU MARI'
-    ];
-
-    function updateFiluWord(number) {
-      const label = document.getElementById('filuWordValue');
-      if (label) label.textContent = number ? FILU_NUMBER_WORDS[number - 1] : 'PRESIONA EL 1';
-    }
-
-    function fitFiluBoard() {
-      const screen = document.querySelector('#filu .filu-screen');
-      const board = document.getElementById('filuBoard');
-      const img = board && board.querySelector('.filu-image');
-      const sign = screen && screen.querySelector('.filu-word-sign');
-      if (!screen || !board || !img || !sign || !img.naturalWidth || !img.naturalHeight) return;
-      const css = getComputedStyle(screen);
-      const available = screen.clientHeight - parseFloat(css.paddingTop) - parseFloat(css.paddingBottom)
-        - sign.getBoundingClientRect().height - parseFloat(getComputedStyle(sign).marginBottom) - 3;
-      const aspect = img.naturalWidth / img.naturalHeight;
-      board.style.width = Math.max(1, Math.min(screen.clientWidth, available * aspect)) + 'px';
-    }
-
     let filuExpectedNumber = 1;
     let filuNumberAudio = null;
 
@@ -2262,8 +2267,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
       }
 
-      updateFiluWord(number);
-
       // Marcar solamente el número correcto que acaba de pulsarse.
       if (button) button.classList.add("pressed");
 
@@ -2316,7 +2319,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
 
     function resetFiluActivity() {
       filuExpectedNumber = 1;
-      updateFiluWord(0);
       if (filuNumberAudio) {
         try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
       }
@@ -2329,8 +2331,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
 
     function advanceFromFilu() {
-      if (filuExpectedNumber !== 20 ||
-          !document.getElementById('filuCelebration').classList.contains('active')) return;
       // Al completar FILU, abrir la primera actividad usando su plantilla oficial.
       showScreen("activityOne");
     }
@@ -2386,11 +2386,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
     ajustarImagenesAlternativas();
 
-    const filuBoardImage = document.querySelector('#filuBoard .filu-image');
-    if (filuBoardImage) filuBoardImage.addEventListener('load', fitFiluBoard);
-    window.addEventListener('resize', fitFiluBoard);
-    fitFiluBoard();
-
     buildFiluNumberHits();
     buildNhewenProgress();
     updateNhewenProgress(0);
@@ -2422,7 +2417,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
 
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
-      if (screenId === 'filu') fitFiluBoard();
       // La barra vertical no se muestra en FILU, menús, Ramtuchi ni en el video.
       document.getElementById('app').classList.toggle('newen-playing',
         !!target && NEWEN_EXERCISES.has(screenId));
@@ -2482,7 +2476,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
               '<button class="activity-one-speaker" type="button" onclick="playActivityOneQuestion()" aria-label="Escuchar la pregunta en mapuzugun"></button>' +
             '</div>' +
             '<img class="activity-one-number dyn-number" src="' + './ficha_' + String(def.n).padStart(2, '0') + '.webp" alt="Número ' + def.n + '">' +
-            '<div class="activity-one-choices dyn ' + (kind === 'tile' ? 'row' : 'col') + '" aria-label="Alternativas del número ' + def.n + '">' + choices + '</div>' +
+            '<div class="activity-one-choices dyn ' + (kind === 'tile' ? 'row' : 'plaque-two-one') + '" aria-label="Alternativas del número ' + def.n + '">' + choices + '</div>' +
             '<div class="ack-controls" aria-label="Controles de la actividad ' + def.n + '">' +
               '<button class="ack-control ack-back" type="button" onclick="showScreen(\'' + prev + '\')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>' +
               '<button class="ack-control ack-next" type="button" onclick="advanceFromDyn(\'' + id + '\')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button>' +
