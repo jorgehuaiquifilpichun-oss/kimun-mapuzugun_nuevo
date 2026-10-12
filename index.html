@@ -1308,6 +1308,35 @@ html,body{background:#d8c7a0!important}
 .listen,.tab,.primary,.exit{transition:transform .13s ease,filter .13s ease!important}
 .listen:active,.tab:active,.primary:active,.exit:active{transform:translateY(4px)!important;filter:brightness(.96)!important}
 @media(prefers-reduced-motion:reduce){.listen,.tab,.primary,.exit{transition:none!important}}
+
+/* AJUSTE VISUAL: paisaje visible detrás de los controles; botones oscuros con brillo fino. */
+.challenge{
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.listen{
+  background:linear-gradient(180deg,#85ef4e 0%,#31bf2f 10%,#087d29 58%,#034d22 100%)!important;
+  border:3px solid #075f27!important;
+  box-shadow:inset 0 3px 2px rgba(255,255,255,.83),inset 0 7px 7px rgba(214,255,190,.16),inset 0 -6px 7px rgba(0,30,12,.50),0 6px 0 #053c1d,0 12px 17px rgba(0,32,13,.48)!important;
+  color:#f3ffed!important;
+  text-shadow:0 2px 3px rgba(0,30,14,.65)!important;
+}
+.tab[aria-selected=&quot;true&quot;]{
+  background:linear-gradient(180deg,#50b89a 0%,#087b64 13%,#04503f 57%,#012d28 100%)!important;
+  border-color:#064d3c!important;
+  box-shadow:inset 0 3px 2px rgba(241,255,249,.78),inset 0 7px 6px rgba(174,255,228,.13),inset 0 -5px 6px rgba(0,23,18,.54),0 6px 0 #012b25,0 12px 16px rgba(0,24,19,.47)!important;
+}
+.tab:not([aria-selected=&quot;true&quot;]){
+  background:linear-gradient(180deg,#a3c77a 0%,#527b3c 13%,#31562d 58%,#1a371f 100%)!important;
+  border-color:#2d4b29!important;
+  box-shadow:inset 0 3px 2px rgba(255,255,232,.75),inset 0 7px 6px rgba(240,255,202,.11),inset 0 -5px 6px rgba(11,28,12,.52),0 6px 0 #172f1c,0 12px 16px rgba(15,29,13,.46)!important;
+}
+.primary,#checkBtn{
+  background:linear-gradient(180deg,#3caa91 0%,#08755f 13%,#034b3e 56%,#012e2b 100%)!important;
+  border-color:#044b3d!important;
+  box-shadow:inset 0 3px 2px rgba(232,255,247,.76),inset 0 7px 6px rgba(195,255,229,.11),inset 0 -5px 6px rgba(0,27,22,.55),0 6px 0 #012d29,0 12px 17px rgba(0,28,22,.46)!important;
+}
 &lt;/style&gt;
 &lt;/head&gt;
 &lt;body&gt;
