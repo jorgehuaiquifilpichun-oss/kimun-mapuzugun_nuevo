@@ -707,6 +707,36 @@
 .pairs-screen .pairs-status {display:none !important;}
 .pairs-screen .ack-back,.pairs-screen .ack-next {top:0;width:48%;}
 .pairs-screen .ack-consult {bottom:max(18px,env(safe-area-inset-bottom));width:68%;}
+
+/* Küme zugu breve tras completar Selecciona los pares. */
+.pair-kume-overlay{
+  position:absolute;
+  inset:0;
+  z-index:120;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.10);
+  pointer-events:none;
+}
+.pair-kume-overlay.show{display:flex;}
+.pair-kume-overlay img{
+  width:min(82%,390px);
+  height:auto;
+  object-fit:contain;
+  opacity:0;
+  transform:translateY(26px) scale(.72);
+  animation:pairKumeZugu 3s cubic-bezier(.2,.8,.2,1) both;
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.24));
+}
+@keyframes pairKumeZugu{
+  0%{opacity:0;transform:translateY(26px) scale(.72);}
+  14%{opacity:1;transform:translateY(-8px) scale(1.07);}
+  24%{opacity:1;transform:translateY(0) scale(1);}
+  82%{opacity:1;transform:translateY(0) scale(1);}
+  100%{opacity:0;transform:translateY(-18px) scale(.94);}
+}
+
 </style>
 </head>
 
@@ -2546,12 +2576,26 @@ function pairRender(id){
  st.matched.forEach(n=>pairMarkBoth(id,n,'ok'));
  const t=document.getElementById(id+'Status');if(t)t.textContent=st.finished?'¡Completado!':st.matched.size+'/'+cfg.count+' parejas';
 }
+
+function showPairKumeZugu(nextScreen){
+ const overlay=document.getElementById('pairKumeOverlay');
+ if(!overlay){showScreen(nextScreen);return;}
+ const img=overlay.querySelector('img');
+ overlay.classList.remove('show');
+ if(img){img.style.animation='none';void img.offsetWidth;img.style.animation='';}
+ overlay.classList.add('show');
+ setTimeout(()=>{
+   overlay.classList.remove('show');
+   showScreen(nextScreen);
+ },3000);
+}
+
 function pairSelect(id,side,value){
  const cfg=PAIR_CONFIG[id],st=PAIR_STATE[id];if(!cfg||!st||!document.getElementById(id).classList.contains('active')||st.locked||st.finished||st.matched.has(value)||newenLives<=0)return;
  if(side==='word'){pairStopAudio(id);const file=PAIR_NUMBER_AUDIO[value];if(file){st.audio=new Audio(file);st.audio.play().catch(e=>console.warn('Audio:',file,e));}st.word=value;}else{pairPop();st.number=value;}
  pairRender(id);if(st.word===null||st.number===null)return;st.locked=true;const correct=st.word===st.number;
  const w=document.querySelector('#'+id+'Hits .word[data-value="'+st.word+'"]'),n=document.querySelector('#'+id+'Hits .number[data-value="'+st.number+'"]');
- if(correct){pairMarkBoth(id,st.word,'ok');st.matched.add(value);st.word=null;st.number=null;st.locked=false;pairRender(id);if(st.matched.size===cfg.count){st.finished=true;pairRender(id);st.timer=setTimeout(()=>{if(document.getElementById(id).classList.contains('active'))showScreen(cfg.next);},900);}}
+ if(correct){pairMarkBoth(id,st.word,'ok');st.matched.add(value);st.word=null;st.number=null;st.locked=false;pairRender(id);if(st.matched.size===cfg.count){st.finished=true;pairRender(id);st.timer=setTimeout(()=>{if(document.getElementById(id).classList.contains('active'))showPairKumeZugu(cfg.next);},250);}}
  else{pairMark(id,'word',st.word,'bad');pairMark(id,'number',st.number,'bad');if(w)w.classList.add('wrong');if(n)n.classList.add('wrong');const needsRecovery=penalizeNewenMistake(id,null);if(needsRecovery){if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');st.word=null;st.number=null;st.locked=false;pairRender(id);return;}st.timer=setTimeout(()=>{document.querySelectorAll('#'+id+'Hits .pair-result-mark.bad.show').forEach(m=>{m.classList.remove('show','bad');m.textContent='';});if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');st.word=null;st.number=null;st.locked=false;pairRender(id);},650);}
 }
 Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
@@ -2724,5 +2768,12 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
 
     showScreen("home");
   </script>
+
+  <!-- Küme zugu de 3 segundos para las actividades Selecciona los pares.
+       Independiente del Küme zugu de recuperación de Newen. -->
+  <div id="pairKumeOverlay" class="pair-kume-overlay" aria-hidden="true">
+    <img src="./tregul.png" alt="¡Küme zugu!">
+  </div>
+
 </body>
 </html>
