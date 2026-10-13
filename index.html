@@ -671,12 +671,17 @@
   
 
 /* SELECCIÓN DE PARES 1–5 Y 5–10 — estilos compartidos. */
+.pairs-screen {height:100dvh; min-height:0; overflow:hidden;}
 .pairs-screen .pairs-stage {
-  width:100%; min-height:100dvh; display:flex; align-items:flex-start;
-  justify-content:center; padding:clamp(210px,32dvh,285px) 0 92px; overflow:hidden;
-  background:#183f31 url("./actividad_casa_01.png") center center / cover no-repeat;
+  position:relative; width:100%; height:100%; min-height:0; padding:0; overflow:hidden;
+  background:#183f31;
 }
-.pairs-screen .pairs-board {position:relative; width:100%; max-width:480px; margin:0 auto; line-height:0; flex:none;}
+.pairs-screen .pairs-base {display:block; width:100%; height:auto;}
+.pairs-screen .pairs-board {
+  position:absolute; left:50%; bottom:var(--pairs-board-bottom, 18%);
+  width:95%; max-width:456px; margin:0; line-height:0; flex:none;
+  transform:translateX(-50%);
+}
 .pairs-screen .pairs-art {display:block; width:100%; max-width:100%; height:auto; object-fit:contain;}
 .pairs-screen .pairs-hit {
   position:absolute; z-index:2; width:34%; height:8.2%; margin:0; padding:0;
@@ -692,9 +697,7 @@
 .pairs-screen .pairs-hit.wrong {background:rgba(218,65,65,.13);box-shadow:inset 0 0 15px rgba(218,65,65,.21);}
 .pairs-screen .pairs-hit::before,.pairs-screen .pairs-hit::after {content:none !important;display:none !important;}
 .pairs-screen .pairs-hit:disabled {cursor:default;}
-.pairs-screen .pairs-status {position:absolute;left:28%;right:28%;bottom:0;z-index:3;
- color:#fff9dc;text-align:center;font:700 12px/1.2 Arial,sans-serif;
- text-shadow:0 2px 3px #173522;pointer-events:none;}
+.pairs-screen .pairs-status {display:none !important;}
 .pairs-screen .ack-back,.pairs-screen .ack-next {top:0;width:48%;}
 .pairs-screen .ack-consult {bottom:max(18px,env(safe-area-inset-bottom));width:68%;}
 </style>
@@ -766,8 +769,8 @@
 
 
 
-    <section id="pairs01" class="screen pairs-screen"><div class="pairs-stage"><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares del 1 al 5"><div id="pairs01Hits"></div><div id="pairs01Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 1 a 5"><button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityOne')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs01')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
-<section id="pairs05" class="screen pairs-screen"><div class="pairs-stage"><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 5 a 10"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityEleven')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs05')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+    <section id="pairs01" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares del 1 al 5"><div id="pairs01Hits"></div><div id="pairs01Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 1 a 5"><button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityOne')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs01')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+<section id="pairs05" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 5 a 10"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityEleven')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs05')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="activityOne" class="screen">
       <div class="activity-one-screen">
         <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
@@ -2499,11 +2502,32 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
       if (screenId === 'filu') fitFiluBoard();
+      if (screenId === 'pairs01' || screenId === 'pairs05') {
+        requestAnimationFrame(() => alignPairBoard(screenId));
+      }
       // La barra vertical no se muestra en FILU, menús, Ramtuchi ni en el video.
       document.getElementById('app').classList.toggle('newen-playing',
         !!target && NEWEN_EXERCISES.has(screenId));
       if (NEWEN_EXERCISES.has(screenId)) renderNewenGameMeter();
     }
+
+    function alignPairBoard(screenId) {
+      const screen = document.getElementById(screenId);
+      if (!screen || !screen.classList.contains('active')) return;
+      const stage = screen.querySelector('.pairs-stage');
+      const consult = screen.querySelector('.ack-consult');
+      if (!stage || !consult) return;
+      const stageRect = stage.getBoundingClientRect();
+      const consultRect = consult.getBoundingClientRect();
+      const gap = stageRect.height * 0.02;
+      const bottom = Math.max(0, stageRect.bottom - consultRect.top + gap);
+      stage.style.setProperty('--pairs-board-bottom', bottom + 'px');
+    }
+
+    window.addEventListener('resize', () => {
+      const activePair = document.querySelector('.pairs-screen.active');
+      if (activePair) alignPairBoard(activePair.id);
+    });
 
 
     /* ===== Actividades 7 a 20: un solo motor basado en datos =====
