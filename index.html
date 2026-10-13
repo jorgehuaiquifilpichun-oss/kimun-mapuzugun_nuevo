@@ -670,31 +670,33 @@
     }
   
 
-/* PARES 5–10 — estilos aislados, sin modificar las otras pantallas. */
-#pairs05 .pairs-stage {
-  width:100%; min-height:100dvh; display:flex; align-items:center;
-  justify-content:center; padding:8px 0; overflow:hidden;
+/* SELECCIÓN DE PARES 1–5 Y 5–10 — estilos compartidos. */
+.pairs-screen .pairs-stage {
+  width:100%; min-height:100dvh; display:flex; align-items:flex-start;
+  justify-content:center; padding:clamp(210px,32dvh,285px) 0 92px; overflow:hidden;
   background:#183f31 url("./actividad_casa_01.png") center center / cover no-repeat;
 }
-#pairs05 .pairs-board {position:relative; width:100%; max-width:480px; margin:auto; line-height:0; flex:none;}
-#pairs05 .pairs-art {display:block; width:100%; max-width:100%; height:auto; object-fit:contain;}
-#pairs05 .pairs-hit {
-  position:absolute; z-index:2; width:42%; height:10.6%; margin:0; padding:0;
-  border:0 !important; outline:0; border-radius:18px;
+.pairs-screen .pairs-board {position:relative; width:100%; max-width:480px; margin:0 auto; line-height:0; flex:none;}
+.pairs-screen .pairs-art {display:block; width:100%; max-width:100%; height:auto; object-fit:contain;}
+.pairs-screen .pairs-hit {
+  position:absolute; z-index:2; width:34%; height:8.2%; margin:0; padding:0;
+  border:0 !important; outline:0; border-radius:14px;
   background:transparent; box-shadow:none; cursor:pointer;
   touch-action:manipulation; -webkit-tap-highlight-color:transparent;
   transition:background-color .15s ease, box-shadow .15s ease;
 }
-#pairs05 .pairs-hit.word {left:7%;}
-#pairs05 .pairs-hit.number {left:52%;}
-#pairs05 .pairs-hit.selected {background:rgba(255,255,235,.24);box-shadow:inset 0 0 17px rgba(255,255,255,.38);}
-#pairs05 .pairs-hit.matched {background:rgba(255,255,235,.32);box-shadow:inset 0 0 20px rgba(255,255,255,.48);}
-#pairs05 .pairs-hit.wrong {background:rgba(232,56,56,.25);box-shadow:inset 0 0 18px rgba(232,56,56,.30);}
-#pairs05 .pairs-hit::before,#pairs05 .pairs-hit::after {content:none !important;display:none !important;}
-#pairs05 .pairs-hit:disabled {cursor:default;}
-#pairs05 .pairs-status {position:absolute;left:28%;right:28%;bottom:0;z-index:3;
+.pairs-screen .pairs-hit.word {left:10%;}
+.pairs-screen .pairs-hit.number {left:56%;}
+.pairs-screen .pairs-hit.selected {background:rgba(255,255,235,.10);box-shadow:inset 0 0 10px rgba(255,255,255,.18);}
+.pairs-screen .pairs-hit.matched {background:rgba(82,190,92,.14);box-shadow:inset 0 0 15px rgba(74,176,84,.22);}
+.pairs-screen .pairs-hit.wrong {background:rgba(218,65,65,.13);box-shadow:inset 0 0 15px rgba(218,65,65,.21);}
+.pairs-screen .pairs-hit::before,.pairs-screen .pairs-hit::after {content:none !important;display:none !important;}
+.pairs-screen .pairs-hit:disabled {cursor:default;}
+.pairs-screen .pairs-status {position:absolute;left:28%;right:28%;bottom:0;z-index:3;
  color:#fff9dc;text-align:center;font:700 12px/1.2 Arial,sans-serif;
  text-shadow:0 2px 3px #173522;pointer-events:none;}
+.pairs-screen .ack-back,.pairs-screen .ack-next {top:0;width:48%;}
+.pairs-screen .ack-consult {bottom:max(18px,env(safe-area-inset-bottom));width:68%;}
 </style>
 </head>
 
@@ -764,7 +766,8 @@
 
 
 
-    <section id="pairs05" class="screen"><div class="pairs-stage"><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div></div></section>
+    <section id="pairs01" class="screen pairs-screen"><div class="pairs-stage"><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares del 1 al 5"><div id="pairs01Hits"></div><div id="pairs01Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 1 a 5"><button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityOne')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs01')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+<section id="pairs05" class="screen pairs-screen"><div class="pairs-stage"><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 5 a 10"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityEleven')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs05')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="activityOne" class="screen">
       <div class="activity-one-screen">
         <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
@@ -1594,8 +1597,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         if (!Number.isInteger(amount) || amount < 1 || amount > NEWEN_MAX_LIVES) return;
         newenLives = amount;
         saveNewenLives();
-        // Una recuperación por aprendizaje completada da paso al baile la próxima vez.
-        saveNewenNextMode('dance');
         renderNewenGameMeter();
         showScreen(newenResumeScreen);
       }
@@ -1611,7 +1612,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     const NEWEN_MAX_LIVES = 10;
     const NEWEN_STORAGE_KEY = 'kimun_mapuzugun_vidas_v1';
     const NEWEN_NEXT_MODE_KEY = 'kimun_mapuzugun_recuperacion_siguiente_v1';
-    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix','pairs05']);
+    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix','pairs01','pairs05']);
     function initialNewenLives() {
       try {
         const saved = window.localStorage.getItem(NEWEN_STORAGE_KEY);
@@ -1667,8 +1668,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (NEWEN_EXERCISES.has(origin)) newenResumeScreen = origin;
       if (document.getElementById('newenRecovery').classList.contains('active') ||
           document.getElementById('newenPractice').classList.contains('active')) return;
-      if (newenNextMode === 'practice') openNewenPractice(newenResumeScreen);
-      else openNewenRecovery(newenResumeScreen);
+      // Sin Newen no se continúa: primero se recupera aprendiendo.
+      // Si se sale con 0 vidas, la propia práctica deriva al baile de los Txegül.
+      openNewenPractice(newenResumeScreen);
     }
     function penalizeNewenMistake(screenId, choice) {
       // Cada pulsación incorrecta equivale a UNA vida, incluso sobre el mismo botón.
@@ -1787,9 +1789,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       renderNewenRecoveryMeter(NEWEN_MAX_LIVES);
       newenLives = NEWEN_MAX_LIVES;
       saveNewenLives();
-      // El baile devuelve las 10 vidas: el siguiente agotamiento será aprendizaje.
-      // También cubre la salida con 0 vidas desde la práctica.
-      saveNewenNextMode('practice');
+      // El baile devuelve las 10 vidas cuando la práctica se abandona con 0.
       renderNewenGameMeter();
       const title = document.getElementById('newenRecoveryHeading');
       const count = document.getElementById('newenRecoveryCount');
@@ -2365,8 +2365,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function advanceFromFilu() {
       if (filuExpectedNumber !== 20 ||
           !document.getElementById('filuCelebration').classList.contains('active')) return;
-      // Al completar FILU, abrir la primera actividad usando su plantilla oficial.
-      showScreen("pairs05");
+      // FILU completado: el Newen inicial queda lleno y comienza pares 1–5.
+      newenLives = NEWEN_MAX_LIVES;
+      saveNewenLives();
+      renderNewenGameMeter();
+      showScreen("pairs01");
     }
 
     /* Alineación de las alternativas 1 a 6.
@@ -2430,65 +2433,42 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     updateNhewenProgress(0);
 
 
-/* Una sola selección de pares 5-10 */
-const PAIRS05_WORDS=[10,7,6,9,8,5], PAIRS05_NUMBERS=[5,8,10,7,6,9];
-const pairs05={word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null};
-function pairs05StopAudio(){if(pairs05.audio){pairs05.audio.pause();pairs05.audio.currentTime=0;pairs05.audio=null;}}
-function pairs05Pop(){
- try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
- const c=new AC(),o=c.createOscillator(),g=c.createGain();o.type='sine';
- o.frequency.setValueAtTime(650,c.currentTime);o.frequency.exponentialRampToValueAtTime(240,c.currentTime+.09);
- g.gain.setValueAtTime(.13,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.11);
- o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.12);o.onended=()=>c.close().catch(()=>{});
- }catch(e){console.warn('Pop:',e);}
+/* Selecciones de pares 1–5 y 5–10 */
+const PAIR_CONFIG={
+ pairs01:{words:[1,4,2,5,3],numbers:[5,3,1,4,2],count:5,next:'activityOne'},
+ pairs05:{words:[10,7,6,9,8,5],numbers:[5,8,10,7,6,9],count:6,next:'activityEleven'}
+};
+const PAIR_STATE={
+ pairs01:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null},
+ pairs05:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null}
+};
+function openRamtuchiPair(id){consultOrigin=id;showScreen('consult');}
+function pairStopAudio(id){const st=PAIR_STATE[id];if(st&&st.audio){st.audio.pause();st.audio.currentTime=0;st.audio=null;}}
+function pairPop(){
+ try{const c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=330;g.gain.setValueAtTime(.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.06);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.06);}catch(_){ }
 }
-function pairs05Build(){
- const host=document.getElementById('pairs05Hits');if(!host||host.children.length)return;
- const rows=[25,36.3,47.6,58.9,70.2,81.5];
- for(const side of ['word','number']){
-  const values=side==='word'?PAIRS05_WORDS:PAIRS05_NUMBERS;
-  values.forEach((value,i)=>{const b=document.createElement('button');b.type='button';
-   b.className='pairs-hit '+side;b.dataset.side=side;b.dataset.value=value;
-   b.style.top=rows[i]+'%';b.setAttribute('aria-label',(side==='word'?'Palabra ':'Número ')+value);
-   b.onclick=()=>pairs05Select(side,value,b);host.appendChild(b);
-  });
- }
+function pairBuild(id){
+ const cfg=PAIR_CONFIG[id],host=document.getElementById(id+'Hits');if(!cfg||!host||host.children.length)return;
+ [['word',cfg.words],['number',cfg.numbers]].forEach(([side,values])=>values.forEach((value,row)=>{
+   const b=document.createElement('button');b.type='button';b.className='pairs-hit '+side;b.dataset.side=side;b.dataset.value=String(value);
+   b.style.top=(7.2+row*(85.6/(cfg.count-1)))+'%';b.setAttribute('aria-label',(side==='word'?FILU_NUMBER_WORDS[value-1]:'Número '+value));
+   b.onclick=()=>pairSelect(id,side,value);host.appendChild(b);
+ }));
 }
-function pairs05Render(){
- document.querySelectorAll('#pairs05Hits .pairs-hit').forEach(b=>{
- const n=+b.dataset.value;b.classList.toggle('matched',pairs05.matched.has(n));
- b.classList.toggle('selected',!pairs05.matched.has(n)&&(b.dataset.side==='word'?pairs05.word===n:pairs05.number===n));
- b.disabled=pairs05.matched.has(n)||pairs05.finished;
- });
- const t=document.getElementById('pairs05Status');if(t)t.textContent=pairs05.finished?'¡Completado!':pairs05.matched.size+'/6 parejas';
+function pairRender(id){
+ const cfg=PAIR_CONFIG[id],st=PAIR_STATE[id];if(!cfg||!st)return;
+ document.querySelectorAll('#'+id+'Hits .pairs-hit').forEach(b=>{const n=+b.dataset.value;b.classList.toggle('matched',st.matched.has(n));b.classList.toggle('selected',!st.matched.has(n)&&(b.dataset.side==='word'?st.word===n:st.number===n));b.disabled=st.matched.has(n)||st.finished;});
+ const t=document.getElementById(id+'Status');if(t)t.textContent=st.finished?'¡Completado!':st.matched.size+'/'+cfg.count+' parejas';
 }
-function pairs05Select(side,value){
- if(!document.getElementById('pairs05').classList.contains('active')||pairs05.locked||pairs05.finished||pairs05.matched.has(value)||newenLives<=0)return;
- if(side==='word'){pairs05StopAudio();const file=FILU_NUMBER_AUDIO[value];if(file){pairs05.audio=new Audio(file);pairs05.audio.play().catch(e=>console.warn('Audio:',file,e));}pairs05.word=value;}
- else{pairs05Pop();pairs05.number=value;}
- pairs05Render();
- if(pairs05.word===null||pairs05.number===null)return;
- pairs05.locked=true;
- const correct=pairs05.word===pairs05.number;
- const w=document.querySelector('#pairs05Hits .word[data-value="'+pairs05.word+'"]');
- const n=document.querySelector('#pairs05Hits .number[data-value="'+pairs05.number+'"]');
- if(correct){
-  pairs05.matched.add(value);pairs05.word=null;pairs05.number=null;pairs05.locked=false;pairs05Render();
-  if(pairs05.matched.size===6){pairs05.finished=true;pairs05Render();
-   pairs05.timer=setTimeout(()=>{if(document.getElementById('pairs05').classList.contains('active'))showScreen('activityOne');},900);}
- }else{
-  if(w)w.classList.add('wrong');if(n)n.classList.add('wrong');
-  const needsRecovery=penalizeNewenMistake('pairs05',null);
-  if(needsRecovery){
-   if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');
-   pairs05.word=null;pairs05.number=null;pairs05.locked=false;pairs05Render();
-   return;
-  }
-  pairs05.timer=setTimeout(()=>{if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');
-   pairs05.word=null;pairs05.number=null;pairs05.locked=false;pairs05Render();},650);
- }
+function pairSelect(id,side,value){
+ const cfg=PAIR_CONFIG[id],st=PAIR_STATE[id];if(!cfg||!st||!document.getElementById(id).classList.contains('active')||st.locked||st.finished||st.matched.has(value)||newenLives<=0)return;
+ if(side==='word'){pairStopAudio(id);const file=FILU_NUMBER_AUDIO[value];if(file){st.audio=new Audio(file);st.audio.play().catch(e=>console.warn('Audio:',file,e));}st.word=value;}else{pairPop();st.number=value;}
+ pairRender(id);if(st.word===null||st.number===null)return;st.locked=true;const correct=st.word===st.number;
+ const w=document.querySelector('#'+id+'Hits .word[data-value="'+st.word+'"]'),n=document.querySelector('#'+id+'Hits .number[data-value="'+st.number+'"]');
+ if(correct){st.matched.add(value);st.word=null;st.number=null;st.locked=false;pairRender(id);if(st.matched.size===cfg.count){st.finished=true;pairRender(id);st.timer=setTimeout(()=>{if(document.getElementById(id).classList.contains('active'))showScreen(cfg.next);},900);}}
+ else{if(w)w.classList.add('wrong');if(n)n.classList.add('wrong');const needsRecovery=penalizeNewenMistake(id,null);if(needsRecovery){if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');st.word=null;st.number=null;st.locked=false;pairRender(id);return;}st.timer=setTimeout(()=>{if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');st.word=null;st.number=null;st.locked=false;pairRender(id);},650);}
 }
-pairs05Build();pairs05Render();
+Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
@@ -2500,9 +2480,7 @@ pairs05Build();pairs05Render();
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
       }
-      if(screenId!=='pairs05'){pairs05StopAudio();if(pairs05.timer)clearTimeout(pairs05.timer);
-      pairs05.word=null;pairs05.number=null;pairs05.locked=false;
-      document.querySelectorAll('#pairs05Hits .wrong').forEach(b=>b.classList.remove('wrong'));pairs05Render();}
+      Object.keys(PAIR_STATE).forEach(id=>{if(screenId!==id){const st=PAIR_STATE[id];pairStopAudio(id);if(st.timer)clearTimeout(st.timer);st.word=null;st.number=null;st.locked=false;document.querySelectorAll('#'+id+'Hits .wrong').forEach(b=>b.classList.remove('wrong'));pairRender(id);}});
       if (screenId !== 'activityOne') stopActivityOneAnswerAudio();
       if (screenId !== 'activityTwo') stopActivityTwoAnswerAudio();
       if (screenId !== 'activityThree') stopActivityThreeAnswerAudio();
@@ -2565,7 +2543,7 @@ pairs05Build();pairs05Render();
       if (!anchor) return;
       DYN_ACTIVITIES.forEach((def, i) => {
         const id = def.id;
-        const prev = i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id;
+        const prev = def.id === 'activityEleven' ? 'pairs05' : (i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id);
         const kind = def.n >= 11 ? 'plaque' : 'tile';
         const choices = def.alts.map(n =>
           '<button class="activity-one-choice" type="button" data-choice="' + n + '" onclick="answerDyn(\'' + id + '\',' + n + ')" aria-label="' + DYN_WORDS[n] + '">' +
@@ -2629,6 +2607,7 @@ pairs05Build();pairs05Render();
     }
     function advanceFromDyn(id) {
       const i = DYN_ACTIVITIES.findIndex(d => d.id === id);
+      if (id === 'activityTen') { showScreen('pairs05'); return; }
       const next = DYN_ACTIVITIES[i + 1];
       if (next) { showScreen(next.id); return; }
       showNewenLifeToast('¡Completaste las 20 actividades! Küme zugu');
