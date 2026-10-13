@@ -738,10 +738,6 @@
 
 
 
-    <section id="pairs01" class="screen"><div class="pairs-screen"><div class="pairs-board" id="pairs01Board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares de números en mapuzungun" draggable="false"><div class="pairs-status" role="status" aria-live="polite" id="pairs01Status"></div></div></div></section>
-    <section id="pairs05" class="screen"><div class="pairs-screen"><div class="pairs-board" id="pairs05Board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares de números en mapuzungun" draggable="false"><div class="pairs-status" role="status" aria-live="polite" id="pairs05Status"></div></div></div></section>
-    <section id="pairs11" class="screen"><div class="pairs-screen"><div class="pairs-board" id="pairs11Board"><img class="pairs-art" src="./actividad_pares_11_15.png" alt="Selección de pares de números en mapuzungun" draggable="false"><div class="pairs-status" role="status" aria-live="polite" id="pairs11Status"></div></div></div></section>
-    <section id="pairs15" class="screen"><div class="pairs-screen"><div class="pairs-board" id="pairs15Board"><img class="pairs-art" src="./actividad_pares_15_20.png" alt="Selección de pares de números en mapuzungun" draggable="false"><div class="pairs-status" role="status" aria-live="polite" id="pairs15Status"></div></div></div></section>
     <section id="activityOne" class="screen">
       <div class="activity-one-screen">
         <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
@@ -1588,7 +1584,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     const NEWEN_MAX_LIVES = 10;
     const NEWEN_STORAGE_KEY = 'kimun_mapuzugun_vidas_v1';
     const NEWEN_NEXT_MODE_KEY = 'kimun_mapuzugun_recuperacion_siguiente_v1';
-    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix','pairs01','pairs05','pairs11','pairs15']);
+    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix']);
     function initialNewenLives() {
       try {
         const saved = window.localStorage.getItem(NEWEN_STORAGE_KEY);
@@ -2343,7 +2339,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (filuExpectedNumber !== 20 ||
           !document.getElementById('filuCelebration').classList.contains('active')) return;
       // Al completar FILU, abrir la primera actividad usando su plantilla oficial.
-      showScreen("pairs01");
+      showScreen("activityOne");
     }
 
     /* Alineación de las alternativas 1 a 6.
@@ -2416,7 +2412,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
       }
-      if (!screenId.startsWith('pairs')) { stopPairsAudio(); if (pairAdvanceTimer) { clearTimeout(pairAdvanceTimer); pairAdvanceTimer=null; } }
       if (screenId !== 'activityOne') stopActivityOneAnswerAudio();
       if (screenId !== 'activityTwo') stopActivityTwoAnswerAudio();
       if (screenId !== 'activityThree') stopActivityThreeAnswerAudio();
@@ -2435,7 +2430,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
       if (screenId === 'filu') fitFiluBoard();
-      if (PAIR_CONFIG[screenId]) renderPairs(screenId);
       // La barra vertical no se muestra en FILU, menús, Ramtuchi ni en el video.
       document.getElementById('app').classList.toggle('newen-playing',
         !!target && NEWEN_EXERCISES.has(screenId));
@@ -2481,7 +2475,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       DYN_ACTIVITIES.forEach((def, i) => {
         const id = def.id;
         const prev = i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id;
-        const previousScreen = def.n === 11 ? 'pairs05' : def.n === 16 ? 'pairs11' : prev;
         const kind = def.n >= 11 ? 'plaque' : 'tile';
         const choices = def.alts.map(n =>
           '<button class="activity-one-choice" type="button" data-choice="' + n + '" onclick="answerDyn(\'' + id + '\',' + n + ')" aria-label="' + DYN_WORDS[n] + '">' +
@@ -2498,7 +2491,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
             '<img class="activity-one-number dyn-number" src="' + './ficha_' + String(def.n).padStart(2, '0') + '.webp" alt="Número ' + def.n + '">' +
             '<div class="activity-one-choices dyn ' + (kind === 'tile' ? 'row' : 'plaque-two-one') + '" aria-label="Alternativas del número ' + def.n + '">' + choices + '</div>' +
             '<div class="ack-controls" aria-label="Controles de la actividad ' + def.n + '">' +
-              '<button class="ack-control ack-back" type="button" onclick="showScreen(\'' + previousScreen + '\')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>' +
+              '<button class="ack-control ack-back" type="button" onclick="showScreen(\'' + prev + '\')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>' +
               '<button class="ack-control ack-next" type="button" onclick="advanceFromDyn(\'' + id + '\')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button>' +
               '<button class="ack-control ack-consult" type="button" onclick="openRamtuchiDyn(\'' + id + '\')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button>' +
             '</div>' +
@@ -2546,100 +2539,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function advanceFromDyn(id) {
       const i = DYN_ACTIVITIES.findIndex(d => d.id === id);
       const next = DYN_ACTIVITIES[i + 1];
-      if (DYN_ACTIVITIES[i].n === 10) { showScreen('pairs05'); return; }
-      if (DYN_ACTIVITIES[i].n === 15) { showScreen('pairs11'); return; }
-      if (DYN_ACTIVITIES[i].n === 20) { showScreen('pairs15'); return; }
       if (next) { showScreen(next.id); return; }
       showNewenLifeToast('¡Completaste las 20 actividades! Küme zugu');
       showScreen('home');
     }
     buildDynamicActivities();
-
-
-    /* Motor independiente de cuatro ejercicios de pares; no altera el motor numérico. */
-    const PAIR_CONFIG = {
-      pairs01:{words:[4,5,1,2,3],numbers:[3,1,5,2,4],next:'activityOne'},
-      pairs05:{words:[10,7,6,9,8,5],numbers:[5,8,10,7,6,9],next:'activityEleven'},
-      pairs11:{words:[14,15,11,12,13],numbers:[14,12,13,11,15],next:'activitySixteen'},
-      pairs15:{words:[17,19,20,18,15,16],numbers:[18,17,20,15,19,16],next:'home'}
-    };
-    const PAIR_STATE = {};
-    let pairAudio = null, pairAdvanceTimer = null, pairAudioContext = null;
-    function stopPairsAudio() {
-      if (pairAudio) { pairAudio.pause(); pairAudio.currentTime=0; pairAudio=null; }
-    }
-    function playPairsPop() {
-      try {
-        const Ctx = window.AudioContext || window.webkitAudioContext;
-        if (!Ctx) return;
-        pairAudioContext = pairAudioContext || new Ctx();
-        if (pairAudioContext.state === 'suspended') pairAudioContext.resume();
-        const osc=pairAudioContext.createOscillator(), gain=pairAudioContext.createGain();
-        const t=pairAudioContext.currentTime;
-        osc.type='sine'; osc.frequency.setValueAtTime(620,t);
-        osc.frequency.exponentialRampToValueAtTime(220,t+.11);
-        gain.gain.setValueAtTime(.24,t); gain.gain.exponentialRampToValueAtTime(.001,t+.13);
-        osc.connect(gain); gain.connect(pairAudioContext.destination); osc.start(t); osc.stop(t+.14);
-      } catch(e) { console.warn('Pop no disponible:',e); }
-    }
-    function renderPairs(id) {
-      const cfg=PAIR_CONFIG[id], board=document.getElementById(id+'Board');
-      if (!cfg || !board) return;
-      if (!PAIR_STATE[id]) PAIR_STATE[id]={word:null,number:null,matched:new Set(),locked:false};
-      const st=PAIR_STATE[id];
-      board.querySelectorAll('.pairs-hit').forEach(b=>b.remove());
-      const rows=cfg.words.length;
-      const start=rows===5 ? 25.0 : 23.4;
-      const step=rows===5 ? 12.4 : 10.35;
-      for (const side of ['word','number']) {
-        cfg[side==='word'?'words':'numbers'].forEach((n,i)=>{
-          const b=document.createElement('button'); b.type='button';
-          b.className='pairs-hit '+side; b.style.top=(start+i*step)+'%';
-          b.dataset.value=String(n); b.dataset.side=side;
-          b.setAttribute('aria-label',(side==='word'?FILU_NUMBER_WORDS[n-1]:'Número '+n));
-          if(st.matched.has(n)) { b.classList.add('matched'); b.disabled=true; }
-          if(st[side]===n) b.classList.add('selected');
-          b.addEventListener('click',()=>selectPair(id,side,n));
-          board.appendChild(b);
-        });
-      }
-      const status=document.getElementById(id+'Status');
-      if(status) status.textContent=st.matched.size+' de '+rows+' parejas';
-    }
-    function selectPair(id,side,n) {
-      const cfg=PAIR_CONFIG[id],st=PAIR_STATE[id];
-      if (!cfg || !st || st.locked || st.matched.has(n) || newenLives<=0 ||
-          !document.getElementById(id).classList.contains('active')) return;
-      if (side==='word') {
-        stopPairsAudio();
-        const src=FILU_NUMBER_AUDIO[n];
-        if(src) {pairAudio=new Audio(src); pairAudio.play().catch(e=>console.warn('MP3 no disponible:',src,e));}
-      } else playPairsPop();
-      st[side]=n;
-      renderPairs(id);
-      if (st.word===null || st.number===null) return;
-      if (st.word===st.number) {
-        st.matched.add(n); st.word=null; st.number=null;
-        renderPairs(id);
-        if (st.matched.size===cfg.words.length) {
-          st.locked=true;
-          pairAdvanceTimer=setTimeout(()=>{
-            if (!document.getElementById(id).classList.contains('active')) return;
-            if (id==='pairs15') showNewenLifeToast('¡Completaste las 20 actividades! Küme zugu');
-            showScreen(cfg.next);
-          },850);
-        }
-      } else {
-        st.locked=true;
-        const selected=Array.from(document.querySelectorAll('#'+id+' .pairs-hit.selected'));
-        selected.forEach(b=>b.classList.add('wrong'));
-        const exhausted=penalizeNewenMistake(id);
-        setTimeout(()=>{
-          st.word=null; st.number=null; st.locked=false;
-          if (!exhausted && document.getElementById(id).classList.contains('active')) renderPairs(id);
-        },420);
-      }
-    }
 
     showScreen("home");
   </script>
