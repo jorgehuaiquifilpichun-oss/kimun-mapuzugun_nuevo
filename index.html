@@ -697,8 +697,8 @@
 .pairs-screen .pairs-hit::before,.pairs-screen .pairs-hit::after {content:none !important;display:none !important;}
 .pairs-screen .pair-result-mark {
   position:absolute;z-index:3;transform:translateY(-50%);
-  font:900 clamp(12px,3.2vw,17px)/1 Arial,Helvetica,sans-serif;
-  opacity:0;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.35);
+  font:1000 clamp(18px,4.8vw,25px)/1 Arial,Helvetica,sans-serif;
+  opacity:0;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.45),0 0 1px currentColor;
 }
 .pairs-screen .pair-result-mark.show {opacity:1;}
 .pairs-screen .pair-result-mark.ok {color:#17883b;}
@@ -2469,37 +2469,37 @@ const PAIR_CONFIG={
   words:[4,5,1,2,3],numbers:[3,1,5,2,4],count:5,next:'activityOne',
   // Zonas calibradas sobre el texto visible del PNG; no se calculan por filas.
   wordBoxes:[
-   {x:23.9,y:31.8,w:9.2,h:6.4,markX:33.7},   // MELI
-   {x:23.1,y:46.4,w:11.1,h:6.5,markX:34.8},  // KECHU
-   {x:24.2,y:60.7,w:9.1,h:6.4,markX:33.9},   // KIÑE
-   {x:24.8,y:75.1,w:7.3,h:6.0,markX:32.7},   // EPU
-   {x:24.2,y:89.2,w:9.5,h:6.5,markX:34.3}    // KÜLA
+   {x:10.5,y:31.8,w:31.5,h:6.4,markX:43.0},   // MELI — franja completa de la placa
+   {x:10.5,y:46.4,w:31.5,h:6.5,markX:43.0},  // KECHU
+   {x:10.5,y:60.7,w:31.5,h:6.4,markX:43.0},  // KIÑE
+   {x:10.5,y:75.1,w:31.5,h:6.0,markX:43.0},  // EPU
+   {x:10.5,y:89.2,w:31.5,h:6.5,markX:43.0}   // KÜLA
   ],
   numberBoxes:[
-   {x:72.8,y:31.8,w:4.6,h:7.0},              // 3
-   {x:73.2,y:46.4,w:3.7,h:7.2},              // 1
-   {x:72.8,y:60.7,w:4.6,h:7.0},              // 5
-   {x:72.8,y:75.1,w:4.7,h:7.0},              // 2
-   {x:72.8,y:89.2,w:4.8,h:7.0}               // 4
+   {x:58.0,y:31.8,w:31.5,h:7.0,markX:90.5},  // 3 — franja completa de la placa
+   {x:58.0,y:46.4,w:31.5,h:7.2,markX:90.5},  // 1
+   {x:58.0,y:60.7,w:31.5,h:7.0,markX:90.5},  // 5
+   {x:58.0,y:75.1,w:31.5,h:7.0,markX:90.5},  // 2
+   {x:58.0,y:89.2,w:31.5,h:7.0,markX:90.5}   // 4
   ]
  },
  pairs05:{
   words:[10,7,6,9,8,5],numbers:[5,8,10,7,6,9],count:6,next:'activityEleven',
   wordBoxes:[
-   {x:25.8,y:30.1,w:9.6,h:5.7,markX:36.0},   // MARI
-   {x:25.8,y:42.0,w:10.7,h:5.8,markX:37.1},  // REGLE
-   {x:25.8,y:54.1,w:10.0,h:5.8,markX:36.4},  // KAYU
-   {x:26.4,y:66.4,w:9.4,h:5.8,markX:36.4},   // AYLLA
-   {x:26.5,y:78.6,w:9.2,h:5.7,markX:36.3},   // PURA
-   {x:25.7,y:90.8,w:11.8,h:5.8,markX:38.1}   // KECHU
+   {x:10.5,y:30.1,w:32.5,h:5.7,markX:44.0},   // MARI — franja completa de la placa
+   {x:10.5,y:42.0,w:32.5,h:5.8,markX:44.0},  // REGLE
+   {x:10.5,y:54.1,w:32.5,h:5.8,markX:44.0},  // KAYU
+   {x:10.5,y:66.4,w:32.5,h:5.8,markX:44.0},  // AYLLA
+   {x:10.5,y:78.6,w:32.5,h:5.7,markX:44.0},  // PURA
+   {x:10.5,y:90.8,w:32.5,h:5.8,markX:44.0}   // KECHU
   ],
   numberBoxes:[
-   {x:69.7,y:30.1,w:4.3,h:6.8},              // 5
-   {x:69.7,y:42.0,w:4.5,h:6.8},              // 8
-   {x:68.5,y:54.1,w:7.2,h:6.8},              // 10
-   {x:69.7,y:66.4,w:4.4,h:6.8},              // 7
-   {x:69.7,y:78.6,w:4.5,h:6.8},              // 6
-   {x:69.7,y:90.8,w:4.5,h:6.8}               // 9
+   {x:57.0,y:30.1,w:32.5,h:6.8,markX:90.5},  // 5 — franja completa de la placa
+   {x:57.0,y:42.0,w:32.5,h:6.8,markX:90.5},  // 8
+   {x:57.0,y:54.1,w:32.5,h:6.8,markX:90.5},  // 10
+   {x:57.0,y:66.4,w:32.5,h:6.8,markX:90.5},  // 7
+   {x:57.0,y:78.6,w:32.5,h:6.8,markX:90.5},  // 6
+   {x:57.0,y:90.8,w:32.5,h:6.8,markX:90.5}   // 9
   ]
  }
 };
