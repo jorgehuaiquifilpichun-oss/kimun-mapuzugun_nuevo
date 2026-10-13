@@ -2436,7 +2436,27 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     updateNhewenProgress(0);
 
 
+/* Selecciones de pares — sistema de audio independiente de FILU y de los ejercicios numéricos. */
+const PAIR_NUMBER_AUDIO={
+  1:"./Kimun_mapuzungun_01_kine.mp3", 2:"./Kimun_mapuzungun_02_epu.mp3",
+  3:"./Kimun_mapuzungun_03_kula.mp3", 4:"./Kimun_mapuzungun_04_meli.mp3",
+  5:"./Kimun_mapuzungun_05_kechu.mp3", 6:"./Kimun_mapuzungun_06_kayu.mp3",
+  7:"./Kimun_mapuzungun_07_reqle.mp3", 8:"./Kimun_mapuzungun_08_pura.mp3",
+  9:"./Kimun_mapuzungun_09_aylla.mp3", 10:"./Kimun_mapuzungun_10_mari.mp3",
+  11:"./Kimun_mapuzungun_11_mari_kine.mp3", 12:"./Kimun_mapuzungun_12_mari_epu.mp3",
+  13:"./Kimun_mapuzungun_13_mari_kula.mp3", 14:"./Kimun_mapuzungun_14_mari_meli.mp3",
+  15:"./Kimun_mapuzungun_15_mari_kechu.mp3", 16:"./Kimun_mapuzungun_16_mari_kayu.mp3",
+  17:"./Kimun_mapuzungun_17_mari_reqle.mp3", 18:"./Kimun_mapuzungun_18_mari_pura.mp3",
+  19:"./Kimun_mapuzungun_19_mari_aylla.mp3", 20:"./Kimun_mapuzungun_20_epu_mari.mp3"
+};
+const PAIR_NUMBER_WORDS=[
+  'KIÑE','EPU','KÜLA','MELI','KECHU','KAYU','REQLE','PURA','AYLLA','MARI',
+  'MARI KIÑE','MARI EPU','MARI KÜLA','MARI MELI','MARI KECHU',
+  'MARI KAYU','MARI REQLE','MARI PURA','MARI AYLLA','EPU MARI'
+];
+
 /* Selecciones de pares 1–5 y 5–10 */
+
 const PAIR_CONFIG={
  pairs01:{words:[1,4,2,5,3],numbers:[5,3,1,4,2],count:5,next:'activityOne'},
  pairs05:{words:[10,7,6,9,8,5],numbers:[5,8,10,7,6,9],count:6,next:'activityEleven'}
@@ -2454,7 +2474,7 @@ function pairBuild(id){
  const cfg=PAIR_CONFIG[id],host=document.getElementById(id+'Hits');if(!cfg||!host||host.children.length)return;
  [['word',cfg.words],['number',cfg.numbers]].forEach(([side,values])=>values.forEach((value,row)=>{
    const b=document.createElement('button');b.type='button';b.className='pairs-hit '+side;b.dataset.side=side;b.dataset.value=String(value);
-   b.style.top=(7.2+row*(85.6/(cfg.count-1)))+'%';b.setAttribute('aria-label',(side==='word'?FILU_NUMBER_WORDS[value-1]:'Número '+value));
+   b.style.top=(7.2+row*(85.6/(cfg.count-1)))+'%';b.setAttribute('aria-label',(side==='word'?PAIR_NUMBER_WORDS[value-1]:'Número '+value));
    b.onclick=()=>pairSelect(id,side,value);host.appendChild(b);
  }));
 }
@@ -2465,7 +2485,7 @@ function pairRender(id){
 }
 function pairSelect(id,side,value){
  const cfg=PAIR_CONFIG[id],st=PAIR_STATE[id];if(!cfg||!st||!document.getElementById(id).classList.contains('active')||st.locked||st.finished||st.matched.has(value)||newenLives<=0)return;
- if(side==='word'){pairStopAudio(id);const file=FILU_NUMBER_AUDIO[value];if(file){st.audio=new Audio(file);st.audio.play().catch(e=>console.warn('Audio:',file,e));}st.word=value;}else{pairPop();st.number=value;}
+ if(side==='word'){pairStopAudio(id);const file=PAIR_NUMBER_AUDIO[value];if(file){st.audio=new Audio(file);st.audio.play().catch(e=>console.warn('Audio:',file,e));}st.word=value;}else{pairPop();st.number=value;}
  pairRender(id);if(st.word===null||st.number===null)return;st.locked=true;const correct=st.word===st.number;
  const w=document.querySelector('#'+id+'Hits .word[data-value="'+st.word+'"]'),n=document.querySelector('#'+id+'Hits .number[data-value="'+st.number+'"]');
  if(correct){st.matched.add(value);st.word=null;st.number=null;st.locked=false;pairRender(id);if(st.matched.size===cfg.count){st.finished=true;pairRender(id);st.timer=setTimeout(()=>{if(document.getElementById(id).classList.contains('active'))showScreen(cfg.next);},900);}}
