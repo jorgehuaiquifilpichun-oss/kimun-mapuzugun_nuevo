@@ -2416,7 +2416,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
       }
-      if (!screenId.startsWith('pairs')) stopPairsAudio();
+      if (!screenId.startsWith('pairs')) { stopPairsAudio(); if (pairAdvanceTimer) { clearTimeout(pairAdvanceTimer); pairAdvanceTimer=null; } }
       if (screenId !== 'activityOne') stopActivityOneAnswerAudio();
       if (screenId !== 'activityTwo') stopActivityTwoAnswerAudio();
       if (screenId !== 'activityThree') stopActivityThreeAnswerAudio();
@@ -2597,7 +2597,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
           b.className='pairs-hit '+side; b.style.top=(start+i*step)+'%';
           b.dataset.value=String(n); b.dataset.side=side;
           b.setAttribute('aria-label',(side==='word'?FILU_NUMBER_WORDS[n-1]:'Número '+n));
-          if(st.matched.has(n)) b.classList.add('matched');
+          if(st.matched.has(n)) { b.classList.add('matched'); b.disabled=true; }
           if(st[side]===n) b.classList.add('selected');
           b.addEventListener('click',()=>selectPair(id,side,n));
           board.appendChild(b);
