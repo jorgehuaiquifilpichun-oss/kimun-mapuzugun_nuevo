@@ -684,14 +684,17 @@
 }
 .pairs-screen .pairs-art {display:block; width:100%; max-width:100%; height:auto; object-fit:contain;}
 .pairs-screen .pairs-hit {
-  position:absolute; z-index:2; width:34%; height:8.2%; margin:0; padding:0;
-  border:0 !important; outline:0; border-radius:14px;
+  position:absolute; z-index:2; width:auto; height:auto; margin:0;
+  padding:.12em .24em; transform:translate(-50%,-50%);
+  border:0 !important; outline:0; border-radius:.35em;
   background:transparent; box-shadow:none; cursor:pointer;
+  color:transparent; white-space:nowrap;
+  font:900 clamp(17px,4.8vw,23px)/1 Arial,Helvetica,sans-serif;
   touch-action:manipulation; -webkit-tap-highlight-color:transparent;
   transition:background-color .15s ease, box-shadow .15s ease;
 }
-.pairs-screen .pairs-hit.word {left:10%;}
-.pairs-screen .pairs-hit.number {left:56%;}
+.pairs-screen .pairs-hit.word {left:27%;}
+.pairs-screen .pairs-hit.number {left:73%;}
 .pairs-screen .pairs-hit.selected {background:rgba(255,255,235,.10);box-shadow:inset 0 0 10px rgba(255,255,255,.18);}
 .pairs-screen .pairs-hit.matched {background:rgba(82,190,92,.14);box-shadow:inset 0 0 15px rgba(74,176,84,.22);}
 .pairs-screen .pairs-hit.wrong {background:rgba(218,65,65,.13);box-shadow:inset 0 0 15px rgba(218,65,65,.21);}
@@ -2458,7 +2461,7 @@ const PAIR_NUMBER_WORDS=[
 /* Selecciones de pares 1–5 y 5–10 */
 
 const PAIR_CONFIG={
- pairs01:{words:[1,4,2,5,3],numbers:[5,3,1,4,2],count:5,next:'activityOne'},
+ pairs01:{words:[4,5,1,2,3],numbers:[3,1,5,2,4],count:5,next:'activityOne'},
  pairs05:{words:[10,7,6,9,8,5],numbers:[5,8,10,7,6,9],count:6,next:'activityEleven'}
 };
 const PAIR_STATE={
@@ -2474,7 +2477,8 @@ function pairBuild(id){
  const cfg=PAIR_CONFIG[id],host=document.getElementById(id+'Hits');if(!cfg||!host||host.children.length)return;
  [['word',cfg.words],['number',cfg.numbers]].forEach(([side,values])=>values.forEach((value,row)=>{
    const b=document.createElement('button');b.type='button';b.className='pairs-hit '+side;b.dataset.side=side;b.dataset.value=String(value);
-   b.style.top=(7.2+row*(85.6/(cfg.count-1)))+'%';b.setAttribute('aria-label',(side==='word'?PAIR_NUMBER_WORDS[value-1]:'Número '+value));
+   b.style.top=(11.3+row*(85.6/(cfg.count-1)))+'%';
+   const label=(side==='word'?PAIR_NUMBER_WORDS[value-1]:String(value));b.textContent=label;b.setAttribute('aria-label',(side==='word'?label:'Número '+value));
    b.onclick=()=>pairSelect(id,side,value);host.appendChild(b);
  }));
 }
