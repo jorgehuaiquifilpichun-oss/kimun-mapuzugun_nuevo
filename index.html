@@ -737,6 +737,30 @@
   100%{opacity:0;transform:translateY(-18px) scale(.94);}
 }
 
+    /* NUEVA PANTALLA: primer nivel desbloqueado. Solo plantilla visual por ahora. */
+    .level-one-complete-screen {
+      width: 100%;
+      height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #183f31;
+    }
+    .level-one-complete-stage {
+      position: relative;
+      width: min(100%, calc(100dvh * 781 / 1536));
+      max-height: 100dvh;
+      aspect-ratio: 781 / 1536;
+    }
+    .level-one-complete-image {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
 </style>
 </head>
 
@@ -809,7 +833,16 @@
     <section id="pairs01" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares del 1 al 5"><div id="pairs01Hits"></div><div id="pairs01Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 1 a 5"><button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityOne')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs01')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="pairs05" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 5 a 10"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityEleven')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs05')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="pairs11" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_11_15.png" alt="Selección de pares del 11 al 15"><div id="pairs11Hits"></div><div id="pairs11Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 11 a 15"><button class="ack-control ack-back" type="button" onclick="showScreen('activityFifteen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activitySixteen')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs11')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
-<section id="pairs15" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_15_20.png" alt="Selección de pares del 15 al 20"><div id="pairs15Hits"></div><div id="pairs15Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 15 a 20"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTwenty')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('home')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs15')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+<section id="pairs15" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_15_20.png" alt="Selección de pares del 15 al 20"><div id="pairs15Hits"></div><div id="pairs15Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 15 a 20"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTwenty')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('levelOneComplete')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs15')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+    <!-- Cierre del primer nivel; estadísticas, efectos y botones se activarán después. -->
+    <section id="levelOneComplete" class="screen" aria-label="Primer nivel desbloqueado">
+      <div class="level-one-complete-screen">
+        <div class="level-one-complete-stage">
+          <img class="level-one-complete-image" src="./pantalla_nivel_1_desbloqueado.png" alt="¡Küme zugu! Primer nivel desbloqueado. Plantilla de resultados del primer nivel">
+        </div>
+      </div>
+    </section>
+
 <section id="activityOne" class="screen">
       <div class="activity-one-screen">
         <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
@@ -2548,7 +2581,7 @@ const PAIR_CONFIG={
   ]
  },
  pairs15:{
-  words:[17,19,20,18,15,16],numbers:[18,17,20,15,19,16],count:6,next:'home',
+  words:[17,19,20,18,15,16],numbers:[18,17,20,15,19,16],count:6,next:'levelOneComplete',
   wordBoxes:[
    {x:7.0,y:28.5,w:38.5,h:6.5,markX:36.0},
    {x:7.0,y:40.4,w:38.5,h:6.5,markX:36.0},
