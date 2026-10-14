@@ -808,6 +808,8 @@
 
     <section id="pairs01" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares del 1 al 5"><div id="pairs01Hits"></div><div id="pairs01Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 1 a 5"><button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityOne')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs01')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="pairs05" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 5 a 10"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityEleven')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs05')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+<section id="pairs11" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_11_15.png" alt="Selección de pares del 11 al 15"><div id="pairs11Hits"></div><div id="pairs11Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 11 a 15"><button class="ack-control ack-back" type="button" onclick="showScreen('activityFifteen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activitySixteen')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs11')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
+<section id="pairs15" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_15_20.png" alt="Selección de pares del 15 al 20"><div id="pairs15Hits"></div><div id="pairs15Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 15 a 20"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTwenty')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('home')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs15')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="activityOne" class="screen">
       <div class="activity-one-screen">
         <img class="activity-one-image" src="./actividad_casa_01.png" alt="Primera actividad">
@@ -1654,7 +1656,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     // Ciclo de recuperación: 1.er agotamiento = baile, 2.º = baile, 3.º = práctica.
     // Se guarda 0, 1 o 2 para conservar el ciclo al cerrar o recargar la aplicación.
     const NEWEN_RECOVERY_CYCLE_KEY = 'kimun_mapuzugun_ciclo_recuperacion_v1';
-    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix','pairs01','pairs05']);
+    const NEWEN_EXERCISES = new Set(['activityOne','activityTwo','activityThree','activityFour','activityFive','activitySix','pairs01','pairs05','pairs11','pairs15']);
     function initialNewenLives() {
       try {
         const saved = window.localStorage.getItem(NEWEN_STORAGE_KEY);
@@ -2527,11 +2529,49 @@ const PAIR_CONFIG={
    {x:55.5,y:78.6,w:39.0,h:6.8,markX:76.0},  // 6
    {x:55.5,y:90.8,w:39.0,h:6.8,markX:76.0}   // 9
   ]
+ },
+ pairs11:{
+  words:[14,15,11,12,13],numbers:[14,12,13,11,15],count:5,next:'activitySixteen',
+  wordBoxes:[
+   {x:7.0,y:30.0,w:38.5,h:7.0,markX:36.0},
+   {x:7.0,y:43.8,w:38.5,h:7.0,markX:36.0},
+   {x:7.0,y:57.6,w:38.5,h:7.0,markX:36.0},
+   {x:7.0,y:71.4,w:38.5,h:7.0,markX:36.0},
+   {x:7.0,y:85.2,w:38.5,h:7.0,markX:36.0}
+  ],
+  numberBoxes:[
+   {x:55.5,y:30.0,w:39.0,h:7.0,markX:76.0},
+   {x:55.5,y:43.8,w:39.0,h:7.0,markX:76.0},
+   {x:55.5,y:57.6,w:39.0,h:7.0,markX:76.0},
+   {x:55.5,y:71.4,w:39.0,h:7.0,markX:76.0},
+   {x:55.5,y:85.2,w:39.0,h:7.0,markX:76.0}
+  ]
+ },
+ pairs15:{
+  words:[17,19,20,18,15,16],numbers:[18,17,20,15,19,16],count:6,next:'home',
+  wordBoxes:[
+   {x:7.0,y:28.5,w:38.5,h:6.5,markX:36.0},
+   {x:7.0,y:40.4,w:38.5,h:6.5,markX:36.0},
+   {x:7.0,y:52.3,w:38.5,h:6.5,markX:36.0},
+   {x:7.0,y:64.2,w:38.5,h:6.5,markX:36.0},
+   {x:7.0,y:76.1,w:38.5,h:6.5,markX:36.0},
+   {x:7.0,y:88.0,w:38.5,h:6.5,markX:36.0}
+  ],
+  numberBoxes:[
+   {x:55.5,y:28.5,w:39.0,h:6.5,markX:76.0},
+   {x:55.5,y:40.4,w:39.0,h:6.5,markX:76.0},
+   {x:55.5,y:52.3,w:39.0,h:6.5,markX:76.0},
+   {x:55.5,y:64.2,w:39.0,h:6.5,markX:76.0},
+   {x:55.5,y:76.1,w:39.0,h:6.5,markX:76.0},
+   {x:55.5,y:88.0,w:39.0,h:6.5,markX:76.0}
+  ]
  }
 };
 const PAIR_STATE={
  pairs01:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null},
- pairs05:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null}
+ pairs05:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null},
+ pairs11:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null},
+ pairs15:{word:null,number:null,matched:new Set(),locked:false,finished:false,audio:null,timer:null}
 };
 function openRamtuchiPair(id){consultOrigin=id;showScreen('consult');}
 function pairStopAudio(id){const st=PAIR_STATE[id];if(st&&st.audio){st.audio.pause();st.audio.currentTime=0;st.audio=null;}}
@@ -2690,7 +2730,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       if (!anchor) return;
       DYN_ACTIVITIES.forEach((def, i) => {
         const id = def.id;
-        const prev = def.id === 'activityEleven' ? 'pairs05' : (i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id);
+        const prev = def.id === 'activityEleven' ? 'pairs05' : (def.id === 'activitySixteen' ? 'pairs11' : (i === 0 ? 'activitySix' : DYN_ACTIVITIES[i - 1].id));
         const kind = def.n >= 11 ? 'plaque' : 'tile';
         const choices = def.alts.map(n =>
           '<button class="activity-one-choice" type="button" data-choice="' + n + '" onclick="answerDyn(\'' + id + '\',' + n + ')" aria-label="' + DYN_WORDS[n] + '">' +
@@ -2755,6 +2795,8 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     function advanceFromDyn(id) {
       const i = DYN_ACTIVITIES.findIndex(d => d.id === id);
       if (id === 'activityTen') { showScreen('pairs05'); return; }
+      if (id === 'activityFifteen') { showScreen('pairs11'); return; }
+      if (id === 'activityTwenty') { showScreen('pairs15'); return; }
       const next = DYN_ACTIVITIES[i + 1];
       if (next) { showScreen(next.id); return; }
       showNewenLifeToast('¡Completaste las 20 actividades! Küme zugu');
