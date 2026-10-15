@@ -939,6 +939,114 @@
       .level-confetti-corner {animation:none;}
     }
 
+
+    /* KIMÜN CHE ÑI RÜPÜ — pantalla posterior a la entrega del toki.
+       Tres ítems por fila, seis abiertos y seis bloqueados.
+       Solo cambia la visualización de esta pantalla. */
+    .activity-map-screen {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+      isolation: isolate;
+      background: #f8eedf;
+    }
+    .activity-map-background {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: fill;
+      pointer-events: none;
+      user-select: none;
+    }
+    .activity-map-heading {
+      position: absolute;
+      z-index: 2;
+      top: max(5.5%, env(safe-area-inset-top));
+      left: 5%;
+      right: 5%;
+      margin: 0;
+      padding: clamp(8px, 1.2dvh, 13px) 5px;
+      border: 3px ridge #d99e4f;
+      border-radius: 16px;
+      background: linear-gradient(170deg,#ae642c 0%,#7c3f1c 57%,#673518 100%);
+      box-shadow: inset 0 1px 2px #f7cc85,0 3px 8px #3c271865;
+      text-align: center;
+      color: #fff2d0;
+    }
+    .activity-map-heading h2 {
+      margin: 0;
+      font: 900 clamp(18px, 5.7vw, 29px)/1.12 Arial, Helvetica, sans-serif;
+      text-shadow: 0 2px 3px #31190e;
+    }
+    .activity-map-heading p {
+      margin: 4px 0 0;
+      font: 700 clamp(12px, 3.4vw, 17px)/1.15 Arial, Helvetica, sans-serif;
+      color: #fbe8ba;
+      text-shadow: 0 1px 2px #31190e;
+    }
+    .activity-map-tiles {
+      position: absolute;
+      z-index: 1;
+      top: 21%;
+      bottom: 9%;
+      left: 5%;
+      right: 5%;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(4, minmax(0, 1fr));
+      column-gap: clamp(4px, 1.4vw, 9px);
+      row-gap: clamp(4px, 1.1dvh, 11px);
+      align-items: center;
+      justify-items: center;
+    }
+    .activity-map-item {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .activity-map-back {
+      position: absolute;
+      z-index: 3;
+      bottom: max(1%, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(43%, 180px);
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .activity-map-back img { display: block; width: 100%; height: auto; }
+    .activity-map-back:focus-visible { outline: 3px solid #1f793d; border-radius: 12px; }
+
+    /* TXEGÜL — videos originales en la pantalla del camino del sabio.
+       Se reproducen sin filtros, sin croma y sin modificar sus fotogramas.
+       El que aparece por la izquierda actúa hacia la columna derecha,
+       y viceversa. Este primer paso no modifica ni desbloquea actividades. */
+    .activity-map-txegul {
+      position: absolute;
+      z-index: 4;
+      top: 31%;
+      width: 48%;
+      height: 38%;
+      display: none;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .activity-map-txegul.playing { display: block; }
+    .activity-map-txegul.from-left { left: 0; }
+    .activity-map-txegul.from-right { right: 0; }
+
+
 </style>
 </head>
 
@@ -1065,6 +1173,43 @@
           <div class="unlock-name">Hacha ceremonial</div>
           <button id="unlockContinue" class="unlock-continue" type="button" disabled onclick="finishHachaUnlock()">Continuar</button>
         </div>
+      </div>
+    </section>
+
+
+    <!-- Kimün Che ñi Rüpü: tres ítems por fila. Los ítems aún no tienen acciones. -->
+    <section id="activityMap" class="screen" aria-label="Kimün Che ñi Rüpü — El camino del sabio">
+      <div class="activity-map-screen">
+        <img class="activity-map-background" src="./portada_actividades_bloqueadas_desbloqueadas.png" alt="" aria-hidden="true">
+        <header class="activity-map-heading">
+          <h2>Kimün Che ñi Rüpü</h2>
+          <p>El camino del sabio</p>
+        </header>
+        <div class="activity-map-tiles" aria-label="Seis actividades desbloqueadas y seis bloqueadas">
+          <img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false">
+          <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false">
+          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 1" draggable="false">
+          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false">
+          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false">
+          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false">
+          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false">
+          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 1" draggable="false">
+          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false">
+          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false">
+          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false">
+          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false">
+        </div>
+        <!-- Videos entregados por el usuario: entrada desde lados opuestos.
+             IZQUIERDA -> actividades DERECHA; DERECHA -> actividades IZQUIERDA. -->
+        <video id="txegulEntryLeft" class="activity-map-txegul from-left"
+               src="./txegul_entrada_izquierda.mp4" preload="metadata" playsinline
+               aria-hidden="true" data-objetivo="derecha"></video>
+        <video id="txegulEntryRight" class="activity-map-txegul from-right"
+               src="./txegul_entrada_derecha.mp4" preload="metadata" playsinline
+               aria-hidden="true" data-objetivo="izquierda"></video>
+        <button class="activity-map-back" type="button" onclick="showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
+          <img src="./boton_volver_atras.png" alt="Volver atrás">
+        </button>
       </div>
     </section>
 
@@ -2205,9 +2350,46 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
      function finishHachaUnlock() {
        const go=document.getElementById('unlockContinue');
        if(!go||go.disabled)return;
-       // Los demás niveles no están integrados: regresar a la portada por ahora.
-       showScreen('home');
+       // Abrir la nueva plantilla sin alterar la recompensa ni reiniciar el progreso.
+       showScreen('activityMap');
      }
+
+    /* Reproducir una vez al abrir la plantilla, y detener al salir.
+       No se altera el sonido, la imagen ni la velocidad de los MP4. */
+    function stopActivityMapTxegul() {
+      ['txegulEntryLeft', 'txegulEntryRight'].forEach(id => {
+        const video = document.getElementById(id);
+        if (!video) return;
+        video.pause();
+        video.classList.remove('playing');
+        if (video.readyState >= 1) {
+          try { video.currentTime = 0; } catch (_) {}
+        }
+      });
+    }
+    function playActivityMapTxegul() {
+      ['txegulEntryLeft', 'txegulEntryRight'].forEach(id => {
+        const video = document.getElementById(id);
+        if (!video) return;
+        video.pause();
+        if (video.readyState >= 1) {
+          try { video.currentTime = 0; } catch (_) {}
+        }
+        video.onended = () => video.classList.remove('playing');
+        video.onerror = () => {
+          video.classList.remove('playing');
+          console.warn('No se pudo reproducir el archivo:', video.getAttribute('src'));
+        };
+        video.classList.add('playing');
+        const playback = video.play();
+        if (playback && typeof playback.catch === 'function') {
+          playback.catch(error => {
+            video.classList.remove('playing');
+            console.warn('Reproducción de Txegül no disponible:', error);
+          });
+        }
+      });
+    }
 
     // Resultados exclusivos de ESTA partida; no se cargan estadísticas de partidas anteriores.
     const LEVEL_STATS = {
@@ -3175,6 +3357,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
         beginNewenRecovery(screenId);
         return;
       }
+      if (screenId !== 'activityMap') stopActivityMapTxegul();
       if (screenId !== 'newenRecovery') {
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
@@ -3197,6 +3380,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
 
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
+      if (screenId === 'activityMap') playActivityMapTxegul();
       if (screenId === 'filu') fitFiluBoard();
       if (screenId === 'levelOneComplete') renderLevelSummary();
       else cancelLevelAnimation();
