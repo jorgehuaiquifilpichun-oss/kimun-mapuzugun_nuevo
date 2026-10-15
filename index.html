@@ -761,6 +761,71 @@
       object-fit: contain;
     }
 
+
+    /* Registro individual: una sola entrada y fondo desenfocado. */
+    .player-entry-overlay {
+      position:fixed; inset:0; z-index:250; display:none;
+      align-items:center; justify-content:center; padding:20px;
+      background:rgba(9,26,20,.58); backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .player-entry-overlay.open {display:flex;}
+    .player-entry-card {
+      width:min(100%,355px); padding:27px 21px 22px;
+      border:3px solid #b08a51; border-radius:20px;
+      background:linear-gradient(160deg,#fbecd2,#e2b87e);
+      box-shadow:0 16px 34px #0008; text-align:center; color:#392311;
+    }
+    .player-entry-card label {display:block;font-weight:900;font-size:1.26rem;margin-bottom:15px;}
+    .player-entry-card input {
+      width:100%; height:49px; padding:9px 12px; border:2px solid #9e7848;
+      border-radius:12px; font:700 1.12rem Arial,sans-serif;
+      color:#203b29; background:white; text-align:center;
+    }
+    .player-entry-card button {
+      width:100%; margin-top:17px; padding:13px 16px; border:0;
+      border-radius:14px; background:#26773b; color:white;
+      font:900 1.04rem Arial,sans-serif; cursor:pointer;
+    }
+    .player-entry-card button:disabled {opacity:.46;cursor:not-allowed;}
+    /* Los nueve valores siguen exactamente los centros de las placas blancas del PNG 781x1536. */
+    .level-one-stat {
+      position:absolute; z-index:4; width:25.2%; height:4.1%;
+      display:flex; align-items:center; justify-content:center;
+      text-align:center; font:900 clamp(12px,3.5vw,22px)/1.05 Arial,sans-serif;
+      color:#197039; overflow:hidden; white-space:nowrap; padding:0 4px;
+      transform:translate(-50%,-50%); opacity:0;
+    }
+    .level-one-stat.stat-ready {animation:levelStatPop .4s cubic-bezier(.18,1.7,.3,1) both;}
+    .level-one-stat.stat-errors {color:#c62828;}
+    .level-one-stat.stat-name {font-size:clamp(11px,3vw,20px);}
+    .level-one-stat:nth-of-type(1),.level-one-stat:nth-of-type(4),.level-one-stat:nth-of-type(7) {left:22.7%;}
+    .level-one-stat:nth-of-type(2),.level-one-stat:nth-of-type(5),.level-one-stat:nth-of-type(8) {left:51.5%;}
+    .level-one-stat:nth-of-type(3),.level-one-stat:nth-of-type(6),.level-one-stat:nth-of-type(9) {left:78.8%;}
+    .level-one-stat:nth-of-type(-n+3) {top:43.65%;}
+    .level-one-stat:nth-of-type(n+4):nth-of-type(-n+6) {top:55.0%;}
+    .level-one-stat:nth-of-type(n+7) {top:66.1%;}
+    @keyframes levelStatPop {
+      0%{opacity:0;transform:translate(-50%,-38%) scale(.73);}
+      65%{opacity:1;transform:translate(-50%,-55%) scale(1.12);}
+      100%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+    }
+    .level-confetti {position:absolute;inset:0;overflow:hidden;z-index:8;pointer-events:none;}
+    .level-confetti-piece {
+      position:absolute;width:clamp(5px,1.6vw,9px);height:clamp(10px,2.6vw,16px);
+      border-radius:2px;background:hsl(var(--h),85%,57%);
+      animation:levelConfettiFly var(--dur) cubic-bezier(.14,.5,.38,1) var(--delay) forwards;
+    }
+    @keyframes levelConfettiFly {
+      0% {opacity:1;transform:translate(0,0) rotate(0deg) scale(.75);}
+      50% {opacity:1;transform:translate(var(--dxHalf),var(--dyHalf)) rotate(380deg) scale(1);}
+      100% {opacity:0;transform:translate(var(--dx),var(--dy)) rotate(800deg) scale(.4);}
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .level-one-stat.stat-ready {animation:none;opacity:1;}
+      .level-confetti-piece {animation:none;display:none;}
+    }
+
 </style>
 </head>
 
@@ -771,7 +836,7 @@
         <img class="home-cover" src="./portada.png" alt="Kimün Mapuzungun">
 
         <div class="home-buttons" aria-label="Opciones principales">
-          <button class="home-link home-button" type="button" onclick="openAcknowledgements()" aria-label="Comenzar"><img class="home-button-image" src="./boton_comenzar.png" alt="Comenzar"></button>
+          <button class="home-link home-button" type="button" onclick="requestNewGame()" aria-label="Comenzar"><img class="home-button-image" src="./boton_comenzar.png" alt="Comenzar"></button>
           <button class="home-link home-button" type="button" onclick="openGrammarFromHome()" aria-label="Abrir Apoyo de Gramática"><img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática"></button>
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
@@ -839,6 +904,16 @@
       <div class="level-one-complete-screen">
         <div class="level-one-complete-stage">
           <img class="level-one-complete-image" src="./pantalla_nivel_1_desbloqueado.png" alt="¡Küme zugu! Primer nivel desbloqueado. Plantilla de resultados del primer nivel">
+          <span id="levelStatName" class="level-one-stat stat-name" aria-label="Nombre"></span>
+          <span id="levelStatRank" class="level-one-stat" aria-label="Rango"></span>
+          <span id="levelStatPifilka" class="level-one-stat" aria-label="Pifilka obtenida"></span>
+          <span id="levelStatActivities" class="level-one-stat" aria-label="Actividades completadas"></span>
+          <span id="levelStatCorrect" class="level-one-stat" aria-label="Aciertos"></span>
+          <span id="levelStatWrong" class="level-one-stat stat-errors" aria-label="Errores"></span>
+          <span id="levelStatAccuracy" class="level-one-stat" aria-label="Precisión"></span>
+          <span id="levelStatNewen" class="level-one-stat" aria-label="Nhewen final"></span>
+          <span id="levelStatRecovery" class="level-one-stat" aria-label="Recuperaciones de Nhewen"></span>
+          <div id="levelConfetti" class="level-confetti" aria-hidden="true"></div>
         </div>
       </div>
     </section>
@@ -1646,6 +1721,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       <span id="newenGameValue" class="newen-meter-value" aria-live="polite">10</span>
     </div>
   </main>
+  <div id="playerEntry" class="player-entry-overlay" role="dialog" aria-modal="true" aria-labelledby="playerEntryLabel" aria-hidden="true">
+    <form class="player-entry-card" id="playerEntryForm" onsubmit="confirmNewGame(event)">
+      <label id="playerEntryLabel" for="playerEntryName">Ingresa tu nombre</label>
+      <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="off" required oninput="validatePlayerName()">
+      <button id="playerEntryStart" type="submit" disabled>Comenzar</button>
+    </form>
+  </div>
 
   <script>
     "use strict";
@@ -1671,6 +1753,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const amount = Number(event.data.lives);
         if (!Number.isInteger(amount) || amount < 1 || amount > NEWEN_MAX_LIVES) return;
         newenLives = amount;
+        LEVEL_STATS.recoveries += 1;
         saveNewenLives();
         renderNewenGameMeter();
         showScreen(newenResumeScreen);
@@ -1748,6 +1831,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Las respuestas correctas ya bloquean todos los botones en sus propias funciones.
       if (!NEWEN_EXERCISES.has(screenId) || newenLives <= 0 ||
           !document.getElementById(screenId).classList.contains('active')) return true;
+      recordGameError();
       newenLives = Math.max(0, newenLives - 1);
       saveNewenLives();
       renderNewenGameMeter();
@@ -1859,6 +1943,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (scene) scene.classList.add('rain-finished');
       renderNewenRecoveryMeter(NEWEN_MAX_LIVES);
       newenLives = NEWEN_MAX_LIVES;
+      LEVEL_STATS.recoveries += 1;
       saveNewenLives();
       // El baile devuelve las 10 vidas cuando la práctica se abandona con 0.
       renderNewenGameMeter();
@@ -1885,6 +1970,161 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
     initializeNewenRecovery();
     renderNewenGameMeter();
+
+
+    // Resultados exclusivos de ESTA partida; no se cargan estadísticas de partidas anteriores.
+    const LEVEL_STATS = {
+      name:'', correct:0, wrong:0, recoveries:0, completed:new Set()
+    };
+    let levelAnimationTimers = [];
+    let levelAnimationTicker = null;
+    let pairKumeTimer = null;
+    function recordGameCorrect(activityId) {
+      if (!LEVEL_STATS.name) return;
+      LEVEL_STATS.correct += 1;
+      if (activityId && /^activity/.test(activityId)) LEVEL_STATS.completed.add(activityId);
+    }
+    function recordGameError() {
+      if (LEVEL_STATS.name) LEVEL_STATS.wrong += 1;
+    }
+    function recordPairComplete(pairId) {
+      if (LEVEL_STATS.name) LEVEL_STATS.completed.add(pairId);
+    }
+    function cancelLevelAnimation() {
+      levelAnimationTimers.forEach(t => clearTimeout(t));
+      levelAnimationTimers = [];
+      if (levelAnimationTicker !== null) {clearInterval(levelAnimationTicker);levelAnimationTicker=null;}
+      const layer=document.getElementById('levelConfetti');
+      if(layer) layer.replaceChildren();
+    }
+    function launchLevelConfetti() {
+      const layer=document.getElementById('levelConfetti');
+      if(!layer) return;
+      const w=layer.clientWidth,h=layer.clientHeight;
+      if(!w||!h) return;
+      // Cuatro ráfagas: esquina superior izquierda/derecha e inferior izquierda/derecha.
+      for(let corner=0;corner<4;corner++){
+        const fromRight=(corner%2)===1,fromBottom=corner>=2;
+        for(let i=0;i<21;i++){
+          const piece=document.createElement('i');piece.className='level-confetti-piece';
+          piece.style.left=(fromRight?w-8:0)+'px';
+          piece.style.top=(fromBottom?h-13:0)+'px';
+          const offsetX=(Math.random()-.5)*w*.30;
+          const offsetY=(Math.random()-.5)*h*.23;
+          piece.style.setProperty('--dx',(fromRight?-1:1)*(w*.48+offsetX)+'px');
+          piece.style.setProperty('--dy',(fromBottom?-1:1)*(h*.47+offsetY)+'px');
+          piece.style.setProperty('--dxHalf',(fromRight?-1:1)*(w*.48+offsetX)*.72+'px');
+          piece.style.setProperty('--dyHalf',(fromBottom?-1:1)*(h*.47+offsetY)*.72+'px');
+          piece.style.setProperty('--h',String((corner*76+i*41)%360));
+          piece.style.setProperty('--dur',(1.6+Math.random()*.8)+'s');
+          piece.style.setProperty('--delay',(Math.random()*.16)+'s');
+          layer.appendChild(piece);
+        }
+      }
+      levelAnimationTimers.push(setTimeout(()=>layer.replaceChildren(),3100));
+    }
+    function renderLevelSummary() {
+      cancelLevelAnimation();
+      const values=[
+        LEVEL_STATS.name,'1','1',String(LEVEL_STATS.completed.size),
+        String(LEVEL_STATS.correct),String(LEVEL_STATS.wrong),
+        (LEVEL_STATS.correct+LEVEL_STATS.wrong
+          ?Math.round(100*LEVEL_STATS.correct/(LEVEL_STATS.correct+LEVEL_STATS.wrong)):0)+'%',
+        String(newenLives),String(LEVEL_STATS.recoveries)
+      ];
+      const ids=['levelStatName','levelStatRank','levelStatPifilka',
+        'levelStatActivities','levelStatCorrect','levelStatWrong',
+        'levelStatAccuracy','levelStatNewen','levelStatRecovery'];
+      ids.forEach(id=>{const el=document.getElementById(id); if(el){el.textContent='';el.classList.remove('stat-ready');}});
+      launchLevelConfetti();
+      // Cifras cambiantes dos segundos; los resultados reales aparecen secuencialmente.
+      const isActive=()=>document.getElementById('levelOneComplete').classList.contains('active');
+      levelAnimationTicker=setInterval(()=>{
+        if(!isActive()){cancelLevelAnimation();return;}
+        ids.forEach((id,i)=>{
+          const el=document.getElementById(id);
+          if(!el || el.classList.contains('stat-ready')) return;
+          const n=values[i];
+          el.textContent=i===0 ? Array.from(n).map(ch=>ch===' '?' ':String.fromCharCode(65+Math.floor(Math.random()*26))).join('') :
+            String(Math.floor(Math.random()*100)).padStart(i===6?2:1,'0')+(i===6?'%':'');
+          el.style.opacity='1';
+        });
+      },85);
+      levelAnimationTimers.push(setTimeout(()=>{
+        if(levelAnimationTicker!==null){clearInterval(levelAnimationTicker);levelAnimationTicker=null;}
+      },1750));
+      ids.forEach((id,i)=>levelAnimationTimers.push(setTimeout(()=>{
+        if(!isActive()) return;
+        const el=document.getElementById(id);
+        if(el){el.textContent=values[i];el.classList.add('stat-ready');}
+      },1750+i*110)));
+    }
+    function validatePlayerName() {
+      const input=document.getElementById('playerEntryName');
+      document.getElementById('playerEntryStart').disabled=!input.value.trim();
+    }
+    function resetEntireGame() {
+      LEVEL_STATS.name='';LEVEL_STATS.correct=0;LEVEL_STATS.wrong=0;
+      LEVEL_STATS.recoveries=0;LEVEL_STATS.completed.clear();
+      cancelLevelAnimation();
+      if(pairKumeTimer!==null){clearTimeout(pairKumeTimer);pairKumeTimer=null;}
+      document.getElementById('pairKumeOverlay')?.classList.remove('show');
+      if(newenRecoveryReturnTimer){clearTimeout(newenRecoveryReturnTimer);newenRecoveryReturnTimer=null;}
+      if(newenToastTimer){clearTimeout(newenToastTimer);newenToastTimer=null;}
+      document.getElementById('newenLifeToast')?.classList.remove('visible');
+      document.getElementById('newenDanceVideo')?.pause();
+      newenRecoveryFinishing=false;newenResumeScreen='activityOne';
+      newenLives=NEWEN_MAX_LIVES;newenRecoveryCycle=0;
+      saveNewenLives();saveNewenRecoveryCycle();renderNewenGameMeter();
+      const frame=document.getElementById('newenPracticeFrame');
+      if(frame?.contentWindow) frame.contentWindow.postMessage({type:'kimun:newen-practice-control',action:'reset'},'*');
+      resetFiluActivity();
+      [
+        ['activityOne',()=>{activityOneCompleted=false;stopActivityOneAnswerAudio();}],
+        ['activityTwo',()=>{activityTwoCompleted=false;stopActivityTwoAnswerAudio();}],
+        ['activityThree',()=>{activityThreeCompleted=false;stopActivityThreeAnswerAudio();}],
+        ['activityFour',()=>{activityFourCompleted=false;stopActivityFourAnswerAudio();}],
+        ['activityFive',()=>{activityFiveCompleted=false;stopActivityFiveAnswerAudio();}],
+        ['activitySix',()=>{activitySixCompleted=false;stopActivitySixAnswerAudio();}]
+      ].forEach(([id,reset])=>{
+        reset(); document.querySelectorAll('#'+id+' .activity-one-choice').forEach(b=>{
+          b.disabled=false;b.classList.remove('correct','incorrect');
+        });
+      });
+      Object.keys(DYN_STATE).forEach(id=>{
+        stopDynAnswerAudio(id);DYN_STATE[id].completed=false;
+        document.querySelectorAll('#'+id+' .activity-one-choice').forEach(b=>{
+          b.disabled=false;b.classList.remove('correct','incorrect');
+        });
+      });
+      Object.keys(PAIR_STATE).forEach(id=>{
+        const st=PAIR_STATE[id];pairStopAudio(id);
+        if(st.timer){clearTimeout(st.timer);st.timer=null;}
+        st.matched.clear();st.word=null;st.number=null;st.locked=false;st.finished=false;
+        document.querySelectorAll('#'+id+'Hits .pair-result-mark').forEach(e=>{
+          e.classList.remove('ok','bad','show');e.textContent='';
+        });
+        document.querySelectorAll('#'+id+'Hits .pairs-hit').forEach(b=>b.classList.remove('wrong'));
+        pairRender(id);
+      });
+    }
+    function requestNewGame() {
+      resetEntireGame();
+      const overlay=document.getElementById('playerEntry');
+      const input=document.getElementById('playerEntryName');
+      input.value='';validatePlayerName();
+      overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
+      input.focus();
+    }
+    function confirmNewGame(event) {
+      event.preventDefault();
+      const name=document.getElementById('playerEntryName').value.trim();
+      if(!name) return;
+      LEVEL_STATS.name=name;
+      const overlay=document.getElementById('playerEntry');
+      overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
+      openAcknowledgements();
+    }
 
     function openAcknowledgements() {
       showScreen("acknowledgements");
@@ -1959,6 +2199,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake('activityTwo', choice)) return;
       if (correct) {
+        recordGameCorrect('activityTwo');
         activityTwoCompleted = true;
         document.querySelectorAll('#activityTwo .activity-one-choice').forEach(button => button.disabled = true);
       }
@@ -2009,6 +2250,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake('activityThree', choice)) return;
       if (correct) {
+        recordGameCorrect('activityThree');
         activityThreeCompleted = true;
         document.querySelectorAll('#activityThree .activity-one-choice').forEach(button => button.disabled = true);
       }
@@ -2059,6 +2301,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake('activityFour', choice)) return;
       if (correct) {
+        recordGameCorrect('activityFour');
         activityFourCompleted = true;
         document.querySelectorAll('#activityFour .activity-one-choice').forEach(button => button.disabled = true);
       }
@@ -2110,6 +2353,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake('activityFive', choice)) return;
       if (correct) {
+        recordGameCorrect('activityFive');
         activityFiveCompleted = true;
         document.querySelectorAll('#activityFive .activity-one-choice').forEach(button => button.disabled = true);
       }
@@ -2161,6 +2405,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake('activitySix', choice)) return;
       if (correct) {
+        recordGameCorrect('activitySix');
         activitySixCompleted = true;
         document.querySelectorAll('#activitySix .activity-one-choice').forEach(button => button.disabled = true);
       }
@@ -2222,6 +2467,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake('activityOne', choice)) return;
       if (correct) {
+        recordGameCorrect('activityOne');
         activityOneCompleted = true;
         document.querySelectorAll('#activityOne .activity-one-choice').forEach(button => button.disabled = true);
       }
@@ -2395,7 +2641,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
 
     function showFiluCelebration() {
       const overlay = document.getElementById("filuCelebration");
-      if (!overlay || overlay.classList.contains("active")) return;
+      if (!overlay || overlay.classList.contains("active") ||
+          !document.getElementById('filu').classList.contains('active')) return;
       overlay.classList.add("active");
       overlay.setAttribute("aria-hidden", "false");
       launchFiluConfetti();
@@ -2653,7 +2900,9 @@ function showPairKumeZugu(nextScreen){
  overlay.classList.remove('show');
  if(img){img.style.animation='none';void img.offsetWidth;img.style.animation='';}
  overlay.classList.add('show');
- setTimeout(()=>{
+ if(pairKumeTimer!==null) clearTimeout(pairKumeTimer);
+ pairKumeTimer=setTimeout(()=>{
+   pairKumeTimer=null;
    overlay.classList.remove('show');
    showScreen(nextScreen);
  },3000);
@@ -2664,7 +2913,7 @@ function pairSelect(id,side,value){
  if(side==='word'){pairStopAudio(id);const file=PAIR_NUMBER_AUDIO[value];if(file){st.audio=new Audio(file);st.audio.play().catch(e=>console.warn('Audio:',file,e));}st.word=value;}else{pairPop();st.number=value;}
  pairRender(id);if(st.word===null||st.number===null)return;st.locked=true;const correct=st.word===st.number;
  const w=document.querySelector('#'+id+'Hits .word[data-value="'+st.word+'"]'),n=document.querySelector('#'+id+'Hits .number[data-value="'+st.number+'"]');
- if(correct){pairMarkBoth(id,st.word,'ok');st.matched.add(value);st.word=null;st.number=null;st.locked=false;pairRender(id);if(st.matched.size===cfg.count){st.finished=true;pairRender(id);st.timer=setTimeout(()=>{if(document.getElementById(id).classList.contains('active'))showPairKumeZugu(cfg.next);},250);}}
+ if(correct){recordGameCorrect(null);pairMarkBoth(id,st.word,'ok');st.matched.add(value);st.word=null;st.number=null;st.locked=false;pairRender(id);if(st.matched.size===cfg.count){recordPairComplete(id);st.finished=true;pairRender(id);st.timer=setTimeout(()=>{if(document.getElementById(id).classList.contains('active'))showPairKumeZugu(cfg.next);},250);}}
  else{pairMark(id,'word',st.word,'bad');pairMark(id,'number',st.number,'bad');if(w)w.classList.add('wrong');if(n)n.classList.add('wrong');const needsRecovery=penalizeNewenMistake(id,null);if(needsRecovery){if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');st.word=null;st.number=null;st.locked=false;pairRender(id);return;}st.timer=setTimeout(()=>{document.querySelectorAll('#'+id+'Hits .pair-result-mark.bad.show').forEach(m=>{m.classList.remove('show','bad');m.textContent='';});if(w)w.classList.remove('wrong');if(n)n.classList.remove('wrong');st.word=null;st.number=null;st.locked=false;pairRender(id);},650);}
 }
 Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
@@ -2698,6 +2947,8 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
       if (screenId === 'filu') fitFiluBoard();
+      if (screenId === 'levelOneComplete') renderLevelSummary();
+      else cancelLevelAnimation();
       if (screenId === 'pairs01' || screenId === 'pairs05') {
         requestAnimationFrame(() => alignPairBoard(screenId));
       }
@@ -2808,6 +3059,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       choice.classList.add(correct ? 'correct' : 'incorrect');
       if (!correct && penalizeNewenMistake(id, choice)) return;
       if (correct) {
+        recordGameCorrect(id);
         st.completed = true;
         document.querySelectorAll('#' + id + ' .activity-one-choice').forEach(b => b.disabled = true);
       }
