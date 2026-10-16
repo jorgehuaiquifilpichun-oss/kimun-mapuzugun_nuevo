@@ -1012,6 +1012,11 @@
       user-select: none;
       -webkit-user-drag: none;
     }
+    .activity-map-tile-button { display:block; width:100%; height:100%; padding:0; border:0; background:transparent; cursor:pointer; min-width:0; min-height:0; }
+    .activity-map-tile-button:focus-visible { outline:3px solid #1f793d; border-radius:10px; }
+    .filu-map-back { position:absolute; z-index:20; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(43%,180px); padding:0; border:0; background:transparent; cursor:pointer; }
+    .filu-map-back img {display:block;width:100%;height:auto;}
+    .filu-map-back[hidden] {display:none;}
     .activity-map-back {
       position: absolute;
       z-index: 3;
@@ -1058,613 +1063,7 @@
 
         <div class="home-buttons" aria-label="Opciones principales">
           <button class="home-link home-button" type="button" onclick="requestNewGame()" aria-label="Comenzar"><img class="home-button-image" src="./boton_comenzar.png" alt="Comenzar"></button>
-          <button class="home-link home-button" type="button" on<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#183f31">
-  <title>Kimün Mapuzungun</title>
-
-  <style>
-    * { box-sizing: border-box; }
-    html, body { margin: 0; width: 100%; min-height: 100%; }
-    body { font-family: Arial, Helvetica, sans-serif; background: #183f31; }
-
-    #app {
-      width: 100%;
-      max-width: 480px;
-      min-height: 100dvh;
-      margin: 0 auto;
-      overflow-x: hidden;
-      background: #183f31;
-    }
-
-    .screen { display: none; min-height: 100dvh; }
-    .screen.active { display: block; }
-
-    /* PANTALLA DE INICIO — SOLO VISUALIZACIÓN */
-    .home-visual {
-      position: relative;
-      width: 100%;
-      height: 100dvh;
-      min-height: 100dvh;
-      overflow: hidden;
-      background: #183f31;
-    }
-
-    .home-cover {
-      position: absolute;
-      inset: 0;
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center top;
-    }
-
-    .home-buttons {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 2;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: clamp(4px, 0.8dvh, 8px);
-      padding: clamp(8px, 1.2dvh, 12px) 4% max(10px, env(safe-area-inset-bottom));
-      /* Transparencia verde uniforme en toda la botonera */
-      background: rgba(24, 63, 49, 0.58);
-    }
-
-    .home-buttons::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: -28px;
-      height: 28px;
-      pointer-events: none;
-      background: linear-gradient(
-        to bottom,
-        rgba(24, 63, 49, 0),
-        rgba(24, 63, 49, 0.58)
-      );
-    }
-
-    .home-link {
-      display: block;
-      width: 100%;
-      text-decoration: none;
-    }
-
-    .home-button {
-      border: 0;
-      padding: 0;
-      background: transparent;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    /* PANTALLA DE AGRADECIMIENTOS */
-    .ack-screen {
-      position: relative;
-      width: 100%;
-      height: 100dvh;
-      min-height: 100dvh;
-      overflow: hidden;
-      background: #183f31;
-    }
-
-    .ack-image {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-    }
-
-    .ack-audio {
-      display: none;
-    }
-
-    .grammar-screen {
-      min-height: 100dvh;
-      padding: 18px 16px calc(42px + env(safe-area-inset-bottom));
-      background:
-        linear-gradient(rgba(15, 48, 37, 0.08), rgba(15, 48, 37, 0.16)),
-        url("./fondo_guias_gramatica.png") center top / cover no-repeat;
-      color: #fffdf4;
-    }
-
-    .grammar-title {
-      margin: 0;
-      text-align: center;
-      font-size: 1.32rem;
-      text-shadow: 0 2px 5px rgba(0,0,0,.65);
-    }
-
-    .guide-list {
-      display: grid;
-      gap: 6px;
-      margin-top: 118px;
-    }
-
-    .guide-link, .grammar-back {
-      display: block;
-      width: 100%;
-      padding: 8px 14px;
-      font-size: .92rem;
-      border: 1px solid rgba(111, 67, 30, 0.72);
-      border-radius: 12px;
-      background: rgba(239, 211, 160, 0.90);
-      color: #2b1b10;
-      text-decoration: none;
-      font-weight: 700;
-      box-shadow: 0 2px 6px rgba(0,0,0,.18);
-    }
-
-    .grammar-back {
-      margin-top: 10px;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .home-button-image {
-      display: block;
-      width: 100%;
-      max-height: 12dvh;
-      height: auto;
-      margin: 0 auto;
-      object-fit: contain;
-    }
-
-    /* CONTROLES DE AGRADECIMIENTOS */
-    .ack-controls {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
-    }
-
-    .ack-control {
-      position: absolute;
-      border: 0;
-      padding: 0;
-      background: transparent;
-      cursor: pointer;
-      pointer-events: auto;
-    }
-
-    .ack-control img {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .ack-back {
-      top: 0;
-      left: -7%;
-      width: 50%;
-    }
-
-    .ack-next {
-      top: 0;
-      right: -7%;
-      width: 50%;
-    }
-
-    .ack-consult {
-      left: 50%;
-      bottom: max(24px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      width: 68%;
-    }
-
-    /* RAMTUCHI — MENÚ DE CONSULTA */
-    .consult-screen {
-      min-height: 100dvh;
-      padding: clamp(250px, 41dvh, 330px) 18px 28px;
-      background:
-        linear-gradient(rgba(12, 42, 32, 0.18), rgba(12, 42, 32, 0.28)),
-        url("./1000224679.png") center 6% / cover no-repeat;
-      color: #fffdf4;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .consult-title, .consult-subtitle {
-      display: none;
-    }
-
-    .consult-options {
-      display: grid;
-      gap: 12px;
-    }
-
-    .consult-option, .consult-back {
-      display: block;
-      width: 100%;
-      padding: 14px 14px;
-      border: 1px solid rgba(255,255,255,.30);
-      border-radius: 14px;
-      background: rgba(24,63,49,.72);
-      color: #fffdf4;
-      text-align: center;
-      text-decoration: none;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .consult-option[disabled] {
-      opacity: .65;
-      cursor: default;
-    }
-
-    .consult-back {
-      margin-top: 18px;
-    }
-
-    .consult-back-image {
-      padding: 0;
-      border: 0;
-      background: transparent;
-    }
-
-    .consult-back-image img {
-      display: block;
-      width: min(74%, 320px);
-      height: auto;
-      margin: 0 auto;
-    }
-
-    /* RAKIN — NÚMEROS 1–40 */
-    .rakin-screen {
-      position: relative;
-      width: 100%;
-      min-height: 100dvh;
-      background: #183f31;
-    }
-
-    .rakin-image {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .rakin-back {
-      position: fixed;
-      z-index: 5;
-      left: 50%;
-      bottom: max(16px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      width: min(68%, 310px);
-      border: 0;
-      padding: 0;
-      background: transparent;
-    }
-
-    .rakin-back img { display:block; width:100%; height:auto; }
-
-         /* FILU: cartel independiente y tablero escalado sin alterar zonas táctiles. */
-     .filu-screen {
-       position: relative; width: 100%; height: 100dvh; min-height: 0;
-       overflow: hidden; background: #160d08;
-       display: flex; flex-direction: column; align-items: center;
-       padding: max(8px, env(safe-area-inset-top)) 0 max(4px, env(safe-area-inset-bottom));
-     }
-     .filu-word-sign {
-       flex: 0 0 auto; width: min(86%, 385px); min-height: 75px;
-       display: flex; flex-direction: column; justify-content: center; align-items: center;
-       padding: 8px 16px; margin: 0 auto 5px;
-       border: 4px ridge #c78b4a; border-radius: 18px;
-       background: linear-gradient(175deg, #b87b3e 0%, #875027 45%, #673818 100%);
-       box-shadow: inset 0 2px 3px #f3c78a, 0 3px 7px #0008;
-       color: #fff0c9; text-align: center; pointer-events: none;
-     }
-     .filu-word-hint { font: 700 clamp(10px,2.8vw,13px)/1.15 Arial,sans-serif; letter-spacing:.08em; }
-     .filu-word-value { font: 900 clamp(24px,7vw,36px)/1.15 Arial,sans-serif; text-shadow: 0 2px 2px #351708; }
-     .filu-board { position: relative; flex: 0 0 auto; width: 100%; margin: 0 auto; }
-     .filu-image { display:block; width:100%; height:auto; }
-
-/* FILU — zonas táctiles de los números 1–20 */
-    #filuNumberHits {
-      position: absolute;
-      inset: 0;
-      z-index: 4;
-      pointer-events: none;
-    }
-
-    .filu-number-hit {
-      position: absolute;
-      z-index: 4;
-      border: 0;
-      padding: 0;
-      background: transparent;
-      cursor: pointer;
-      border-radius: 50%;
-      -webkit-tap-highlight-color: transparent;
-      transform: translate(-50%, -50%);
-      pointer-events: auto;
-    }
-
-    .filu-number-hit.pressed {
-      background: rgba(126, 211, 120, 0.34);
-      box-shadow: inset 0 0 0 2px rgba(64, 145, 78, 0.55);
-    }
-
-    /* FILU — celebración al completar 1–20 */
-    .filu-celebration {
-      position: absolute; inset: 0; z-index: 12; display: none;
-      align-items: center; justify-content: center; overflow: hidden;
-      background: rgba(20, 10, 5, .12);
-    }
-    .filu-celebration.active { display: flex; }
-    .filu-celebration-card {
-      position: relative; width: 100%; max-width: 480px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .filu-celebration-image { display:block; width:100%; height:auto; }
-    .filu-celebration-copy {
-      /* Centrado real dentro del área útil del pergamino. */
-      position:absolute; left:22%; right:22%; top:25%; bottom:25%;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      text-align:center; color:#2b1b10; font-weight:700;
-      transform:none;
-    }
-    .filu-celebration-copy h2 { margin:0 0 4px; font-size:clamp(1.25rem,5vw,1.75rem); line-height:1.05; }
-    .filu-celebration-copy p { margin:2px 0 12px; font-size:clamp(.9rem,3.8vw,1.1rem); }
-    .filu-play {
-      border:2px solid #285f35; border-radius:999px; padding:10px 25px;
-      background:#3f8a4e; color:#fff; font:inherit; font-weight:800;
-      box-shadow:0 3px 7px rgba(0,0,0,.28); cursor:pointer;
-    }
-    .filu-repeat { margin-top:8px; border:0; background:transparent; color:#5a351d; font:inherit; font-weight:700; text-decoration:underline; cursor:pointer; }
-
-    /* NHEWEN — la fuerza crece con cada número completado */
-    .nhewen-progress {
-      position:absolute; left:2.5%; right:2.5%; top:93.28%; height:3.05%;
-      z-index:5; display:flex; align-items:center; justify-content:space-between;
-      pointer-events:none; padding:0 0.45%;
-    }
-    .nhewen-dot {
-      /* +1% sobre el diámetro anterior; el flex mantiene cada punto centrado en su casilla. */
-      width:3.832720%; aspect-ratio:1/1; border-radius:50%;
-      background:rgba(58,128,66,.10);
-      box-shadow:inset 0 0 0 1px rgba(25,76,37,.18);
-      transition:background .22s ease, box-shadow .22s ease, transform .22s ease;
-      flex:0 0 auto;
-    }
-    .nhewen-dot.filled {
-      /* Acabado basado en la referencia: esfera verde lima, brillo superior izquierdo y aro claro. */
-      background:
-        radial-gradient(circle at 34% 28%,
-          #d8ff72 0%,
-          #b9ff55 15%,
-          #70e93e 40%,
-          #35c83a 68%,
-          #149638 100%);
-      box-shadow:
-        inset 0 0 0 2px rgba(224,255,204,.96),
-        inset 0 -3px 5px rgba(0,92,35,.34),
-        inset 2px 3px 5px rgba(255,255,210,.42),
-        0 0 5px rgba(127,255,72,.92);
-      transform:scale(1);
-    }
-    /* FILU בלבד: reemplazo visual de la barra Nhewen completa al llegar a 20 */
-    .filu-nhewen-complete {
-      /* Cubre por completo la placa roja NHEWEN original al completar los 20. */
-      position:absolute; z-index:7; left:24.0%; width:52.0%; top:84.65%; height:8.10%;
-      display:flex; align-items:center; justify-content:center;
-      border-radius:999px; border:4px solid #205f32;
-      background:linear-gradient(#58ad62 0%, #378c48 52%, #2c7a3e 100%);
-      box-shadow:inset 0 0 0 4px rgba(255,238,184,.72), inset 0 2px 4px rgba(255,255,255,.35), 0 2px 3px rgba(45,25,10,.32);
-      color:#fff4c8; font-weight:900; font-size:clamp(1.05rem,5.4vw,1.75rem);
-      line-height:1; letter-spacing:.02em; text-shadow:0 2px 0 #1d5d31, 0 0 3px rgba(0,0,0,.25);
-      opacity:0; pointer-events:none; transition:opacity .28s ease;
-    }
-    .filu-nhewen-complete.active { opacity:1; }
-    .confetti-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:13; }
-    .confetti-piece {
-      position:absolute; top:-8%; width:8px; height:15px; border-radius:2px;
-      background:hsl(var(--h),75%,58%); opacity:.95;
-      animation:filuConfetti var(--d) linear var(--delay) forwards;
-    }
-    @keyframes filuConfetti {
-      0% { transform:translate3d(0,-10vh,0) rotate(0deg); }
-      100% { transform:translate3d(var(--drift),115vh,0) rotate(760deg); }
-    }
-
-    /* PRIMERA ACTIVIDAD — plantilla actividad_casa_01.png */
-    .activity-one-screen {
-      position: relative;
-      width: 100%;
-      min-height: 100dvh;
-      background: #183f31;
-    }
-    .activity-one-image {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    /* PRIMERA ACTIVIDAD — controles de navegación */
-    .activity-one-screen .ack-back,
-    .activity-one-screen .ack-next {
-      top: 0;
-      width: 48%;
-    }
-    .activity-one-screen .ack-consult {
-      bottom: max(18px, env(safe-area-inset-bottom));
-      width: 68%;
-    }
-
-    /* PRIMERA ACTIVIDAD — encabezado de pregunta de números */
-    .activity-one-question {
-      position: absolute;
-      z-index: 4;
-      left: 50%;
-      top: 47%;
-      transform: translate(-50%, -50%);
-      width: 88%;
-      height: auto;
-      display: block;
-    }
-
-    /* PRIMERA ACTIVIDAD — número 1 centrado debajo de la pregunta */
-    .activity-one-number {
-      position: absolute;
-      z-index: 4;
-      left: 50%;
-      top: 61%;
-      transform: translate(-50%, -50%);
-      width: 38%;
-      height: auto;
-      display: block;
-    }
-
-    /* PRIMERA ACTIVIDAD — alternativas debajo del número 1, con mayor separación */
-    .activity-one-alternatives {
-      position: absolute;
-      z-index: 4;
-      left: 50%;
-      top: 78%;
-      transform: translate(-50%, -50%);
-      width: 94%;
-      height: auto;
-      display: block;
-    }
-
-    /* Zona táctil transparente sobre el megáfono del encabezado. */
-    .activity-one-question-wrap {
-      position: absolute; z-index: 4; left: 50%; top: 47%;
-      transform: translate(-50%, -50%); width: 88%;
-    }
-    .activity-one-question-wrap .activity-one-question {
-      position: static; transform: none; width: 100%; height: auto;
-    }
-    .activity-one-speaker {
-      position: absolute; left: 4%; top: 12%; width: 23%; height: 76%;
-      padding: 0; border: 0; background: transparent; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .activity-one-speaker:focus-visible { outline: 2px solid #ffffff; border-radius: 50%; }
-
-    /* Todas las actividades comparten el mismo centro de alternativas.
-       El PNG se recorta solo de sus márgenes transparentes (ver script).
-       Así, la imagen y las tres zonas táctiles tienen la misma altura real. */
-    .activity-one-choices { position:absolute; z-index:5; left:50%; top:78%; transform:translate(-50%,-50%); width:94%; }
-    .activity-one-choices .activity-one-alternatives { position:static; transform:none; width:100%; height:auto; display:block; }
-    .activity-one-choice { position:absolute; top:0; bottom:0; height:auto; width:33.3333%; padding:0; border:0; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-    .activity-one-choice:nth-of-type(1) { left:0; }
-    .activity-one-choice:nth-of-type(2) { left:33.3333%; }
-    .activity-one-choice:nth-of-type(3) { left:66.6666%; }
-    /* La palabra ya está dibujada en el PNG. Su etiqueta accesible sirve de
-       referencia invisible para que el símbolo siga el ancho de cada nombre. */
-    .activity-one-choice::before {
-      content:attr(aria-label);
-      font:900 clamp(15px,4.9vw,24px)/1 Arial, Helvetica, sans-serif;
-      letter-spacing:-.035em;
-      color:transparent;
-      white-space:nowrap;
-      flex:0 0 auto;
-      max-width:calc(100% - 36px);
-      overflow:hidden;
-      margin-left:clamp(15px,4.2vw,20px);
-      pointer-events:none;
-    }
-    .activity-one-choice::after {
-      position:relative;
-      left:3%;
-      flex:0 0 auto;
-      margin-left:1px;
-      font-size:clamp(14px,4vw,19px);
-      line-height:1;
-      font-weight:900;
-      text-shadow:0 2px 2px #fff,0 -2px 2px #fff;
-      pointer-events:none;
-    }
-    .activity-one-choice.correct::after { content:"✓"; color:#168b32; }
-    .activity-one-choice.incorrect::after { content:"✕"; color:#c92121; }
-    .activity-one-choice:disabled { cursor:default; }
-
-    /* Actividades 7 a 20 (motor único). Ajustes rápidos: --dyn-col-top y --dyn-col-width. */
-    :root { --dyn-col-top:78.5%; --dyn-col-width:52%; }
-    .activity-one-number.dyn-number { width:34%; }
-    .activity-one-choices.dyn { display:grid; align-items:center; gap:2.4%; }
-    .activity-one-choices.dyn.row { grid-template-columns:repeat(3,1fr); }
-    /* Solo 11–20: tres placas debajo del número grande y antes de Ramtuchi. */
-    /* Ejercicios 11–20: dos alternativas arriba y una centrada abajo. */
-    .activity-one-choices.dyn.plaque-two-one {
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      width:96%; top:77.8%; column-gap:1.5%; row-gap:clamp(6px, 1dvh, 12px);
-    }
-    .activity-one-choices.dyn.plaque-two-one .activity-one-choice:nth-of-type(3) {
-      grid-column:1 / -1; width:50%; justify-self:center;
-    }
-    .activity-one-choices.dyn .activity-one-choice { position:relative; left:auto !important; top:auto; bottom:auto; width:100%; padding:0; overflow:visible; transition:transform .12s ease; }
-    .activity-one-choices.dyn .activity-one-choice:active:not(:disabled) { transform:scale(.97); }
-    .activity-one-choices.dyn .activity-one-choice img { display:block; width:100%; height:auto; object-fit:contain; pointer-events:none; }
-    .activity-one-choices.dyn .activity-one-choice::before { content:none; }
-    .activity-one-choices.dyn .activity-one-choice::after { position:absolute; left:auto; right:6%; top:50%; margin:0; transform:translateY(-50%); font-size:clamp(20px,6vw,30px); }
-    .activity-one-choices.dyn.plaque-two-one .activity-one-choice::after { right:3.5%; font-size:clamp(18px,5.2vw,26px); }
-
-
-    /* Medidor único para las actividades posteriores a FILU. No modifica sus 20 números. */
-    .newen-game-meter {
-      position:fixed;
-      z-index:25;
-      right:max(3px, calc((100vw - 480px) / 2 + 3px));
-      top:clamp(54px,6.5dvh,74px);
-      width:clamp(35px,10vw,51px);
-      aspect-ratio:1 / 5.2;
-      display:none;
-      pointer-events:none;
-      user-select:none;
-      filter:drop-shadow(0 2px 4px rgba(0,0,0,.55));
-    }
-    #app.newen-playing .newen-game-meter { display:block; }
-    .newen-meter-image { width:100%; height:100%; display:block; object-fit:fill; }
-    .newen-meter-orbs {
-      position:absolute;
-      top:19%; bottom:6.8%; left:32%; width:36%;
-      display:flex; flex-direction:column; align-items:center;
-      justify-content:space-around;
-      pointer-events:none;
-    }
-    .newen-meter-orb {
-      display:block; width:100%; flex:0 0 auto; aspect-ratio:1 / 1;
-      border-radius:50%; border:1px solid rgba(224,255,204,.9);
-      background:radial-gradient(circle at 34% 25%,#e4ffa1 0%,#b9ff55 20%,#54d83c 68%,#168a32 100%);
-      box-shadow:0 0 5px rgba(130,255,79,.9),inset 0 0 2px #fff;
-      transition:background .16s,box-shadow .16s;
-    }
-    .newen-meter-orb:not(.filled) {
-      background:radial-gradient(circle at 38% 28%,#6c7672,#2d3733 67%,#151d1a);
-      box-shadow:inset 0 1px 3px rgba(0,0,0,.9),0 0 1px #000;
-      border-color:#a6a6a0;
-    }
-    .newen-meter-value {
-      position:absolute; top:100%; left:50%; transform:translate(-50%,0);
-      min-width:1.8em; padding:2px 5px;
-      text-align:center; white-space:nowrap;
-      color:#fff8df; border:2px solid #bba46c; border-radius:999px;
-      background:#263321; font:900 clamp(.8rem,3.7vw,1.13rem)/1.05 Arial,sans-serif;
-      text-shadow:0 1px 3px #000;
-    }
-    /* Mismo medidor vertical en el baile, nunca una fila horizontal adicional. */
-    .newen-recovery-meter {
-      position:absolute; z-index:5; right:1%; top:15%;
-      width:clamp(47px,13.6%,69px); aspect-ratio:1 / 5.2;
-      pointer-events:none; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));
-    }
-    .newen-recovery-meter .newen-meter-orb { transition:background .3s,box-shadow .3s; }
-    .newen-life-toast {
-      background:transparent !important; padding:2px 8px !important;
-      color:#d7ff9f !important; text-shaclick="openGrammarFromHome()" aria-label="Abrir Apoyo de Gramática"><img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática"></button>
+          <button class="home-link home-button" type="button" onclick="openGrammarFromHome()" aria-label="Abrir Apoyo de Gramática"><img class="home-button-image" src="./boton_gramatica.png" alt="Apoyo de Gramática"></button>
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
         </div>
@@ -1704,6 +1103,7 @@
           <div id="nhewenProgress" class="nhewen-progress" aria-label="Progreso de Nhewen"></div>
           <div id="filuNhewenComplete" class="filu-nhewen-complete" aria-hidden="true">NHEWEN</div>
         </div>
+        <button id="filuMapBack" class="filu-map-back" type="button" onclick="returnFiluToMap()" aria-label="Wiñotxekage, volver al Camino del Sabio" hidden><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
         <div id="filuCelebration" class="filu-celebration" aria-hidden="true">
           <div class="confetti-layer" id="filuConfetti"></div>
           <div class="filu-celebration-card">
@@ -1783,7 +1183,7 @@
     </section>
 
 
-    <!-- Kimün Che ñi Rüpü: tres ítems por fila. Los ítems aún no tienen acciones. -->
+    <!-- Kimün Che ñi Rüpü: accesos a actividades habilitadas. -->
     <section id="activityMap" class="screen" aria-label="Kimün Che ñi Rüpü — El camino del sabio">
       <div class="activity-map-screen">
         <img class="activity-map-background" src="./portada_actividades_bloqueadas_desbloqueadas.png" alt="" aria-hidden="true">
@@ -1792,7 +1192,7 @@
           <p>El camino del sabio</p>
         </header>
         <div class="activity-map-tiles" aria-label="Seis actividades desbloqueadas y seis bloqueadas">
-          <img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false">
+          <button class="activity-map-tile-button" type="button" onclick="openFiluFromMap()" aria-label="Númeru 1-20, abrir Filú"><img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false"></button>
           <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false">
           <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 1" draggable="false">
           <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false">
@@ -3194,7 +2594,35 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     let grammarOrigin = "home";
     let consultOrigin = "acknowledgements";
 
+    let filuOpenedFromMap = false;
+    function playFiluMapClick() {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = new AC();
+        const now = ctx.currentTime;
+        [523.25,659.25,783.99].forEach((freq,i) => {
+          const osc=ctx.createOscillator(), gain=ctx.createGain(), start=now+i*.085;
+          osc.type='sine'; osc.frequency.setValueAtTime(freq,start);
+          gain.gain.setValueAtTime(.0001,start);
+          gain.gain.exponentialRampToValueAtTime(.09,start+.018);
+          gain.gain.exponentialRampToValueAtTime(.0001,start+.32);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(start);osc.stop(start+.34);
+        });
+        setTimeout(()=>ctx.close().catch(()=>{}),1200);
+      } catch(err) { console.warn('Sonido de acceso Filú:',err); }
+    }
+    function openFiluFromMap() {
+      filuOpenedFromMap = true;
+      playFiluMapClick();
+      showScreen('filu');
+    }
+    function returnFiluToMap() {
+      showScreen('activityMap');
+    }
     function openFilu() {
+      filuOpenedFromMap = false;
       stopAcknowledgementsAudio();
       showScreen("filu");
     }
@@ -3986,7 +3414,10 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
 
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
-      if (screenId === 'activityMap') playActivityMapTxegul();
+      // Los Txegül solo se activarán mediante un disparador explícito posterior.
+      if (screenId === 'activityMap') stopActivityMapTxegul();
+      const filuMapBack = document.getElementById('filuMapBack');
+      if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
       if (screenId === 'levelOneComplete') renderLevelSummary();
       else cancelLevelAnimation();
