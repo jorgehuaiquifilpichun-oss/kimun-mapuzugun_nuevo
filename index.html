@@ -1035,6 +1035,20 @@
       .activity-map-tile-button.tile-feedback-locked .activity-map-item { animation-duration:.01s; }
     }
 
+
+    /* Ceremonia de Fünh-Frutos: capa independiente, sobre los mosaicos. */
+    .funh-floating-axe { position:absolute; z-index:8; left:28%; top:40%; width:27%; height:25%;
+      border:0; padding:0; background:transparent; cursor:pointer;
+      filter:drop-shadow(0 0 11px #57fb63) drop-shadow(0 0 18px #3fd94d);
+      animation:funhAxeHover 1.6s ease-in-out infinite; }
+    .funh-floating-axe[hidden] {display:none !important;}
+    .funh-floating-axe svg {width:100%;height:100%;display:block;}
+    @keyframes funhAxeHover {0%,100% {transform:translateY(0) scale(1);} 50% {transform:translateY(-11px) scale(1.07);}}
+    .funh-floating-axe:focus-visible {outline:3px solid #6ff682;border-radius:14px;}
+    .funh-status {position:absolute;z-index:3;left:5%;right:5%;top:17.5%;display:flex;justify-content:space-between;
+      font:800 clamp(10px,2.8vw,13px)/1.2 Arial,sans-serif;pointer-events:none;text-shadow:0 1px 2px #fff;}
+    .funh-status .on {color:#16652b;} .funh-status .off {color:#ba2020;}
+
     .filu-map-back { position:absolute; z-index:20; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(43%,180px); padding:0; border:0; background:transparent; cursor:pointer; }
     .filu-map-back img {display:block;width:100%;height:auto;}
     .filu-map-back[hidden] {display:none;}
@@ -1285,6 +1299,7 @@
           <h2>Kimün Che ñi Rüpü</h2>
           <p>El camino del sabio</p>
         </header>
+        <div class="funh-status" aria-live="polite"><span class="on">Nivel desbloqueado</span><span class="off" id="funhStatusLocked">Nivel bloqueado</span></div>
         <div class="activity-map-tiles" aria-label="Seis actividades desbloqueadas y seis bloqueadas">
           <button class="activity-map-tile-button" type="button" onclick="openFiluFromMap(this)" aria-label="Númeru 1-20, abrir Filú"><img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Rakiayiñ 1-40, desbloqueado">          <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false"></button>
@@ -1292,14 +1307,38 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
-<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Fünh-Frutos, bloqueado">          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="handleFunhFrutosTap(this)" aria-label="Fünh-Frutos, bloqueado">          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 1">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 1" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
-        <!-- Videos entregados por el usuario: entrada desde lados opuestos.
+        <!-- El hacha SVG ya forma parte del propio HTML, no requiere PNG adicional. -->
+        <button id="funhFloatingAxe" class="funh-floating-axe" type="button" hidden
+                onclick="activateFunhTxegul()" aria-label="Tocar hacha ceremonial para desbloquear Fünh-Frutos">
+          <svg id="funhFloatingHachaSvg" viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" aria-label="Hacha ceremonial">
+      <defs>
+        <mask id="corte">
+          <rect width="200" height="340" fill="#fff"/>
+          <circle cx="158" cy="112" r="38" fill="#000"/>
+        </mask>
+        <linearGradient id="piedra" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#e9d7b0"/>
+          <stop offset="1" stop-color="#b8956a"/>
+        </linearGradient>
+      </defs>
+      <g mask="url(#corte)">
+        <circle cx="100" cy="100" r="86" fill="url(#piedra)" stroke="#5a3418" stroke-width="4"/>
+        <rect x="76" y="170" width="48" height="160" rx="16" fill="url(#piedra)" stroke="#5a3418" stroke-width="4"/>
+      </g>
+      <circle cx="100" cy="100" r="68" fill="none" stroke="#5a3418" stroke-width="2.5"/>
+      <polygon id="estrella" fill="rgba(90,52,24,.18)" stroke="#5a3418" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="100" cy="100" r="19" fill="#e2c898" stroke="#5a3418" stroke-width="3"/>
+      <circle cx="100" cy="312" r="6" fill="#5a3418"/>
+    </svg>
+        </button>
+                <!-- Videos entregados por el usuario: entrada desde lados opuestos.
              IZQUIERDA -> actividades DERECHA; DERECHA -> actividades IZQUIERDA. -->
         <video id="txegulEntryLeft" class="activity-map-txegul from-left"
                src="./txegul_entrada_izquierda.mp4" preload="metadata" playsinline
@@ -2762,6 +2801,75 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         setTimeout(() => ctx.close().catch(() => {}), 750);
       } catch(err) { console.warn('Sonido de actividad bloqueada:', err); }
     }
+
+    // Estados de la ceremonia: bloqueado -> primer toque -> hacha visible -> video -> desbloqueado.
+    // Persistencia independiente del Newen y de las actividades existentes.
+    const FUNH_UNLOCK_KEY = 'kimun_funh_frutos_desbloqueado_v1';
+    let funhStage = 'locked';
+    function funhTile() { return document.querySelector('#activityMap button[aria-label^="Fünh-Frutos"]'); }
+    function isFunhUnlocked() { try { return localStorage.getItem(FUNH_UNLOCK_KEY)==='1'; } catch (_) {return funhStage==='unlocked';} }
+    function applyFunhState() {
+      const tile=funhTile(); if(!tile) return;
+      const unlocked=isFunhUnlocked() || funhStage==='unlocked';
+      if(unlocked) {
+        tile.querySelector('img').src='./item_funh_frutos_desbloqueado.png';
+        tile.querySelector('img').alt='Fünh-Frutos, desbloqueado';
+        tile.setAttribute('aria-label','Fünh-Frutos, desbloqueado');
+        funhStage='unlocked';
+      }
+      const label=document.getElementById('funhStatusLocked');
+      if(label) label.textContent=unlocked?'Fünh-Frutos desbloqueado':'Nivel bloqueado';
+    }
+    function playFunhBell() {
+      try {
+        const A=window.AudioContext||window.webkitAudioContext; if(!A)return;
+        const c=new A(); c.resume().catch(()=>{}); const t=c.currentTime;
+        [880,1320].forEach((hz,i)=>{const o=c.createOscillator(),g=c.createGain();
+          o.type='sine';o.frequency.value=hz;g.gain.setValueAtTime(.0001,t+i*.10);
+          g.gain.exponentialRampToValueAtTime(.18,t+i*.10+.012);
+          g.gain.exponentialRampToValueAtTime(.0001,t+i*.10+.34);
+          o.connect(g).connect(c.destination);o.start(t+i*.10);o.stop(t+i*.10+.35);});
+        setTimeout(()=>c.close().catch(()=>{}),850);
+      } catch(e){console.warn('Timbre Fünh-Frutos:',e);}
+    }
+    function handleFunhFrutosTap(button) {
+      applyFunhState();
+      if(funhStage==='unlocked'){playActivityMapTileSound(button);return;}
+      if(funhStage==='playing'||funhStage==='axe')return;
+      animateActivityMapTile(button,false);
+      if(funhStage==='locked') {playFunhBell();funhStage='armed';return;}
+      if(funhStage==='armed') {playActivityMapLockedSound();funhStage='axe';
+        document.getElementById('funhFloatingAxe').hidden=false;}
+    }
+    function activateFunhTxegul() {
+      if(funhStage!=='axe')return;
+      document.getElementById('funhFloatingAxe').hidden=true;
+      funhStage='playing';
+      const video=document.getElementById('txegulEntryRight');
+      if(!video){funhStage='armed';return;}
+      stopActivityMapTxegul();
+      video.classList.add('playing');
+      let finished=false;
+      function finish(){if(finished||funhStage!=='playing')return;finished=true;
+        video.classList.remove('playing');
+        funhStage='unlocked';
+        try{localStorage.setItem(FUNH_UNLOCK_KEY,'1');}catch(_){}
+        applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
+      }
+      video.onended=finish;
+      video.ontimeupdate=()=>{if(video.duration && video.currentTime>=video.duration*.92)finish();};
+      video.onerror=()=>{video.classList.remove('playing');funhStage='armed';console.warn('Falta video del Txegül derecho:',video.src);};
+      try{video.currentTime=0;}catch(_){}
+      const result=video.play();
+      if(result&&result.catch) result.catch(e=>{video.classList.remove('playing');funhStage='armed';console.warn('Video no disponible:',e);});
+    }
+    function resetFunhCeremonyOnExit(){
+      const axe=document.getElementById('funhFloatingAxe');if(axe)axe.hidden=true;
+      if(funhStage!=='unlocked')funhStage='locked';
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyFunhState);
+    else applyFunhState();
+
     function openFiluFromMap(button) {
       // Sonido y movimiento visibles antes de navegar; sin alterar el juego.
       if (button && button.dataset.opening === '1') return;
@@ -3692,7 +3800,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
         beginNewenRecovery(screenId);
         return;
       }
-      if (screenId !== 'activityMap') stopActivityMapTxegul();
+      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); }
       if (screenId !== 'newenRecovery') {
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
@@ -3716,7 +3824,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
       // Los Txegül solo se activarán mediante un disparador explícito posterior.
-      if (screenId === 'activityMap') stopActivityMapTxegul();
+      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); }
       const filuMapBack = document.getElementById('filuMapBack');
       if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
