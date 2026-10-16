@@ -1344,7 +1344,7 @@
                src="./txegul_entrada_izquierda.webm" preload="metadata" playsinline
                aria-hidden="true" data-objetivo="derecha"></video>
         <video id="txegulEntryRight" class="activity-map-txegul from-right"
-               src="./txegul_entrada_derecha.webm" preload="metadata" playsinline
+               src="./txegul_entrada_derecha.webm" preload="auto" playsinline
                aria-hidden="true" data-objetivo="izquierda"></video>
         <button class="activity-map-back" type="button" onclick="playFiluMapClick(); showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
           <img src="./boton_volver_atras.png" alt="Volver atrás">
@@ -2500,6 +2500,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const video = document.getElementById(id);
         if (!video) return;
         video.pause();
+        video.onended=null;
+        video.ontimeupdate=null;
+        video.onerror=null;
         video.classList.remove('playing');
         if (video.readyState >= 1) {
           try { video.currentTime = 0; } catch (_) {}
@@ -2803,9 +2806,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
 
     // Estados de la ceremonia: bloqueado -> primer toque -> hacha visible -> video -> desbloqueado.
-    // El desbloqueo visual solo vive mientras esta página permanece abierta.
-    // No se modifica el progreso persistente de lecciones, Newen ni estadísticas.
-    let funhStage = 'locked';
+    // El desbloqueo de Fünh-Frutos se conserva independientemente de las lecciones, Newen y estadísticas.
+    const FUNH_STORAGE_KEY = 'kimun_funh_frutos_unlocked_v1';
+    function readFunhUnlocked() {
+      try { return localStorage.getItem(FUNH_STORAGE_KEY) === '1'; }
+      catch (_) { return false; }
+    }
+    let funhStage = readFunhUnlocked() ? 'unlocked' : 'locked';
     function funhTile() { return document.querySelector('#activityMap button[aria-label^="Fünh-Frutos"]'); }
     function isFunhUnlocked() { return funhStage==='unlocked'; }
     function applyFunhState() {
@@ -2857,14 +2864,24 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       function finish(){if(finished||funhStage!=='playing')return;finished=true;
         video.classList.remove('playing');
         funhStage='unlocked';
+        try { localStorage.setItem(FUNH_STORAGE_KEY, '1'); }
+        catch (error) { console.warn('No fue posible guardar Fünh-Frutos:',error); }
         applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
       }
       video.onended=finish;
-      video.ontimeupdate=()=>{if(video.duration && video.currentTime>=video.duration*.92)finish();};
-      video.onerror=()=>{video.classList.remove('playing');funhStage='armed';console.warn('Falta video del Txegül derecho:',video.src);};
+      // Se espera el final completo del golpe: no cortar el video al 92 %.
+      video.ontimeupdate=null;
+      function restoreOnVideoError(error) {
+        video.classList.remove('playing');
+        funhStage='axe';
+        const axe=document.getElementById('funhFloatingAxe');
+        if(axe)axe.hidden=false;
+        console.warn('No se pudo reproducir el Txegül derecho:',error);
+      }
+      video.onerror=()=>restoreOnVideoError(video.src);
       try{video.currentTime=0;}catch(_){}
       const result=video.play();
-      if(result&&result.catch) result.catch(e=>{video.classList.remove('playing');funhStage='armed';console.warn('Video no disponible:',e);});
+      if(result&&result.catch) result.catch(restoreOnVideoError);
     }
     function resetFunhCeremonyOnExit(){
       const axe=document.getElementById('funhFloatingAxe');if(axe)axe.hidden=true;
