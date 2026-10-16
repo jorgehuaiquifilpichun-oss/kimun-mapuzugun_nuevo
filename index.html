@@ -1286,7 +1286,7 @@
         <video id="txegulEntryRight" class="activity-map-txegul from-right"
                src="./txegul_entrada_derecha.mp4" preload="metadata" playsinline
                aria-hidden="true" data-objetivo="izquierda"></video>
-        <button class="activity-map-back" type="button" onclick="showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
+        <button class="activity-map-back" type="button" onclick="playFiluMapClick(); showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
           <img src="./boton_volver_atras.png" alt="Volver atrás">
         </button>
       </div>
@@ -2668,23 +2668,28 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     let consultOrigin = "acknowledgements";
 
     let filuOpenedFromMap = false;
+    // Sonido breve de pulsación exclusivo para Kimün Che ñi Rüpü.
+    // Se ejecuta directamente desde el gesto del usuario, sin modificar Filú original.
     function playFiluMapClick() {
       try {
         const AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return;
         const ctx = new AC();
-        const now = ctx.currentTime;
-        [523.25,659.25,783.99].forEach((freq,i) => {
-          const osc=ctx.createOscillator(), gain=ctx.createGain(), start=now+i*.085;
-          osc.type='sine'; osc.frequency.setValueAtTime(freq,start);
-          gain.gain.setValueAtTime(.0001,start);
-          gain.gain.exponentialRampToValueAtTime(.09,start+.018);
-          gain.gain.exponentialRampToValueAtTime(.0001,start+.32);
-          osc.connect(gain).connect(ctx.destination);
-          osc.start(start);osc.stop(start+.34);
-        });
-        setTimeout(()=>ctx.close().catch(()=>{}),1200);
-      } catch(err) { console.warn('Sonido de acceso Filú:',err); }
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        const t = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(520, t);
+        osc.frequency.exponentialRampToValueAtTime(280, t + 0.13);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(0.18, t + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.17);
+        osc.onended = () => ctx.close().catch(() => {});
+      } catch(err) { console.warn('Sonido botón Camino del Sabio:', err); }
     }
     function openFiluFromMap() {
       // No comparte pantalla, progreso, audio ni salida con el Filú original.
