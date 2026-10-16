@@ -1341,10 +1341,10 @@
                 <!-- Videos entregados por el usuario: entrada desde lados opuestos.
              IZQUIERDA -> actividades DERECHA; DERECHA -> actividades IZQUIERDA. -->
         <video id="txegulEntryLeft" class="activity-map-txegul from-left"
-               src="./txegul_entrada_izquierda.mp4.mp4" preload="metadata" playsinline
+               src="./txegul_entrada_izquierda.webm" preload="metadata" playsinline
                aria-hidden="true" data-objetivo="derecha"></video>
         <video id="txegulEntryRight" class="activity-map-txegul from-right"
-               src="./txegul_entrada_derecha.mp4.mp4" preload="metadata" playsinline
+               src="./txegul_entrada_derecha.webm" preload="metadata" playsinline
                aria-hidden="true" data-objetivo="izquierda"></video>
         <button class="activity-map-back" type="button" onclick="playFiluMapClick(); showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
           <img src="./boton_volver_atras.png" alt="Volver atrás">
@@ -2803,19 +2803,23 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
 
     // Estados de la ceremonia: bloqueado -> primer toque -> hacha visible -> video -> desbloqueado.
-    // Persistencia independiente del Newen y de las actividades existentes.
-    const FUNH_UNLOCK_KEY = 'kimun_funh_frutos_desbloqueado_v1';
+    // El desbloqueo visual solo vive mientras esta página permanece abierta.
+    // No se modifica el progreso persistente de lecciones, Newen ni estadísticas.
     let funhStage = 'locked';
     function funhTile() { return document.querySelector('#activityMap button[aria-label^="Fünh-Frutos"]'); }
-    function isFunhUnlocked() { try { return localStorage.getItem(FUNH_UNLOCK_KEY)==='1'; } catch (_) {return funhStage==='unlocked';} }
+    function isFunhUnlocked() { return funhStage==='unlocked'; }
     function applyFunhState() {
       const tile=funhTile(); if(!tile) return;
-      const unlocked=isFunhUnlocked() || funhStage==='unlocked';
+      const unlocked=isFunhUnlocked();
+      const icon=tile.querySelector('img');
       if(unlocked) {
-        tile.querySelector('img').src='./item_funh_frutos_desbloqueado.png';
-        tile.querySelector('img').alt='Fünh-Frutos, desbloqueado';
+        icon.src='./item_funh_frutos_desbloqueado.png';
+        icon.alt='Fünh-Frutos, desbloqueado';
         tile.setAttribute('aria-label','Fünh-Frutos, desbloqueado');
-        funhStage='unlocked';
+      } else {
+        icon.src='./item_funh_frutos_bloqueado.png';
+        icon.alt='Fünh-Frutos, bloqueado';
+        tile.setAttribute('aria-label','Fünh-Frutos, bloqueado');
       }
       const label=document.getElementById('funhStatusLocked');
       if(label) label.textContent=unlocked?'Fünh-Frutos desbloqueado':'Nivel bloqueado';
@@ -2853,7 +2857,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       function finish(){if(finished||funhStage!=='playing')return;finished=true;
         video.classList.remove('playing');
         funhStage='unlocked';
-        try{localStorage.setItem(FUNH_UNLOCK_KEY,'1');}catch(_){}
         applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
       }
       video.onended=finish;
