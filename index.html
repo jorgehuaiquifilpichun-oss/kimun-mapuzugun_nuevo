@@ -1052,6 +1052,51 @@
     .activity-map-txegul.from-right { right: 0; }
 
 
+
+    /* FILÚ DEL CAMINO DEL SABIO: pantalla y controles independientes del FILÚ inicial. */
+    #filuMapNumberHits {
+      position:absolute; inset:0; z-index:4; pointer-events:none;
+    }
+    #filuMapCopy .filu-map-number-hit {
+      position:absolute; z-index:4; border:0; padding:0; background:transparent;
+      cursor:pointer; border-radius:50%; -webkit-tap-highlight-color:transparent;
+      transform:translate(-50%,-50%); pointer-events:auto;
+    }
+    #filuMapCopy .filu-map-number-hit.pressed {
+      background:rgba(126,211,120,.34);
+      box-shadow:inset 0 0 0 2px rgba(64,145,78,.55);
+    }
+    #filuMapCopy .filu-map-number-hit.guide-pulse::after {
+      content:""; position:absolute; inset:-9%; pointer-events:none;
+      border:2px solid #b9ff55; border-radius:50%;
+      background:rgba(185,255,85,.20);
+      box-shadow:0 0 8px 3px rgba(158,255,90,.82);
+      animation:filuMapGuidePulse 1.2s ease-in-out infinite;
+    }
+    @keyframes filuMapGuidePulse {
+      0%,100% { opacity:.48; transform:scale(.93); }
+      50% { opacity:1; transform:scale(1.19); }
+    }
+    #filuMapCopy .filu-map-nhewen-dot {
+      width:3.832720%; aspect-ratio:1/1; border-radius:50%;
+      background:rgba(58,128,66,.10);
+      box-shadow:inset 0 0 0 1px rgba(25,76,37,.18);
+      transition:background .22s ease,box-shadow .22s ease,transform .22s ease;
+      flex:0 0 auto;
+    }
+    #filuMapCopy .filu-map-nhewen-dot.filled {
+      background:radial-gradient(circle at 34% 28%,
+        #d8ff72 0%,#b9ff55 15%,#70e93e 40%,#35c83a 68%,#149638 100%);
+      box-shadow:inset 0 0 0 2px rgba(224,255,204,.96),
+        inset 0 -3px 5px rgba(0,92,35,.34),
+        inset 2px 3px 5px rgba(255,255,210,.42),0 0 5px rgba(127,255,72,.92);
+      transform:scale(1);
+    }
+    #filuMapCopy .filu-play { font-size:clamp(.8rem,3.6vw,1rem); padding:10px 16px; }
+    @media (prefers-reduced-motion:reduce) {
+      #filuMapCopy .filu-map-number-hit.guide-pulse::after { animation:none; opacity:1; }
+    }
+
 </style>
 </head>
 
@@ -1121,6 +1166,34 @@
 
 
 
+
+
+    <!-- Copia exclusiva de Filú para Kimün Che ñi Rüpü. Sin los carteles de inicio/repetición del recorrido original. -->
+    <section id="filuMapCopy" class="screen">
+      <div class="filu-screen">
+        <div class="filu-word-sign" role="status" aria-live="polite" aria-atomic="true">
+          <span class="filu-word-hint">ESCUCHA Y APRENDE</span>
+          <span id="filuMapWordValue" class="filu-word-value">PRESIONA EL 1</span>
+        </div>
+        <div class="filu-board" id="filuMapBoard">
+          <img class="filu-image" src="./actividad_nhewen_filu_v1.png" alt="FILU — Camino del Sabio">
+          <div id="filuMapNumberHits" aria-label="Números FILU — Camino del Sabio"></div>
+          <div id="filuMapNhewenProgress" class="nhewen-progress" aria-label="Progreso de Nhewen"></div>
+          <div id="filuMapNhewenComplete" class="filu-nhewen-complete" aria-hidden="true">NHEWEN</div>
+        </div>
+        <button class="filu-map-back" type="button" onclick="returnFiluToMap()" aria-label="Wiñotxekage, volver al Camino del Sabio"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
+        <div id="filuMapCelebration" class="filu-celebration" aria-hidden="true">
+          <div class="confetti-layer" id="filuMapConfetti"></div>
+          <div class="filu-celebration-card">
+            <img class="filu-celebration-image" src="./overlay_nhewen_txegul_v1.png" alt="Txegül celebrando">
+            <div class="filu-celebration-copy">
+              <h2>¡Completaste tu Nhewen!</h2>
+              <button class="filu-play" type="button" onclick="returnFiluToMap()">Volver al camino</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <section id="pairs01" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_01_05.png" alt="Selección de pares del 1 al 5"><div id="pairs01Hits"></div><div id="pairs01Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 1 a 5"><button class="ack-control ack-back" type="button" onclick="showScreen('filu')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityOne')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs01')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
 <section id="pairs05" class="screen pairs-screen"><div class="pairs-stage"><img class="pairs-base" src="./actividad_casa_01.png" alt=""><div class="pairs-board"><img class="pairs-art" src="./actividad_pares_05_10.png" alt="Selección de pares del 5 al 10"><div id="pairs05Hits"></div><div id="pairs05Status" class="pairs-status" role="status"></div></div><div class="ack-controls" aria-label="Controles de selección de pares 5 a 10"><button class="ack-control ack-back" type="button" onclick="showScreen('activityTen')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="ack-control ack-next" type="button" onclick="showScreen('activityEleven')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button><button class="ack-control ack-consult" type="button" onclick="openRamtuchiPair('pairs05')" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button></div></div></section>
@@ -2614,11 +2687,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       } catch(err) { console.warn('Sonido de acceso Filú:',err); }
     }
     function openFiluFromMap() {
-      filuOpenedFromMap = true;
+      // No comparte pantalla, progreso, audio ni salida con el Filú original.
       playFiluMapClick();
-      showScreen('filu');
+      resetFiluMapActivity();
+      showScreen('filuMapCopy');
     }
     function returnFiluToMap() {
+      stopFiluMapActivity();
       showScreen('activityMap');
     }
     function openFilu() {
@@ -3217,6 +3292,148 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     buildNhewenProgress();
     updateNhewenProgress(0);
 
+    /* ===== FILÚ DEL CAMINO DEL SABIO — recorrido autónomo =====
+       Reutiliza solo recursos/posiciones inmutables; no comparte el estado de FILÚ inicial.
+       Esta copia empieza directamente en el número 1 y regresa al mapa al terminar. */
+    const FILU_MAP_STATE = {
+      expected:1, completed:false, audio:null, celebrationTimer:null, confettiTimer:null
+    };
+    function stopFiluMapActivity() {
+      if (FILU_MAP_STATE.celebrationTimer !== null) {
+        clearTimeout(FILU_MAP_STATE.celebrationTimer);
+        FILU_MAP_STATE.celebrationTimer = null;
+      }
+      if (FILU_MAP_STATE.confettiTimer !== null) {
+        clearTimeout(FILU_MAP_STATE.confettiTimer);
+        FILU_MAP_STATE.confettiTimer = null;
+      }
+      if (FILU_MAP_STATE.audio) {
+        try { FILU_MAP_STATE.audio.pause(); FILU_MAP_STATE.audio.currentTime=0; } catch (_) {}
+        FILU_MAP_STATE.audio = null;
+      }
+    }
+    function resetFiluMapActivity() {
+      stopFiluMapActivity();
+      FILU_MAP_STATE.expected = 1;
+      FILU_MAP_STATE.completed = false;
+      const word = document.getElementById('filuMapWordValue');
+      if (word) word.textContent = 'PRESIONA EL 1';
+      document.querySelectorAll('#filuMapNumberHits .filu-map-number-hit').forEach(button => {
+        button.classList.remove('pressed','guide-pulse');
+        if (button.dataset.number === '1') button.classList.add('guide-pulse');
+      });
+      updateFiluMapProgress(0);
+      const overlay = document.getElementById('filuMapCelebration');
+      if (overlay) { overlay.classList.remove('active');overlay.setAttribute('aria-hidden','true'); }
+      document.getElementById('filuMapConfetti')?.replaceChildren();
+    }
+    function fitFiluMapBoard() {
+      const screen=document.querySelector('#filuMapCopy .filu-screen');
+      const board=document.getElementById('filuMapBoard');
+      const img=board?.querySelector('.filu-image');
+      const sign=screen?.querySelector('.filu-word-sign');
+      if (!screen || !board || !img || !sign || !img.naturalWidth || !img.naturalHeight) return;
+      const css=getComputedStyle(screen);
+      const available=screen.clientHeight-parseFloat(css.paddingTop)-parseFloat(css.paddingBottom)
+        -sign.getBoundingClientRect().height-parseFloat(getComputedStyle(sign).marginBottom)-3;
+      const aspect=img.naturalWidth/img.naturalHeight;
+      board.style.width=Math.max(1,Math.min(screen.clientWidth,available*aspect))+'px';
+    }
+    function buildFiluMapNumberHits() {
+      const host=document.getElementById('filuMapNumberHits');
+      if (!host || host.children.length) return;
+      FILU_NUMBER_POSITIONS.forEach(([number,left,top,size])=>{
+        const button=document.createElement('button');
+        button.type='button';
+        button.className='filu-map-number-hit';
+        button.dataset.number=String(number);
+        button.setAttribute('aria-label',`Número ${number}`);
+        button.style.left=`${left}%`;
+        button.style.top=`${top}%`;
+        button.style.width=`${size}%`;
+        button.style.aspectRatio='1 / 1';
+        button.addEventListener('click',()=>playFiluMapNumber(number,button));
+        host.appendChild(button);
+      });
+    }
+    function buildFiluMapProgress() {
+      const host=document.getElementById('filuMapNhewenProgress');
+      if (!host || host.children.length) return;
+      for (let i=1;i<=20;i++) {
+        const dot=document.createElement('span');
+        dot.className='filu-map-nhewen-dot';
+        dot.dataset.step=String(i);
+        host.appendChild(dot);
+      }
+    }
+    function updateFiluMapProgress(completed) {
+      document.querySelectorAll('#filuMapNhewenProgress .filu-map-nhewen-dot').forEach((dot,index)=>{
+        dot.classList.toggle('filled',index<completed);
+      });
+      document.getElementById('filuMapNhewenComplete')?.classList.toggle('active',completed>=20);
+    }
+    function playFiluMapNumber(number,button) {
+      if (!document.getElementById('filuMapCopy').classList.contains('active') ||
+          FILU_MAP_STATE.completed || number !== FILU_MAP_STATE.expected) return;
+      const src=FILU_NUMBER_AUDIO[number];
+      if (!src) return;
+      if (FILU_MAP_STATE.audio) {
+        try { FILU_MAP_STATE.audio.pause(); FILU_MAP_STATE.audio.currentTime=0; } catch (_) {}
+      }
+      document.getElementById('filuMapWordValue').textContent=FILU_NUMBER_WORDS[number-1];
+      button.classList.remove('guide-pulse');
+      button.classList.add('pressed');
+      updateFiluMapProgress(number);
+      FILU_MAP_STATE.audio=new Audio(src);
+      FILU_MAP_STATE.audio.preload='auto';
+      FILU_MAP_STATE.audio.volume=1;
+      const playback=FILU_MAP_STATE.audio.play();
+      if (playback && typeof playback.catch==='function') {
+        playback.catch(error=>console.warn(`No se pudo reproducir el número ${number} del Camino del Sabio:`,src,error));
+      }
+      if (number<20) FILU_MAP_STATE.expected=number+1;
+      else {
+        FILU_MAP_STATE.completed=true;
+        FILU_MAP_STATE.celebrationTimer=window.setTimeout(()=>{
+          FILU_MAP_STATE.celebrationTimer=null;
+          if (document.getElementById('filuMapCopy').classList.contains('active')) showFiluMapCelebration();
+        },450);
+      }
+    }
+    function showFiluMapCelebration() {
+      const overlay=document.getElementById('filuMapCelebration');
+      if (!FILU_MAP_STATE.completed || !overlay || overlay.classList.contains('active')) return;
+      overlay.classList.add('active');
+      overlay.setAttribute('aria-hidden','false');
+      launchFiluMapConfetti();
+      FILU_MAP_STATE.confettiTimer=window.setTimeout(()=>{
+        FILU_MAP_STATE.confettiTimer=null;
+        if (document.getElementById('filuMapCopy').classList.contains('active')) launchFiluMapConfetti();
+      },650);
+    }
+    function launchFiluMapConfetti() {
+      const layer=document.getElementById('filuMapConfetti');
+      if (!layer) return;
+      for (let i=0;i<52;i++) {
+        const piece=document.createElement('i');
+        piece.className='confetti-piece';
+        const fromLeft=i%2===0;
+        piece.style.left=`${fromLeft?Math.random()*24:76+Math.random()*24}%`;
+        piece.style.setProperty('--h',String(Math.floor(Math.random()*360)));
+        piece.style.setProperty('--d',`${1.9+Math.random()*1.5}s`);
+        piece.style.setProperty('--delay',`${Math.random()*.28}s`);
+        piece.style.setProperty('--drift',`${(fromLeft?1:-1)*(25+Math.random()*80)}px`);
+        layer.appendChild(piece);
+        window.setTimeout(()=>piece.remove(),3900);
+      }
+    }
+    buildFiluMapNumberHits();
+    buildFiluMapProgress();
+    resetFiluMapActivity();
+    const filuMapBoardImage=document.querySelector('#filuMapBoard .filu-image');
+    if (filuMapBoardImage) filuMapBoardImage.addEventListener('load',fitFiluMapBoard);
+    window.addEventListener('resize',fitFiluMapBoard);
+
 
 /* Selecciones de pares — sistema de audio independiente de FILU y de los ejercicios numéricos. */
 const PAIR_NUMBER_AUDIO={
@@ -3419,6 +3636,8 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       const filuMapBack = document.getElementById('filuMapBack');
       if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
+      if (screenId === 'filuMapCopy') fitFiluMapBoard();
+      else stopFiluMapActivity();
       if (screenId === 'levelOneComplete') renderLevelSummary();
       else cancelLevelAnimation();
       if (screenId !== 'hachaUnlock') resetHachaUnlock();
