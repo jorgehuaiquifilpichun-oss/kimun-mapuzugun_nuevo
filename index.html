@@ -1014,6 +1014,27 @@
     }
     .activity-map-tile-button { display:block; width:100%; height:100%; padding:0; border:0; background:transparent; cursor:pointer; min-width:0; min-height:0; }
     .activity-map-tile-button:focus-visible { outline:3px solid #1f793d; border-radius:10px; }
+
+    /* Respuesta táctil del Camino del Sabio: no modifica las imágenes. */
+    .activity-map-tile-button .activity-map-item { transform-origin:center; will-change:transform; }
+    .activity-map-tile-button.tile-feedback-open .activity-map-item { animation:kimunTileOpen .26s ease-out both; }
+    .activity-map-tile-button.tile-feedback-locked .activity-map-item { animation:kimunTileLocked .34s ease-in-out both; }
+    @keyframes kimunTileOpen {
+      0% { transform:scale(1); }
+      35% { transform:scale(.88); }
+      72% { transform:scale(1.08); }
+      100% { transform:scale(1); }
+    }
+    @keyframes kimunTileLocked {
+      0%,100% { transform:translateX(0); }
+      20%,60% { transform:translateX(-5px); }
+      40%,80% { transform:translateX(5px); }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .activity-map-tile-button.tile-feedback-open .activity-map-item,
+      .activity-map-tile-button.tile-feedback-locked .activity-map-item { animation-duration:.01s; }
+    }
+
     .filu-map-back { position:absolute; z-index:20; left:50%; bottom:max(8px,env(safe-area-inset-bottom)); transform:translateX(-50%); width:min(43%,180px); padding:0; border:0; background:transparent; cursor:pointer; }
     .filu-map-back img {display:block;width:100%;height:auto;}
     .filu-map-back[hidden] {display:none;}
@@ -1265,18 +1286,18 @@
           <p>El camino del sabio</p>
         </header>
         <div class="activity-map-tiles" aria-label="Seis actividades desbloqueadas y seis bloqueadas">
-          <button class="activity-map-tile-button" type="button" onclick="openFiluFromMap()" aria-label="Númeru 1-20, abrir Filú"><img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false"></button>
-          <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false">
-          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 1" draggable="false">
-          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false">
-          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false">
-          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false">
-          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false">
-          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 1" draggable="false">
-          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false">
-          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false">
-          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false">
-          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false">
+          <button class="activity-map-tile-button" type="button" onclick="openFiluFromMap(this)" aria-label="Númeru 1-20, abrir Filú"><img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Rakiayiñ 1-40, desbloqueado">          <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 1">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 1" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Fünh-Frutos, bloqueado">          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 1">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 1" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
+<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
         <!-- Videos entregados por el usuario: entrada desde lados opuestos.
              IZQUIERDA -> actividades DERECHA; DERECHA -> actividades IZQUIERDA. -->
@@ -2691,11 +2712,69 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         osc.onended = () => ctx.close().catch(() => {});
       } catch(err) { console.warn('Sonido botón Camino del Sabio:', err); }
     }
-    function openFiluFromMap() {
-      // No comparte pantalla, progreso, audio ni salida con el Filú original.
+    // Sonido común para los mosaicos de Kimün Che ñi Rüpü.
+    // Se consulta la imagen ACTUAL, por lo que al cambiarla de bloqueada
+    // a desbloqueada cambia el sonido sin alterar la navegación.
+    function animateActivityMapTile(button, unlocked) {
+      if (!button) return;
+      const selected = unlocked ? 'tile-feedback-open' : 'tile-feedback-locked';
+      button.classList.remove('tile-feedback-open', 'tile-feedback-locked');
+      // Reinicia la animación si la persona pulsa nuevamente el mismo botón.
+      void button.offsetWidth;
+      button.classList.add(selected);
+      const image = button.querySelector('img.activity-map-item');
+      if (image) image.addEventListener('animationend', () => {
+        button.classList.remove(selected);
+      }, {once:true});
+    }
+    // Lee siempre la imagen actual, por si una actividad se desbloquea.
+    function playActivityMapTileSound(button) {
+      const image = button && button.querySelector('img.activity-map-item');
+      if (!image) return;
+      const source = image.getAttribute('src') || '';
+      const unlocked = source.includes('_desbloqueado') || source.includes('item_desbloqueado_');
+      animateActivityMapTile(button, unlocked);
+      if (unlocked) playFiluMapClick();
+      else playActivityMapLockedSound();
+    }
+    function playActivityMapLockedSound() {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        const ctx = new AC();
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        const t = ctx.currentTime;
+        // Doble tono descendente de error, acentuado y de corta duración.
+        [0, 0.19].forEach(offset => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const t0 = t + offset;
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(260, t0);
+          osc.frequency.exponentialRampToValueAtTime(125, t0 + 0.17);
+          gain.gain.setValueAtTime(0.0001, t0);
+          gain.gain.exponentialRampToValueAtTime(0.30, t0 + 0.014);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.185);
+        });
+        setTimeout(() => ctx.close().catch(() => {}), 750);
+      } catch(err) { console.warn('Sonido de actividad bloqueada:', err); }
+    }
+    function openFiluFromMap(button) {
+      // Sonido y movimiento visibles antes de navegar; sin alterar el juego.
+      if (button && button.dataset.opening === '1') return;
+      if (button) {
+        button.dataset.opening = '1';
+        animateActivityMapTile(button, true);
+      }
       playFiluMapClick();
-      resetFiluMapActivity();
-      showScreen('filuMapCopy');
+      window.setTimeout(() => {
+        if (button) delete button.dataset.opening;
+        resetFiluMapActivity();
+        showScreen('filuMapCopy');
+      }, 235);
     }
     function returnFiluToMap() {
       stopFiluMapActivity();
