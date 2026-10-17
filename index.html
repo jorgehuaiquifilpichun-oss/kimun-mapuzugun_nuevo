@@ -2897,62 +2897,27 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const videoRect=video.getBoundingClientRect();
       const lockX=tileRect.left+tileRect.width*.50;
       const lockY=tileRect.top+tileRect.height*.78;
-      const deltaX=lockX-(videoRect.left+videoRect.width*.58);
+      // Ajuste horizontal controlado: un poco más a la derecha del punto previo.
+      // No añadir movimientos ni golpes externos: usar una sola reproducción del WebM.
+      const deltaX=lockX-(videoRect.left+videoRect.width*.58)+Math.min(24,tileRect.width*.18);
       const deltaY=lockY-(videoRect.top+videoRect.height*.64);
       video.style.setProperty('--funh-travel-x',`${deltaX}px`);
       video.style.setProperty('--funh-travel-y',`${deltaY}px`);
-      // Sin desplazamiento CSS: el personaje se ve caminar y golpear
-      // gracias a los fotogramas originales, siempre frente al candado.
-      const duration=video.duration>0&&Number.isFinite(video.duration)?video.duration:6.08;
-      video.style.setProperty('--funh-travel-duration',`${duration}s`);
-      const strikeFrom=Math.min(duration*.70,duration-.4);
-      const strikeUntil=Math.min(duration*.95,duration-.08);
-      let hits=0;
       let finishing=false;
-      function impact(){
-        if(funhStage!=='playing')return;
-        const stage=video.closest('.activity-map-screen');
-        const r=stage.getBoundingClientRect();
-        const flash=document.createElement('span');
-        flash.className='funh-lock-impact';
-        flash.style.left=`${lockX-r.left}px`;
-        flash.style.top=`${lockY-r.top}px`;
-        stage.appendChild(flash);
-        flash.addEventListener('animationend',()=>flash.remove(),{once:true});
-      }
       function complete(){
         if(finishing||funhStage!=='playing')return;
         finishing=true;
         clearFunhStrikeTimeout();
-        video.pause(); video.ontimeupdate=null; video.onended=null;
+        video.pause();video.ontimeupdate=null;video.onended=null;
         video.classList.remove('playing','funh-striking');
         funhStage='unlocked';
         try{localStorage.setItem(FUNH_STORAGE_KEY,'1');}
         catch(error){console.warn('No fue posible guardar Fünh-Frutos:',error);}
         applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
       }
-      video.ontimeupdate=()=>{
-        if(finishing||funhStage!=='playing')return;
-        if(video.currentTime<strikeUntil)return;
-        hits++;
-        impact();
-        if(hits===1) {
-          // Congelar la posición en el candado: nunca repetir el desplazamiento.
-          video.classList.add('funh-striking');
-        }
-        if(hits>=3){complete();return;}
-        try{video.currentTime=strikeFrom;}catch(error){console.warn('Repetición del golpe:',error);complete();}
-      };
-      video.onended=()=>{
-        if(finishing)return;
-        hits++;impact();
-        if(hits>=3)complete();
-        else {
-          video.classList.add('funh-striking');
-          try{video.currentTime=strikeFrom;video.play().catch(restoreOnVideoError);}
-          catch(error){restoreOnVideoError(error);}
-        }
-      };
+      // El video termina una sola vez. No se retrocede currentTime ni se repite el golpe.
+      video.ontimeupdate=null;
+      video.onended=complete;
       function restoreOnVideoError(error){
         clearFunhStrikeTimeout();
         video.pause();video.ontimeupdate=null;video.onended=null;
