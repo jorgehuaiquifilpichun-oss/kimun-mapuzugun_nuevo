@@ -2916,8 +2916,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         catch(error){console.warn('No fue posible guardar Fünh-Frutos:',error);}
         applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
       }
-      // El video termina una sola vez. No se retrocede currentTime ni se repite el golpe.
-      video.ontimeupdate=null;
+      // Abrir el candado al tercer golpe, sin esperar los fotogramas finales.
+      // Tiempo estimado sobre el WebM de 6,08 s a partir de la prueba 329.mp4.
+      // El evento ended queda como respaldo si un navegador omite timeupdate.
+      const funhThirdStrikeSecond = 5.15;
+      video.ontimeupdate=()=>{
+        if(funhStage==='playing' && video.currentTime>=funhThirdStrikeSecond)complete();
+      };
       video.onended=complete;
       function restoreOnVideoError(error){
         clearFunhStrikeTimeout();
