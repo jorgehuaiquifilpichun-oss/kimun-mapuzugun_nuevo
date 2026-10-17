@@ -1114,6 +1114,27 @@
       #filuMapCopy .filu-map-number-hit.guide-pulse::after { animation:none; opacity:1; }
     }
 
+
+    /* Fünh-Frutos: pulso sólo después del desbloqueo confirmado. */
+    .activity-map-tile-button.funh-ready {position:relative;border-radius:12px;animation:funhReadyPulse 1.6s ease-in-out infinite;}
+    @keyframes funhReadyPulse {
+      0%,100% {filter:drop-shadow(0 0 3px #38d748);transform:scale(1);}
+      50% {filter:drop-shadow(0 0 14px #63ff72) drop-shadow(0 0 22px #36e454);transform:scale(1.045);}
+    }
+    @media (prefers-reduced-motion:reduce){.activity-map-tile-button.funh-ready {animation:none;filter:drop-shadow(0 0 8px #38d748);}}
+    /* Galería de reconocimiento, sin lógica de evaluación ni Newen. */
+    .funh-gallery {min-height:100dvh;background:#183f31;color:#fff5dd;padding:18px 12px calc(28px + env(safe-area-inset-bottom));}
+    .funh-gallery h2 {font-size:clamp(1.18rem,5vw,1.5rem);margin:4px 0 3px;text-align:center;}
+    .funh-gallery p {font-size:.84rem;margin:0 0 15px;text-align:center;}
+    .funh-gallery-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;}
+    .funh-fruit-card {padding:0;margin:0;border:0;background:transparent;min-width:0;aspect-ratio:1;cursor:pointer;touch-action:manipulation;}
+    .funh-fruit-card img {width:100%;height:100%;object-fit:contain;display:block;}
+    .funh-fruit-card:focus-visible {outline:3px solid #a6f3b2;outline-offset:2px;border-radius:50%;}
+    .funh-fruit-card:active:not(:disabled){transform:scale(.97);}
+    .funh-fruit-card:disabled{cursor:default;opacity:1;}
+    .funh-gallery-back {display:block;margin:16px auto 0;padding:0;border:0;background:transparent;cursor:pointer;width:min(46%,180px);}
+    .funh-gallery-back img {display:block;width:100%;height:auto;}
+
 </style>
 </head>
 
@@ -1288,6 +1309,15 @@
         <button class="activity-map-back" type="button" onclick="playFiluMapClick(); showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
           <img src="./boton_volver_atras.png" alt="Volver atrás">
         </button>
+      </div>
+    </section>
+
+<section id="funhGallery" class="screen" aria-label="Fünh-Frutos — Reconocimiento">
+      <div class="funh-gallery">
+        <h2>Fünh-Frutos</h2>
+        <p>Reconocimiento de frutos</p>
+        <div id="funhGalleryGrid" class="funh-gallery-grid" aria-label="23 tarjetas de frutos"></div>
+        <button class="funh-gallery-back" type="button" onclick="playFiluMapClick();showScreen('activityMap')" aria-label="Volver a Kimün Che ñi Rüpü"><img src="./boton_volver_atras.png" alt="Volver atrás"></button>
       </div>
     </section>
 
@@ -2748,6 +2778,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       }
       const axe=document.getElementById('funhFloatingAxe');
       tile.classList.toggle('funh-guide',funhStage==='locked');
+      tile.classList.toggle('funh-ready',unlocked);
       if(axe) {
         axe.hidden=funhStage!=='axe';
         axe.classList.toggle('funh-guide',funhStage==='axe');
@@ -2768,9 +2799,37 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         setTimeout(()=>c.close().catch(()=>{}),850);
       } catch(e){console.warn('Timbre Fünh-Frutos:',e);}
     }
+    // Única plantilla madre compartida por las 21 posiciones pendientes.
+    const FUNH_FRUIT_IMAGES = [
+      {src:'./fun_frutos_maki_baya_del_maqui.png',name:'Maki'},
+      {src:'./fun_frutos_uni_murta.png',name:'Üñi'},
+      ...Array.from({length:21},()=>({src:'./fun_frutos_plantilla_vacia.png',name:null}))
+    ];
+    function buildFunhGallery(){
+      const grid=document.getElementById('funhGalleryGrid');if(!grid||grid.childElementCount)return;
+      FUNH_FRUIT_IMAGES.forEach((item,index)=>{
+        const button=document.createElement('button');button.type='button';button.className='funh-fruit-card';
+        const img=document.createElement('img');img.src=item.src;img.draggable=false;
+        img.alt=item.name ? `${item.name} — ${index===0?'Baya del maqui':'Murta'}` : `Plantilla vacía ${index-1}`;
+        button.setAttribute('aria-label',img.alt);button.append(img);
+        if(item.name)button.addEventListener('click',()=>speakFunhName(item.name));
+        else button.disabled=true;
+        grid.append(button);
+      });
+    }
+    function speakFunhName(name){
+      // Voz temporal del dispositivo; no se finge disponer de grabaciones MP3.
+      playFiluMapClick();
+      if(!('speechSynthesis' in window))return;
+      try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(name);
+        utterance.lang='es-CL';utterance.rate=.75;window.speechSynthesis.speak(utterance);
+      }catch(error){console.warn('Voz temporal de Fünh-Frutos:',error);}
+    }
+    buildFunhGallery();
+
     function handleFunhFrutosTap(button) {
       applyFunhState();
-      if(funhStage==='unlocked'){playActivityMapTileSound(button);return;}
+      if(funhStage==='unlocked'){playActivityMapTileSound(button);showScreen('funhGallery');return;}
       if(funhStage==='playing'||funhStage==='axe')return;
       if(funhStage==='locked') {
         animateActivityMapTile(button,false);
@@ -3778,6 +3837,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
         return;
       }
       if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); }
+      if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
       if (screenId !== 'newenRecovery') {
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
