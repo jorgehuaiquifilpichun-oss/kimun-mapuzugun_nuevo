@@ -1085,25 +1085,35 @@
     .activity-map-txegul.playing { display: block; }
     .activity-map-txegul.from-left { left: 0; }
     .activity-map-txegul.from-right { right: 0; }
-    /* Solo el Txegül derecho viaja hacia Fünh-Frutos. La distancia
-       se calcula desde el mosaico en pantalla, sin alterar su posición.
-       Al llegar, remarca tres golpes cortos sobre el mismo punto. */
+    /* Fünh-Frutos: llegada, tres impactos en posición fija y salida por el centro. */
     .activity-map-txegul.from-right.funh-travelling {
       animation: funhTxegulApproach var(--funh-travel-duration, 6.08s) linear both;
-      transform-origin: 58% 64%;
     }
     @keyframes funhTxegulApproach {
-      0%   { transform: translate3d(0, 0, 0); }
-      65%  { transform: translate3d(var(--funh-travel-x-mid), var(--funh-travel-y-mid), 0); }
-      80%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
-      84%  { transform: translate3d(calc(var(--funh-travel-x) + var(--funh-strike-bump-x, -14px)), calc(var(--funh-travel-y) + var(--funh-strike-bump-y, 7px)), 0); }
-      87%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
-      90%  { transform: translate3d(calc(var(--funh-travel-x) + var(--funh-strike-bump-x, -14px)), calc(var(--funh-travel-y) + var(--funh-strike-bump-y, 7px)), 0); }
-      93%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
-      96%  { transform: translate3d(calc(var(--funh-travel-x) + var(--funh-strike-bump-x, -14px)), calc(var(--funh-travel-y) + var(--funh-strike-bump-y, 7px)), 0); }
-      100% { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
+      0% { transform:translate3d(0,0,0); }
+      32% { transform:translate3d(var(--funh-travel-x-mid),var(--funh-travel-y-mid),0); }
+      42%,100% { transform:translate3d(var(--funh-travel-x),var(--funh-travel-y),0); }
     }
-
+    .activity-map-txegul.from-right.funh-striking {
+      transform:translate3d(var(--funh-travel-x),var(--funh-travel-y),0);
+    }
+    .activity-map-txegul.from-right.funh-exiting {
+      animation:funhTxegulExit .8s ease-in forwards;
+    }
+    @keyframes funhTxegulExit {
+      from {opacity:1;transform:translate3d(var(--funh-travel-x),var(--funh-travel-y),0);}
+      to {opacity:0;transform:translate3d(var(--funh-exit-x),var(--funh-exit-y),0) scale(.65);}
+    }
+    .funh-lock-impact {
+      position:absolute;z-index:7;width:20px;height:20px;border-radius:50%;
+      transform:translate(-50%,-50%);pointer-events:none;
+      border:3px solid #fff2a1;box-shadow:0 0 9px 3px #ffd34a;
+      animation:funhLockImpact .24s ease-out both;
+    }
+    @keyframes funhLockImpact {
+      from {opacity:1;transform:translate(-50%,-50%) scale(.4);}
+      to {opacity:0;transform:translate(-50%,-50%) scale(2.2);}
+    }
 
 
     /* FILÚ DEL CAMINO DEL SABIO: pantalla y controles independientes del FILÚ inicial. */
@@ -2514,6 +2524,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     /* Reproducir una vez al abrir la plantilla, y detener al salir.
        No se altera el sonido, la imagen ni la velocidad de los MP4. */
     function stopActivityMapTxegul() {
+      if(typeof clearFunhStrikeTimeout==='function')clearFunhStrikeTimeout();
       ['txegulEntryLeft', 'txegulEntryRight'].forEach(id => {
         const video = document.getElementById(id);
         if (!video) return;
@@ -2521,7 +2532,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         video.onended=null;
         video.ontimeupdate=null;
         video.onerror=null;
-        video.classList.remove('playing', 'funh-travelling');
+        video.classList.remove('playing', 'funh-travelling', 'funh-striking', 'funh-exiting');
         if (video.readyState >= 1) {
           try { video.currentTime = 0; } catch (_) {}
         }
@@ -2879,58 +2890,104 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(funhStage==='armed') {playActivityMapLockedSound();funhStage='axe';
         document.getElementById('funhFloatingAxe').hidden=false;}
     }
+    let funhStrikeTimeout = null;
+    function clearFunhStrikeTimeout() {
+      if(funhStrikeTimeout!==null){clearTimeout(funhStrikeTimeout);funhStrikeTimeout=null;}
+    }
     function activateFunhTxegul() {
       if(funhStage!=='axe')return;
-      document.getElementById('funhFloatingAxe').hidden=true;
-      funhStage='playing';
+      const axe=document.getElementById('funhFloatingAxe');
       const video=document.getElementById('txegulEntryRight');
-      if(!video){funhStage='armed';return;}
-      stopActivityMapTxegul();
-      video.classList.add('playing'); // Permite medir el video visible.
-      // Mover el área de golpe hacia el centro real del botón Fünh-Frutos.
-      // El punto del golpe dentro del video es aproximado y puede calibrarse
-      // tras comprobar la animación en el teléfono.
       const target=funhTile();
-      if(target){
-        const tileRect=target.getBoundingClientRect();
-        const videoRect=video.getBoundingClientRect();
-        const strikeX=videoRect.left + videoRect.width * .58;
-        const strikeY=videoRect.top + videoRect.height * .64;
-        const targetX=tileRect.left + tileRect.width * .50;
-        const targetY=tileRect.top + tileRect.height * .57;
-        const deltaX = targetX - strikeX;
-        const deltaY = targetY - strikeY;
-        video.style.setProperty('--funh-travel-x', `${deltaX}px`);
-        video.style.setProperty('--funh-travel-y', `${deltaY}px`);
-        video.style.setProperty('--funh-travel-x-mid', `${deltaX*.82}px`);
-        video.style.setProperty('--funh-travel-y-mid', `${deltaY*.82}px`);
-        video.style.setProperty('--funh-strike-bump-x', `${Math.max(10, Math.round(videoRect.width * 0.038)) * -1}px`);
-        video.style.setProperty('--funh-strike-bump-y', `${Math.max(5, Math.round(videoRect.height * 0.018))}px`);
+      if(!video||!target)return;
+      if(axe)axe.hidden=true;
+      stopActivityMapTxegul();
+      clearFunhStrikeTimeout();
+      funhStage='playing';
+      video.classList.add('playing');
+      const tileRect=target.getBoundingClientRect();
+      const videoRect=video.getBoundingClientRect();
+      const lockX=tileRect.left+tileRect.width*.50;
+      const lockY=tileRect.top+tileRect.height*.78;
+      const deltaX=lockX-(videoRect.left+videoRect.width*.58);
+      const deltaY=lockY-(videoRect.top+videoRect.height*.64);
+      video.style.setProperty('--funh-travel-x',`${deltaX}px`);
+      video.style.setProperty('--funh-travel-y',`${deltaY}px`);
+      video.style.setProperty('--funh-travel-x-mid',`${deltaX*.82}px`);
+      video.style.setProperty('--funh-travel-y-mid',`${deltaY*.82}px`);
+      // Una vez realizados los tres golpes, retirarse hacia el centro visual.
+      const screenRect=video.closest('.activity-map-screen').getBoundingClientRect();
+      video.style.setProperty('--funh-exit-x',`${screenRect.left+screenRect.width*.50-(videoRect.left+videoRect.width*.50)}px`);
+      video.style.setProperty('--funh-exit-y',`${screenRect.top+screenRect.height*.50-(videoRect.top+videoRect.height*.50)}px`);
+      const duration=video.duration>0&&Number.isFinite(video.duration)?video.duration:6.08;
+      video.style.setProperty('--funh-travel-duration',`${duration}s`);
+      const strikeFrom=Math.min(duration*.70,duration-.4);
+      const strikeUntil=Math.min(duration*.95,duration-.08);
+      let hits=0;
+      let finishing=false;
+      function impact(){
+        if(funhStage!=='playing')return;
+        const stage=video.closest('.activity-map-screen');
+        const r=stage.getBoundingClientRect();
+        const flash=document.createElement('span');
+        flash.className='funh-lock-impact';
+        flash.style.left=`${lockX-r.left}px`;
+        flash.style.top=`${lockY-r.top}px`;
+        stage.appendChild(flash);
+        flash.addEventListener('animationend',()=>flash.remove(),{once:true});
       }
-      video.style.setProperty('--funh-travel-duration', `${video.duration && Number.isFinite(video.duration) ? video.duration : 6.08}s`);
-      video.classList.add('playing', 'funh-travelling');
-      let finished=false;
-      function finish(){if(finished||funhStage!=='playing')return;finished=true;
-        video.classList.remove('playing', 'funh-travelling');
-        funhStage='unlocked';
-        try { localStorage.setItem(FUNH_STORAGE_KEY, '1'); }
-        catch (error) { console.warn('No fue posible guardar Fünh-Frutos:',error); }
-        applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
+      function complete(){
+        if(finishing||funhStage!=='playing')return;
+        finishing=true;
+        video.pause(); video.ontimeupdate=null; video.onended=null;
+        video.classList.remove('funh-travelling','funh-striking');
+        video.classList.add('funh-exiting');
+        funhStrikeTimeout=setTimeout(()=>{
+          funhStrikeTimeout=null;
+          if(funhStage!=='playing')return;
+          video.classList.remove('playing','funh-exiting');
+          funhStage='unlocked';
+          try{localStorage.setItem(FUNH_STORAGE_KEY,'1');}
+          catch(error){console.warn('No fue posible guardar Fünh-Frutos:',error);}
+          applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
+        },800);
       }
-      video.onended=finish;
-      // Se espera el final completo del golpe: no cortar el video al 92 %.
-      video.ontimeupdate=null;
-      function restoreOnVideoError(error) {
-        video.classList.remove('playing', 'funh-travelling');
-        funhStage='axe';
-        const axe=document.getElementById('funhFloatingAxe');
-        if(axe)axe.hidden=false;
+      video.ontimeupdate=()=>{
+        if(finishing||funhStage!=='playing')return;
+        if(video.currentTime<strikeUntil)return;
+        hits++;
+        impact();
+        if(hits===1) {
+          // Congelar la posición en el candado: nunca repetir el desplazamiento.
+          video.classList.remove('funh-travelling');
+          video.classList.add('funh-striking');
+        }
+        if(hits>=3){complete();return;}
+        try{video.currentTime=strikeFrom;}catch(error){console.warn('Repetición del golpe:',error);complete();}
+      };
+      video.onended=()=>{
+        if(finishing)return;
+        hits++;impact();
+        if(hits>=3)complete();
+        else {
+          video.classList.remove('funh-travelling');
+          video.classList.add('funh-striking');
+          try{video.currentTime=strikeFrom;video.play().catch(restoreOnVideoError);}
+          catch(error){restoreOnVideoError(error);}
+        }
+      };
+      function restoreOnVideoError(error){
+        clearFunhStrikeTimeout();
+        video.pause();video.ontimeupdate=null;video.onended=null;
+        video.classList.remove('playing','funh-travelling','funh-striking','funh-exiting');
+        if(funhStage==='playing'){funhStage='axe';if(axe)axe.hidden=false;}
         console.warn('No se pudo reproducir el Txegül derecho:',error);
       }
       video.onerror=()=>restoreOnVideoError(video.src);
       try{video.currentTime=0;}catch(_){}
+      video.classList.add('funh-travelling');
       const result=video.play();
-      if(result&&result.catch) result.catch(restoreOnVideoError);
+      if(result&&result.catch)result.catch(restoreOnVideoError);
     }
     function resetFunhCeremonyOnExit(){
       const axe=document.getElementById('funhFloatingAxe');if(axe)axe.hidden=true;
