@@ -1123,16 +1123,27 @@
     }
     @media (prefers-reduced-motion:reduce){.activity-map-tile-button.funh-ready {animation:none;filter:drop-shadow(0 0 8px #38d748);}}
     /* Galería de reconocimiento, sin lógica de evaluación ni Newen. */
-    .funh-gallery {min-height:100dvh;background:#183f31;color:#fff5dd;padding:18px 12px calc(28px + env(safe-area-inset-bottom));}
-    .funh-gallery h2 {font-size:clamp(1.18rem,5vw,1.5rem);margin:4px 0 3px;text-align:center;}
-    .funh-gallery p {font-size:.84rem;margin:0 0 15px;text-align:center;}
-    .funh-gallery-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;}
-    .funh-fruit-card {padding:0;margin:0;border:0;background:transparent;min-width:0;aspect-ratio:1;cursor:pointer;touch-action:manipulation;}
-    .funh-fruit-card img {width:100%;height:100%;object-fit:contain;display:block;}
+    /* Fünh-Frutos: árbol de 23 frutos (copa 2-3-4-5-4-3-2), sin scroll, en 480 px de ancho máx. */
+    .funh-gallery {position:relative;display:flex;flex-direction:column;height:100dvh;min-height:100dvh;overflow:hidden;
+      background:radial-gradient(120% 70% at 50% 40%,#236049 0%,#183f31 62%,#12332a 100%);color:#fff5dd;
+      padding:14px 8px calc(10px + env(safe-area-inset-bottom));}
+    .funh-gallery h2 {flex:none;font-size:clamp(1.18rem,5vw,1.5rem);margin:2px 0 2px;text-align:center;}
+    .funh-gallery p {flex:none;font-size:.84rem;margin:0 0 4px;text-align:center;}
+    .funh-tree {position:relative;flex:1 1 auto;min-height:0;width:100%;}
+    .funh-tree-svg {position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}
+    .funh-fruit-card {position:absolute;padding:0;margin:0;border:0;background:transparent;cursor:pointer;
+      touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+      animation:funhFruitGrow .5s cubic-bezier(.2,1.3,.4,1) backwards;animation-delay:calc(var(--i,0) * 35ms);}
+    .funh-fruit-card img {width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
     .funh-fruit-card:focus-visible {outline:3px solid #a6f3b2;outline-offset:2px;border-radius:50%;}
-    .funh-fruit-card:active:not(:disabled){transform:scale(.97);}
+    .funh-fruit-card:active:not(:disabled){transform:scale(.96);}
     .funh-fruit-card:disabled{cursor:default;opacity:1;}
-    .funh-gallery-back {display:block;margin:16px auto 0;padding:0;border:0;background:transparent;cursor:pointer;width:min(46%,180px);}
+    .funh-order {position:absolute;left:4%;top:4%;width:calc(var(--d,88px) * .22);height:calc(var(--d,88px) * .22);
+      display:grid;place-items:center;border-radius:50%;background:rgba(24,63,49,.94);border:1px solid #e9c98a;
+      color:#fff5dd;font-size:calc(var(--d,88px) * .13);font-weight:700;line-height:1;pointer-events:none;}
+    @keyframes funhFruitGrow {from{opacity:0;transform:scale(.3);}to{opacity:1;transform:scale(1);}}
+    @media (prefers-reduced-motion:reduce){.funh-fruit-card{animation:none;}}
+    .funh-gallery-back {flex:none;display:block;margin:6px auto 0;padding:0;border:0;background:transparent;cursor:pointer;width:min(40%,160px);}
     .funh-gallery-back img {display:block;width:100%;height:auto;}
 
 </style>
@@ -1316,7 +1327,7 @@
       <div class="funh-gallery">
         <h2>Fünh-Frutos</h2>
         <p>Reconocimiento de frutos</p>
-        <div id="funhGalleryGrid" class="funh-gallery-grid" aria-label="23 tarjetas de frutos"></div>
+        <div id="funhGalleryGrid" class="funh-tree" role="group" aria-label="Árbol con 23 tarjetas de frutos"></div>
         <button class="funh-gallery-back" type="button" onclick="playFiluMapClick();showScreen('activityMap')" aria-label="Volver a Kimün Che ñi Rüpü"><img src="./boton_volver_atras.png" alt="Volver atrás"></button>
       </div>
     </section>
@@ -2800,22 +2811,81 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       } catch(e){console.warn('Timbre Fünh-Frutos:',e);}
     }
     // Única plantilla madre compartida por las 21 posiciones pendientes.
+    // ORDEN DEL ÁRBOL: el fruto 1 nace en la base (junto al tronco, a mano del pulgar)
+    // y la numeración sube hacia la copa; dentro de cada fila va de izquierda a derecha.
     const FUNH_FRUIT_IMAGES = [
       {src:'./fun_frutos_maki_baya_del_maqui.png',name:'Maki'},
       {src:'./fun_frutos_uni_murta.png',name:'Üñi'},
       ...Array.from({length:21},()=>({src:'./fun_frutos_plantilla_vacia.png',name:null}))
     ];
+    // Frutos por fila, de la punta de la copa (arriba) a la base. 2+3+4+5+4+3+2 = 23.
+    const FUNH_TREE_ROWS = [2,3,4,5,4,3,2];
     function buildFunhGallery(){
-      const grid=document.getElementById('funhGalleryGrid');if(!grid||grid.childElementCount)return;
+      const grid=document.getElementById('funhGalleryGrid');if(!grid||grid.querySelector('.funh-fruit-card'))return;
+      const svgNS='http://www.w3.org/2000/svg';
+      const svg=document.createElementNS(svgNS,'svg');
+      svg.setAttribute('class','funh-tree-svg');svg.setAttribute('aria-hidden','true');
+      grid.append(svg);
       FUNH_FRUIT_IMAGES.forEach((item,index)=>{
         const button=document.createElement('button');button.type='button';button.className='funh-fruit-card';
+        button.style.setProperty('--i',index);
         const img=document.createElement('img');img.src=item.src;img.draggable=false;
-        img.alt=item.name ? `${item.name} — ${index===0?'Baya del maqui':'Murta'}` : `Plantilla vacía ${index-1}`;
+        img.alt=item.name ? `${item.name} — ${index===0?'Baya del maqui':'Murta'}` : `Fruto ${index+1} de 23, plantilla vacía`;
         button.setAttribute('aria-label',img.alt);button.append(img);
+        const badge=document.createElement('span');badge.className='funh-order';badge.textContent=index+1;badge.setAttribute('aria-hidden','true');
+        button.append(badge);
         if(item.name)button.addEventListener('click',()=>speakFunhName(item.name));
         else button.disabled=true;
         grid.append(button);
       });
+      layoutFunhTree();
+      // La pantalla está oculta al cargar: se recalcula cuando aparece o cambia el tamaño.
+      if('ResizeObserver' in window)new ResizeObserver(layoutFunhTree).observe(grid);
+      else window.addEventListener('resize',layoutFunhTree);
+    }
+    function layoutFunhTree(){
+      const stage=document.getElementById('funhGalleryGrid');if(!stage)return;
+      const W=stage.clientWidth,H=stage.clientHeight;if(W<60||H<120)return;
+      const rows=FUNH_TREE_ROWS,n=rows.length,maxCols=Math.max(...rows);
+      const stepX=1.05;                                   // separación horizontal (en diámetros)
+      let d=Math.min(W/(1+(maxCols-1)*stepX+.3),112);    // diámetro del medallón
+      const trunkMin=Math.max(56,H*.09),pad=4;
+      const crownMax=H-trunkMin-pad*2;
+      let pitch=(crownMax-d)/(n-1);                       // separación vertical entre filas
+      if(pitch<d*.86){d=crownMax/(1+(n-1)*.86);pitch=d*.86;}
+      pitch=Math.min(pitch,d*1.15);
+      const crownH=d+(n-1)*pitch,cx=W/2,y0=pad;
+      // Posiciones: de la base hacia la copa, izquierda → derecha.
+      const pos=[];
+      for(let r=n-1;r>=0;r--){
+        const c=rows[r],y=y0+d/2+r*pitch;
+        for(let k=0;k<c;k++)pos.push({x:cx+(k-(c-1)/2)*d*stepX,y});
+      }
+      stage.style.setProperty('--d',d+'px');
+      stage.querySelectorAll('.funh-fruit-card').forEach((card,i)=>{
+        const p=pos[i];if(!p)return;
+        card.style.width=card.style.height=d+'px';
+        card.style.left=(p.x-d/2)+'px';card.style.top=(p.y-d/2)+'px';
+      });
+      // Dibujo del árbol (suelo, copa, tronco y ramas) detrás de los medallones.
+      const svg=stage.querySelector('.funh-tree-svg');if(!svg)return;
+      svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+      const gy=H-pad-6,bottomY=pos[0].y,topY=pos[pos.length-1].y;
+      const tw=d*.26,bw=d*.34;
+      let s=`<defs><linearGradient id="funhTrunkG" x1="0" x2="1"><stop offset="0" stop-color="#4f3218"/><stop offset=".5" stop-color="#8b5a2b"/><stop offset="1" stop-color="#4f3218"/></linearGradient></defs>`;
+      s+=`<ellipse cx="${cx}" cy="${gy}" rx="${W*.44}" ry="${d*.2}" fill="#0f2c22" opacity=".85"/>`;
+      s+=`<ellipse cx="${cx}" cy="${gy-2}" rx="${W*.40}" ry="${d*.15}" fill="#2a6b49"/>`;
+      pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.64}" fill="#14452f"/>`;});
+      pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.58}" fill="#1f6044"/>`;});
+      s+=`<path d="M${cx-tw} ${bottomY} C${cx-tw} ${gy-(gy-bottomY)*.30},${cx-bw*.8} ${gy-(gy-bottomY)*.18},${cx-bw*1.9} ${gy} L${cx+bw*1.9} ${gy} C${cx+bw*.8} ${gy-(gy-bottomY)*.18},${cx+tw} ${gy-(gy-bottomY)*.30},${cx+tw} ${bottomY} Z" fill="url(#funhTrunkG)" stroke="#3a2410" stroke-width="2"/>`;
+      s+=`<line x1="${cx}" y1="${bottomY}" x2="${cx}" y2="${topY}" stroke="#6b4423" stroke-width="${d*.12}" stroke-linecap="round"/>`;
+      pos.forEach(p=>{
+        const yA=Math.min(bottomY,Math.max(topY,p.y+d*.6));
+        const path=`M${cx} ${yA} Q${cx+(p.x-cx)*.55} ${yA} ${p.x} ${p.y}`;
+        s+=`<path d="${path}" fill="none" stroke="#6b4423" stroke-width="${d*.09}" stroke-linecap="round"/>`;
+        s+=`<path d="${path}" fill="none" stroke="#9a6a38" stroke-width="${d*.03}" stroke-linecap="round"/>`;
+      });
+      svg.innerHTML=s;
     }
     function speakFunhName(name){
       // Voz temporal del dispositivo; no se finge disponer de grabaciones MP3.
