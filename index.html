@@ -1086,14 +1086,21 @@
     .activity-map-txegul.from-left { left: 0; }
     .activity-map-txegul.from-right { right: 0; }
     /* Solo el Txegül derecho viaja hacia Fünh-Frutos. La distancia
-       se calcula desde el mosaico en pantalla, sin alterar su posición. */
+       se calcula desde el mosaico en pantalla, sin alterar su posición.
+       Al llegar, remarca tres golpes cortos sobre el mismo punto. */
     .activity-map-txegul.from-right.funh-travelling {
       animation: funhTxegulApproach var(--funh-travel-duration, 6.08s) linear both;
+      transform-origin: 58% 64%;
     }
     @keyframes funhTxegulApproach {
       0%   { transform: translate3d(0, 0, 0); }
       65%  { transform: translate3d(var(--funh-travel-x-mid), var(--funh-travel-y-mid), 0); }
-      83%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
+      80%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
+      84%  { transform: translate3d(calc(var(--funh-travel-x) + var(--funh-strike-bump-x, -14px)), calc(var(--funh-travel-y) + var(--funh-strike-bump-y, 7px)), 0); }
+      87%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
+      90%  { transform: translate3d(calc(var(--funh-travel-x) + var(--funh-strike-bump-x, -14px)), calc(var(--funh-travel-y) + var(--funh-strike-bump-y, 7px)), 0); }
+      93%  { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
+      96%  { transform: translate3d(calc(var(--funh-travel-x) + var(--funh-strike-bump-x, -14px)), calc(var(--funh-travel-y) + var(--funh-strike-bump-y, 7px)), 0); }
       100% { transform: translate3d(var(--funh-travel-x), var(--funh-travel-y), 0); }
     }
 
@@ -2891,10 +2898,14 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const strikeY=videoRect.top + videoRect.height * .64;
         const targetX=tileRect.left + tileRect.width * .50;
         const targetY=tileRect.top + tileRect.height * .57;
-        video.style.setProperty('--funh-travel-x', `${targetX-strikeX}px`);
-        video.style.setProperty('--funh-travel-y', `${targetY-strikeY}px`);
-        video.style.setProperty('--funh-travel-x-mid', `${(targetX-strikeX)*.82}px`);
-        video.style.setProperty('--funh-travel-y-mid', `${(targetY-strikeY)*.82}px`);
+        const deltaX = targetX - strikeX;
+        const deltaY = targetY - strikeY;
+        video.style.setProperty('--funh-travel-x', `${deltaX}px`);
+        video.style.setProperty('--funh-travel-y', `${deltaY}px`);
+        video.style.setProperty('--funh-travel-x-mid', `${deltaX*.82}px`);
+        video.style.setProperty('--funh-travel-y-mid', `${deltaY*.82}px`);
+        video.style.setProperty('--funh-strike-bump-x', `${Math.max(10, Math.round(videoRect.width * 0.038)) * -1}px`);
+        video.style.setProperty('--funh-strike-bump-y', `${Math.max(5, Math.round(videoRect.height * 0.018))}px`);
       }
       video.style.setProperty('--funh-travel-duration', `${video.duration && Number.isFinite(video.duration) ? video.duration : 6.08}s`);
       video.classList.add('playing', 'funh-travelling');
