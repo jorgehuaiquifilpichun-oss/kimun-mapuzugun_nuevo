@@ -2897,10 +2897,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const videoRect=video.getBoundingClientRect();
       const lockX=tileRect.left+tileRect.width*.50;
       const lockY=tileRect.top+tileRect.height*.78;
-      // Ajuste horizontal controlado: un poco más a la derecha del punto previo.
-      // No añadir movimientos ni golpes externos: usar una sola reproducción del WebM.
-      const deltaX=lockX-(videoRect.left+videoRect.width*.58)+Math.min(24,tileRect.width*.18);
-      const deltaY=lockY-(videoRect.top+videoRect.height*.64);
+      // Calibración solicitada: +10% del ancho y -5% de la altura del mapa.
+      // Mantener fija la animación y conservar una sola reproducción del WebM.
+      const mapRect=document.getElementById('activityMap').getBoundingClientRect();
+      const deltaX=lockX-(videoRect.left+videoRect.width*.58)+Math.min(24,tileRect.width*.18)+mapRect.width*.10;
+      const deltaY=lockY-(videoRect.top+videoRect.height*.64)-mapRect.height*.05;
       video.style.setProperty('--funh-travel-x',`${deltaX}px`);
       video.style.setProperty('--funh-travel-y',`${deltaY}px`);
       let finishing=false;
