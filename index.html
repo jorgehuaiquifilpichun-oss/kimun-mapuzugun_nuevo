@@ -2654,6 +2654,15 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const frame=document.getElementById('newenPracticeFrame');
       if(frame?.contentWindow) frame.contentWindow.postMessage({type:'kimun:newen-practice-control',action:'reset'},'*');
       resetFiluActivity();
+      // Una partida nueva reinicia solo la ceremonia de Fünh-Frutos.
+      // Volver entre pantallas durante la misma partida conserva su estado.
+      stopActivityMapTxegul();
+      funhStage = 'locked';
+      try { localStorage.removeItem(FUNH_STORAGE_KEY); }
+      catch (error) { console.warn('No se pudo reiniciar Fünh-Frutos:', error); }
+      const funhAxe = document.getElementById('funhFloatingAxe');
+      if (funhAxe) funhAxe.hidden = true;
+      applyFunhState();
       [
         ['activityOne',()=>{activityOneCompleted=false;stopActivityOneAnswerAudio();}],
         ['activityTwo',()=>{activityTwoCompleted=false;stopActivityTwoAnswerAudio();}],
