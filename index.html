@@ -1123,14 +1123,19 @@
     }
     @media (prefers-reduced-motion:reduce){.activity-map-tile-button.funh-ready {animation:none;filter:drop-shadow(0 0 8px #38d748);}}
     /* Galería de reconocimiento, sin lógica de evaluación ni Newen. */
-    /* Fünh-Frutos: árbol de 23 frutos (copa 2-3-4-5-4-3-2), sin scroll, en 480 px de ancho máx. */
-    .funh-gallery {position:relative;display:flex;flex-direction:column;height:100dvh;min-height:100dvh;overflow:hidden;
-      background:radial-gradient(120% 70% at 50% 40%,#236049 0%,#183f31 62%,#12332a 100%);color:#fff5dd;
-      padding:14px 8px calc(10px + env(safe-area-inset-bottom));}
-    .funh-gallery h2 {flex:none;font-size:clamp(1.18rem,5vw,1.5rem);margin:2px 0 2px;text-align:center;}
-    .funh-gallery p {flex:none;font-size:.84rem;margin:0 0 4px;text-align:center;}
-    .funh-tree {position:relative;flex:1 1 auto;min-height:0;width:100%;}
+    /* Fünh-Frutos: árbol a pantalla completa (máx. 480 px de ancho), frutos grandes y sin scroll. */
+    .funh-gallery {position:relative;height:100dvh;min-height:100dvh;overflow:hidden;
+      background:radial-gradient(120% 70% at 50% 45%,#2a7050 0%,#1b4a37 55%,#12332a 100%);color:#fff5dd;}
+    .funh-gallery h2 {position:relative;z-index:3;pointer-events:none;font-size:clamp(1.18rem,5vw,1.5rem);margin:0;
+      padding:14px 8px 2px;text-align:center;text-shadow:0 2px 6px rgba(0,0,0,.7);}
+    .funh-gallery p {position:relative;z-index:3;pointer-events:none;font-size:.84rem;margin:0;padding:0 8px;
+      text-align:center;text-shadow:0 2px 5px rgba(0,0,0,.7);}
+    .funh-tree {position:absolute;left:0;top:0;right:0;bottom:0;z-index:1;}
     .funh-tree-svg {position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}
+    .funh-branch {animation:funhBranchGrow .6s ease-out backwards;}
+    .funh-leaf {animation:funhLeafIn .45s ease-out backwards;}
+    @keyframes funhBranchGrow {from{stroke-dasharray:1;stroke-dashoffset:1;}to{stroke-dasharray:1;stroke-dashoffset:0;}}
+    @keyframes funhLeafIn {from{opacity:0;}to{opacity:1;}}
     .funh-fruit-card {position:absolute;padding:0;margin:0;border:0;background:transparent;cursor:pointer;
       touch-action:manipulation;-webkit-tap-highlight-color:transparent;
       animation:funhFruitGrow .5s cubic-bezier(.2,1.3,.4,1) backwards;animation-delay:calc(var(--i,0) * 35ms);}
@@ -1142,8 +1147,9 @@
       display:grid;place-items:center;border-radius:50%;background:rgba(24,63,49,.94);border:1px solid #e9c98a;
       color:#fff5dd;font-size:calc(var(--d,88px) * .13);font-weight:700;line-height:1;pointer-events:none;}
     @keyframes funhFruitGrow {from{opacity:0;transform:scale(.3);}to{opacity:1;transform:scale(1);}}
-    @media (prefers-reduced-motion:reduce){.funh-fruit-card{animation:none;}}
-    .funh-gallery-back {flex:none;display:block;margin:6px auto 0;padding:0;border:0;background:transparent;cursor:pointer;width:min(40%,160px);}
+    @media (prefers-reduced-motion:reduce){.funh-fruit-card,.funh-branch,.funh-leaf{animation:none;}}
+    .funh-gallery-back {position:absolute;z-index:3;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
+      transform:translateX(-50%);display:block;margin:0;padding:0;border:0;background:transparent;cursor:pointer;width:min(40%,160px);}
     .funh-gallery-back img {display:block;width:100%;height:auto;}
 
 </style>
@@ -2811,19 +2817,28 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       } catch(e){console.warn('Timbre Fünh-Frutos:',e);}
     }
     // Única plantilla madre compartida por las 21 posiciones pendientes.
-    // ORDEN DEL ÁRBOL: el fruto 1 nace en la base (junto al tronco, a mano del pulgar)
-    // y la numeración sube hacia la copa; dentro de cada fila va de izquierda a derecha.
     const FUNH_FRUIT_IMAGES = [
       {src:'./fun_frutos_maki_baya_del_maqui.png',name:'Maki'},
       {src:'./fun_frutos_uni_murta.png',name:'Üñi'},
       ...Array.from({length:21},()=>({src:'./fun_frutos_plantilla_vacia.png',name:null}))
     ];
-    // Frutos por fila, de la punta de la copa (arriba) a la base. 2+3+4+5+4+3+2 = 23.
-    const FUNH_TREE_ROWS = [2,3,4,5,4,3,2];
+    // ÁRBOL A PANTALLA COMPLETA. El orden (1…23) nace en la base junto al tronco y sube hacia la copa,
+    // de izquierda a derecha en cada nivel. Cada fruto cuelga de una rama:
+    // [posición horizontal en medios pasos (−3…3), nivel desde la base (0…6), nodo del que cuelga].
+    // 'S0' es el tronco; un número es el fruto del que sale la rama.
+    // Para mover un fruto basta con cambiar sus dos primeros números. Niveles: 2+4+3+4+3+4+3 = 23.
+    const FUNH_SLOTS = [
+      [-2,0,'S0'],[2,0,'S0'],
+      [-3,1,0],[-1,1,0],[1,1,1],[3,1,1],
+      [-2,2,3],[0,2,'S0'],[2,2,4],
+      [-3,3,6],[-1,3,7],[1,3,7],[3,3,8],
+      [-2,4,10],[0,4,7],[2,4,11],
+      [-3,5,13],[-1,5,14],[1,5,14],[3,5,15],
+      [-2,6,17],[0,6,14],[2,6,18]
+    ];
     function buildFunhGallery(){
       const grid=document.getElementById('funhGalleryGrid');if(!grid||grid.querySelector('.funh-fruit-card'))return;
-      const svgNS='http://www.w3.org/2000/svg';
-      const svg=document.createElementNS(svgNS,'svg');
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
       svg.setAttribute('class','funh-tree-svg');svg.setAttribute('aria-hidden','true');
       grid.append(svg);
       FUNH_FRUIT_IMAGES.forEach((item,index)=>{
@@ -2840,51 +2855,75 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       });
       layoutFunhTree();
       // La pantalla está oculta al cargar: se recalcula cuando aparece o cambia el tamaño.
-      if('ResizeObserver' in window)new ResizeObserver(layoutFunhTree).observe(grid);
-      else window.addEventListener('resize',layoutFunhTree);
+      if('ResizeObserver' in window){
+        const ro=new ResizeObserver(layoutFunhTree);ro.observe(grid);
+        const back=grid.parentElement&&grid.parentElement.querySelector('.funh-gallery-back');if(back)ro.observe(back);
+      } else window.addEventListener('resize',layoutFunhTree);
+    }
+    // Geometría para un diámetro d: posiciones de los frutos y distancia mínima entre ellos.
+    function funhGeo(W,top,bottom,d){
+      const padX=6,arch=d*.07,u=(W-d-padX*2)/6,cx=W/2;
+      const yB=bottom-d*.6,yT=top+d/2+arch,pitch=Math.max(1,(yB-yT)/6);
+      const pos=FUNH_SLOTS.map(s=>({x:cx+s[0]*u,y:yB-s[1]*pitch-arch*(1-(s[0]/3)*(s[0]/3))}));
+      let md=1e9;
+      for(let i=0;i<pos.length;i++)for(let j=i+1;j<pos.length;j++)md=Math.min(md,Math.hypot(pos[i].x-pos[j].x,pos[i].y-pos[j].y));
+      return {pos,md,cx,gy:bottom,s0:{x:cx,y:yB+d*.15}};
     }
     function layoutFunhTree(){
       const stage=document.getElementById('funhGalleryGrid');if(!stage)return;
-      const W=stage.clientWidth,H=stage.clientHeight;if(W<60||H<120)return;
-      const rows=FUNH_TREE_ROWS,n=rows.length,maxCols=Math.max(...rows);
-      const stepX=1.05;                                   // separación horizontal (en diámetros)
-      let d=Math.min(W/(1+(maxCols-1)*stepX+.3),112);    // diámetro del medallón
-      const trunkMin=Math.max(56,H*.09),pad=4;
-      const crownMax=H-trunkMin-pad*2;
-      let pitch=(crownMax-d)/(n-1);                       // separación vertical entre filas
-      if(pitch<d*.86){d=crownMax/(1+(n-1)*.86);pitch=d*.86;}
-      pitch=Math.min(pitch,d*1.15);
-      const crownH=d+(n-1)*pitch,cx=W/2,y0=pad;
-      // Posiciones: de la base hacia la copa, izquierda → derecha.
-      const pos=[];
-      for(let r=n-1;r>=0;r--){
-        const c=rows[r],y=y0+d/2+r*pitch;
-        for(let k=0;k<c;k++)pos.push({x:cx+(k-(c-1)/2)*d*stepX,y});
+      const W=stage.clientWidth,H=stage.clientHeight;if(W<60||H<200)return;
+      const gal=stage.parentElement,sr=stage.getBoundingClientRect();
+      const sub=gal.querySelector('p'),back=gal.querySelector('.funh-gallery-back');
+      const top=Math.max(40,(sub?sub.getBoundingClientRect().bottom-sr.top:60)+6);
+      const br=back?back.getBoundingClientRect():null;
+      const bottom=(br&&br.height>0?br.top-sr.top:H-60)-8;
+      // El diámetro crece hasta donde el árbol lo permite sin que los frutos se toquen.
+      const dMax=W*.23;let d=dMax,g;
+      for(let i=0;i<40;i++){
+        g=funhGeo(W,top,bottom,d);
+        const t=Math.min(dMax,g.md/1.1);
+        if(Math.abs(t-d)<.3)break;
+        d=d>t?Math.max(t,d*.97):Math.min(t,d*1.03);
       }
+      g=funhGeo(W,top,bottom,d);
       stage.style.setProperty('--d',d+'px');
       stage.querySelectorAll('.funh-fruit-card').forEach((card,i)=>{
-        const p=pos[i];if(!p)return;
+        const p=g.pos[i];if(!p)return;
         card.style.width=card.style.height=d+'px';
         card.style.left=(p.x-d/2)+'px';card.style.top=(p.y-d/2)+'px';
       });
-      // Dibujo del árbol (suelo, copa, tronco y ramas) detrás de los medallones.
       const svg=stage.querySelector('.funh-tree-svg');if(!svg)return;
       svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-      const gy=H-pad-6,bottomY=pos[0].y,topY=pos[pos.length-1].y;
-      const tw=d*.26,bw=d*.34;
+      const P=id=>id==='S0'?g.s0:g.pos[id];
+      // Tamaño de cada rama = cuántos frutos cuelgan de ella (define su grosor).
+      const kids={};FUNH_SLOTS.forEach((s,i)=>{(kids[s[2]]=kids[s[2]]||[]).push(i);});
+      const size=id=>(id==='S0'?0:1)+(kids[id]||[]).reduce((a,k)=>a+size(k),0);
+      const total=FUNH_SLOTS.length;
+      const wOf=n=>d*(.06+.30*Math.sqrt(n/total));
       let s=`<defs><linearGradient id="funhTrunkG" x1="0" x2="1"><stop offset="0" stop-color="#4f3218"/><stop offset=".5" stop-color="#8b5a2b"/><stop offset="1" stop-color="#4f3218"/></linearGradient></defs>`;
-      s+=`<ellipse cx="${cx}" cy="${gy}" rx="${W*.44}" ry="${d*.2}" fill="#0f2c22" opacity=".85"/>`;
-      s+=`<ellipse cx="${cx}" cy="${gy-2}" rx="${W*.40}" ry="${d*.15}" fill="#2a6b49"/>`;
-      pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.64}" fill="#14452f"/>`;});
-      pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.58}" fill="#1f6044"/>`;});
-      s+=`<path d="M${cx-tw} ${bottomY} C${cx-tw} ${gy-(gy-bottomY)*.30},${cx-bw*.8} ${gy-(gy-bottomY)*.18},${cx-bw*1.9} ${gy} L${cx+bw*1.9} ${gy} C${cx+bw*.8} ${gy-(gy-bottomY)*.18},${cx+tw} ${gy-(gy-bottomY)*.30},${cx+tw} ${bottomY} Z" fill="url(#funhTrunkG)" stroke="#3a2410" stroke-width="2"/>`;
-      s+=`<line x1="${cx}" y1="${bottomY}" x2="${cx}" y2="${topY}" stroke="#6b4423" stroke-width="${d*.12}" stroke-linecap="round"/>`;
-      pos.forEach(p=>{
-        const yA=Math.min(bottomY,Math.max(topY,p.y+d*.6));
-        const path=`M${cx} ${yA} Q${cx+(p.x-cx)*.55} ${yA} ${p.x} ${p.y}`;
-        s+=`<path d="${path}" fill="none" stroke="#6b4423" stroke-width="${d*.09}" stroke-linecap="round"/>`;
-        s+=`<path d="${path}" fill="none" stroke="#9a6a38" stroke-width="${d*.03}" stroke-linecap="round"/>`;
+      // Suelo y copa (halos de hojas detrás de cada fruto).
+      s+=`<ellipse cx="${g.cx}" cy="${g.gy}" rx="${W*.44}" ry="${d*.16}" fill="#0f2c22" opacity=".85"/>`;
+      s+=`<ellipse cx="${g.cx}" cy="${g.gy-2}" rx="${W*.40}" ry="${d*.11}" fill="#2a6b49"/>`;
+      g.pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.66}" fill="#14452f"/>`;});
+      g.pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.60}" fill="#1f6044"/>`;});
+      // Tronco con raíces.
+      const w0=wOf(total),gy=g.gy,s0=g.s0;
+      s+=`<path d="M${g.cx-w0*.5} ${s0.y} L${g.cx-w0*.5} ${gy-d*.2} Q${g.cx-w0*.6} ${gy-d*.04} ${g.cx-w0*1.25} ${gy} L${g.cx+w0*1.25} ${gy} Q${g.cx+w0*.6} ${gy-d*.04} ${g.cx+w0*.5} ${gy-d*.2} L${g.cx+w0*.5} ${s0.y} Z" fill="url(#funhTrunkG)" stroke="#3a2410" stroke-width="2"/>`;
+      // Ramas (las más gruesas primero) y hojas.
+      const edges=FUNH_SLOTS.map((sl,i)=>({p:sl[2],c:i,n:size(i)})).sort((a,b)=>b.n-a.n);
+      let branches='',leaves='';
+      edges.forEach(e=>{
+        const A=P(e.p),B=P(e.c),dx=B.x-A.x;
+        const c1={x:A.x+dx*.7,y:A.y},c2={x:B.x,y:B.y+(A.y-B.y)*.5};
+        const path=`M${A.x} ${A.y} C${c1.x} ${c1.y},${c2.x} ${c2.y},${B.x} ${B.y}`;
+        const delay=`animation-delay:${Math.max(0,e.c*35-120)}ms`,w=wOf(e.n);
+        branches+=`<path class="funh-branch" pathLength="1" style="${delay}" d="${path}" fill="none" stroke="#5a3a1d" stroke-width="${w+2}" stroke-linecap="round"/>`;
+        branches+=`<path class="funh-branch" pathLength="1" style="${delay}" d="${path}" fill="none" stroke="#8d5d30" stroke-width="${w*.45}" stroke-linecap="round"/>`;
+        const t=.5,m=1-t;
+        const bx=m*m*m*A.x+3*m*m*t*c1.x+3*m*t*t*c2.x+t*t*t*B.x,by=m*m*m*A.y+3*m*m*t*c1.y+3*m*t*t*c2.y+t*t*t*B.y;
+        [-1,1].forEach(k=>{leaves+=`<g transform="translate(${bx+k*d*.13} ${by-d*.02}) rotate(${k*38})"><ellipse class="funh-leaf" style="${delay}" rx="${d*.12}" ry="${d*.055}" fill="${k<0?'#3aa365':'#2f8a55'}"/></g>`;});
       });
+      s+=branches+leaves;
       svg.innerHTML=s;
     }
     function speakFunhName(name){
