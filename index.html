@@ -1138,16 +1138,20 @@
     @keyframes funhLeafIn {from{opacity:0;}to{opacity:1;}}
     .funh-fruit-card {position:absolute;padding:0;margin:0;border:0;background:transparent;cursor:pointer;
       touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+      transition:transform .28s cubic-bezier(.2,1.25,.4,1);
       animation:funhFruitGrow .5s cubic-bezier(.2,1.3,.4,1) backwards;animation-delay:calc(var(--i,0) * 35ms);}
     .funh-fruit-card img {width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
     .funh-fruit-card:focus-visible {outline:3px solid #a6f3b2;outline-offset:2px;border-radius:50%;}
     .funh-fruit-card:active:not(:disabled){transform:scale(.96);}
     .funh-fruit-card:disabled{cursor:default;opacity:1;}
+    /* Fruto presionado: crece el doble (sin salirse de la pantalla) y vuelve a su tamaño al terminar su nombre. */
+    .funh-fruit-card.funh-big,.funh-fruit-card.funh-big:active:not(:disabled){z-index:5;transform:translate(var(--bx,0px),var(--by,0px)) scale(2);
+      filter:drop-shadow(0 8px 14px rgba(0,0,0,.55));}
     .funh-order {position:absolute;left:4%;top:4%;width:calc(var(--d,88px) * .22);height:calc(var(--d,88px) * .22);
       display:grid;place-items:center;border-radius:50%;background:rgba(24,63,49,.94);border:1px solid #e9c98a;
       color:#fff5dd;font-size:calc(var(--d,88px) * .13);font-weight:700;line-height:1;pointer-events:none;}
     @keyframes funhFruitGrow {from{opacity:0;transform:scale(.3);}to{opacity:1;transform:scale(1);}}
-    @media (prefers-reduced-motion:reduce){.funh-fruit-card,.funh-branch,.funh-leaf{animation:none;}}
+    @media (prefers-reduced-motion:reduce){.funh-fruit-card,.funh-branch,.funh-leaf{animation:none;}.funh-fruit-card{transition:none;}}
     .funh-gallery-back {position:absolute;z-index:3;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
       transform:translateX(-50%);display:block;margin:0;padding:0;border:0;background:transparent;cursor:pointer;width:min(40%,160px);}
     .funh-gallery-back img {display:block;width:100%;height:auto;}
@@ -2849,8 +2853,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         button.setAttribute('aria-label',img.alt);button.append(img);
         const badge=document.createElement('span');badge.className='funh-order';badge.textContent=index+1;badge.setAttribute('aria-hidden','true');
         button.append(badge);
-        if(item.name)button.addEventListener('click',()=>speakFunhName(item.name));
-        else button.disabled=true;
+        button.addEventListener('click',()=>enlargeFunhFruit(button,item.name));
         grid.append(button);
       });
       layoutFunhTree();
@@ -2926,12 +2929,37 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       s+=branches+leaves;
       svg.innerHTML=s;
     }
-    function speakFunhName(name){
+    // Un solo fruto agrandado a la vez.
+    let funhBigCard=null,funhBigTimer=null;
+    function funhRestore(){
+      if(funhBigTimer){clearTimeout(funhBigTimer);funhBigTimer=null;}
+      if(funhBigCard){funhBigCard.classList.remove('funh-big');funhBigCard=null;}
+    }
+    function enlargeFunhFruit(card,name){
+      funhRestore();
+      const stage=card.parentElement,W=stage.clientWidth,H=stage.clientHeight,d=card.offsetWidth,m=4;
+      const cx=card.offsetLeft+d/2,cy=card.offsetTop+d/2;
+      const clamp=(v,a,b)=>Math.min(Math.max(v,a),Math.max(a,b));
+      // Al duplicar su tamaño el fruto ocupa d de radio: se desplaza lo justo para no salirse de la pantalla.
+      card.style.setProperty('--bx',(clamp(cx,m+d,W-m-d)-cx)+'px');
+      card.style.setProperty('--by',(clamp(cy,m+d,H-m-d)-cy)+'px');
+      card.classList.add('funh-big');funhBigCard=card;
+      const t0=Date.now();
+      // Vuelve 0,35 s después de terminar el nombre, pero siempre se queda agrandado al menos 1 s.
+      const back=()=>{if(funhBigCard===card){clearTimeout(funhBigTimer);funhBigTimer=setTimeout(funhRestore,Math.max(350,1000-(Date.now()-t0)));}};
+      speakFunhName(name,back);
+      // Respaldo: si el navegador no avisa que terminó de hablar, igual vuelve a su tamaño.
+      funhBigTimer=setTimeout(funhRestore,name?4500:1000);
+      if(!name)return;
+    }
+    function speakFunhName(name,onDone){
       // Voz temporal del dispositivo; no se finge disponer de grabaciones MP3.
       playFiluMapClick();
-      if(!('speechSynthesis' in window))return;
+      if(!name||!('speechSynthesis' in window))return;
       try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(name);
-        utterance.lang='es-CL';utterance.rate=.75;window.speechSynthesis.speak(utterance);
+        utterance.lang='es-CL';utterance.rate=.75;
+        if(onDone){utterance.onend=onDone;utterance.onerror=onDone;}
+        window.speechSynthesis.speak(utterance);
       }catch(error){console.warn('Voz temporal de Fünh-Frutos:',error);}
     }
     buildFunhGallery();
@@ -3947,6 +3975,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       }
       if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); }
       if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
+      if(screenId !== 'funhGallery' && typeof funhRestore==='function')funhRestore();
       if (screenId !== 'newenRecovery') {
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
