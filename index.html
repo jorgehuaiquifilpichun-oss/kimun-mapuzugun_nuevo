@@ -1085,25 +1085,13 @@
     .activity-map-txegul.playing { display: block; }
     .activity-map-txegul.from-left { left: 0; }
     .activity-map-txegul.from-right { right: 0; }
-    /* Fünh-Frutos: llegada, tres impactos en posición fija y salida por el centro. */
-    .activity-map-txegul.from-right.funh-travelling {
-      animation: funhTxegulApproach var(--funh-travel-duration, 6.08s) linear both;
-    }
-    @keyframes funhTxegulApproach {
-      0% { transform:translate3d(0,0,0); }
-      32% { transform:translate3d(var(--funh-travel-x-mid),var(--funh-travel-y-mid),0); }
-      42%,100% { transform:translate3d(var(--funh-travel-x),var(--funh-travel-y),0); }
-    }
+    /* Fünh-Frutos: personaje inmóvil frente al candado; el movimiento es del video. */
     .activity-map-txegul.from-right.funh-striking {
-      transform:translate3d(var(--funh-travel-x),var(--funh-travel-y),0);
+      transform: translate3d(var(--funh-travel-x, 0px),var(--funh-travel-y, 0px),0);
+      /* Reduce ligeramente el halo verdoso sin alterar el alfa del WebM. */
+      filter: saturate(.88);
     }
-    .activity-map-txegul.from-right.funh-exiting {
-      animation:funhTxegulExit .8s ease-in forwards;
-    }
-    @keyframes funhTxegulExit {
-      from {opacity:1;transform:translate3d(var(--funh-travel-x),var(--funh-travel-y),0);}
-      to {opacity:0;transform:translate3d(var(--funh-exit-x),var(--funh-exit-y),0) scale(.65);}
-    }
+
     .funh-lock-impact {
       position:absolute;z-index:7;width:20px;height:20px;border-radius:50%;
       transform:translate(-50%,-50%);pointer-events:none;
@@ -2913,12 +2901,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const deltaY=lockY-(videoRect.top+videoRect.height*.64);
       video.style.setProperty('--funh-travel-x',`${deltaX}px`);
       video.style.setProperty('--funh-travel-y',`${deltaY}px`);
-      video.style.setProperty('--funh-travel-x-mid',`${deltaX*.82}px`);
-      video.style.setProperty('--funh-travel-y-mid',`${deltaY*.82}px`);
-      // Una vez realizados los tres golpes, retirarse hacia el centro visual.
-      const screenRect=video.closest('.activity-map-screen').getBoundingClientRect();
-      video.style.setProperty('--funh-exit-x',`${screenRect.left+screenRect.width*.50-(videoRect.left+videoRect.width*.50)}px`);
-      video.style.setProperty('--funh-exit-y',`${screenRect.top+screenRect.height*.50-(videoRect.top+videoRect.height*.50)}px`);
+      // Sin desplazamiento CSS: el personaje se ve caminar y golpear
+      // gracias a los fotogramas originales, siempre frente al candado.
       const duration=video.duration>0&&Number.isFinite(video.duration)?video.duration:6.08;
       video.style.setProperty('--funh-travel-duration',`${duration}s`);
       const strikeFrom=Math.min(duration*.70,duration-.4);
@@ -2939,18 +2923,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       function complete(){
         if(finishing||funhStage!=='playing')return;
         finishing=true;
+        clearFunhStrikeTimeout();
         video.pause(); video.ontimeupdate=null; video.onended=null;
-        video.classList.remove('funh-travelling','funh-striking');
-        video.classList.add('funh-exiting');
-        funhStrikeTimeout=setTimeout(()=>{
-          funhStrikeTimeout=null;
-          if(funhStage!=='playing')return;
-          video.classList.remove('playing','funh-exiting');
-          funhStage='unlocked';
-          try{localStorage.setItem(FUNH_STORAGE_KEY,'1');}
-          catch(error){console.warn('No fue posible guardar Fünh-Frutos:',error);}
-          applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
-        },800);
+        video.classList.remove('playing','funh-striking');
+        funhStage='unlocked';
+        try{localStorage.setItem(FUNH_STORAGE_KEY,'1');}
+        catch(error){console.warn('No fue posible guardar Fünh-Frutos:',error);}
+        applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
       }
       video.ontimeupdate=()=>{
         if(finishing||funhStage!=='playing')return;
@@ -2959,7 +2938,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         impact();
         if(hits===1) {
           // Congelar la posición en el candado: nunca repetir el desplazamiento.
-          video.classList.remove('funh-travelling');
           video.classList.add('funh-striking');
         }
         if(hits>=3){complete();return;}
@@ -2970,7 +2948,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         hits++;impact();
         if(hits>=3)complete();
         else {
-          video.classList.remove('funh-travelling');
           video.classList.add('funh-striking');
           try{video.currentTime=strikeFrom;video.play().catch(restoreOnVideoError);}
           catch(error){restoreOnVideoError(error);}
@@ -2985,7 +2962,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       }
       video.onerror=()=>restoreOnVideoError(video.src);
       try{video.currentTime=0;}catch(_){}
-      video.classList.add('funh-travelling');
+      video.classList.add('funh-striking');
       const result=video.play();
       if(result&&result.catch)result.catch(restoreOnVideoError);
     }
