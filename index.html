@@ -997,8 +997,17 @@
       filter:drop-shadow(0 0 11px #57fb63) drop-shadow(0 0 18px #3fd94d);
       animation:funhAxeHover 1.6s ease-in-out infinite; }
     .funh-floating-axe[hidden] {display:none !important;}
-    .funh-floating-axe svg {width:100%;height:100%;display:block;}
-    @keyframes funhAxeHover {0%,100% {transform:translateY(0) scale(1);} 50% {transform:translateY(-11px) scale(1.07);}}
+    .funh-floating-axe img {width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;}
+    /* La guía verde se transfiere de Frutos al TokiKura tras el primer toque. */
+    .activity-map-tile-button.funh-guide {position:relative;border-radius:12px;animation:funhGuidePulse 1.45s ease-in-out infinite;}
+    .funh-floating-axe.funh-guide {animation:funhGuidePulse 1.45s ease-in-out infinite;}
+    @keyframes funhGuidePulse {
+      0%,100% {filter:drop-shadow(0 0 4px #5cf569) drop-shadow(0 0 6px #38d748);transform:scale(1);}
+      50% {filter:drop-shadow(0 0 12px #6bff70) drop-shadow(0 0 21px #42ec56);transform:scale(1.055);}
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .activity-map-tile-button.funh-guide,.funh-floating-axe.funh-guide {animation:none;filter:drop-shadow(0 0 9px #57fb63);}
+    }
     .funh-floating-axe:focus-visible {outline:3px solid #6ff682;border-radius:14px;}
     .funh-status {position:absolute;z-index:3;left:5%;right:5%;top:17.5%;display:flex;justify-content:space-between;
       font:800 clamp(10px,2.8vw,13px)/1.2 Arial,sans-serif;pointer-events:none;text-shadow:0 1px 2px #fff;}
@@ -1261,29 +1270,10 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
-        <!-- El hacha SVG ya forma parte del propio HTML, no requiere PNG adicional. -->
+        <!-- Imagen PNG externa del TokiKura miniatura: debe estar junto a index.html. -->
         <button id="funhFloatingAxe" class="funh-floating-axe" type="button" hidden
-                onclick="activateFunhTxegul()" aria-label="Tocar hacha ceremonial para desbloquear Fünh-Frutos">
-          <svg id="funhFloatingHachaSvg" viewBox="0 0 200 340" xmlns="http://www.w3.org/2000/svg" aria-label="Hacha ceremonial">
-      <defs>
-        <mask id="corte">
-          <rect width="200" height="340" fill="#fff"/>
-          <circle cx="158" cy="112" r="38" fill="#000"/>
-        </mask>
-        <linearGradient id="piedra" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#e9d7b0"/>
-          <stop offset="1" stop-color="#b8956a"/>
-        </linearGradient>
-      </defs>
-      <g mask="url(#corte)">
-        <circle cx="100" cy="100" r="86" fill="url(#piedra)" stroke="#5a3418" stroke-width="4"/>
-        <rect x="76" y="170" width="48" height="160" rx="16" fill="url(#piedra)" stroke="#5a3418" stroke-width="4"/>
-      </g>
-      <circle cx="100" cy="100" r="68" fill="none" stroke="#5a3418" stroke-width="2.5"/>
-      <polygon id="estrella" fill="rgba(90,52,24,.18)" stroke="#5a3418" stroke-width="2.5" stroke-linejoin="round"/>
-      <circle cx="100" cy="100" r="19" fill="#e2c898" stroke="#5a3418" stroke-width="3"/>
-      <circle cx="100" cy="312" r="6" fill="#5a3418"/>
-    </svg>
+                onclick="activateFunhTxegul()" aria-label="Tocar TokiKura miniatura para desbloquear Fünh-Frutos">
+          <img src="./TokiKura miniatura.png" alt="TokiKura miniatura" draggable="false">
         </button>
                 <!-- Videos entregados por el usuario: entrada desde lados opuestos.
              IZQUIERDA -> actividades DERECHA; DERECHA -> actividades IZQUIERDA. -->
@@ -2714,7 +2704,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       } catch(err) { console.warn('Sonido de actividad bloqueada:', err); }
     }
 
-    // Estados de la ceremonia: bloqueado -> primer toque -> hacha visible -> video -> desbloqueado.
+    // Estados de la ceremonia: bloqueado -> TokiKura visible al primer toque -> video -> desbloqueado.
     // El desbloqueo de Fünh-Frutos se conserva independientemente de las lecciones, Newen y estadísticas.
     const FUNH_STORAGE_KEY = 'kimun_funh_frutos_unlocked_v1';
     function readFunhUnlocked() {
@@ -2737,6 +2727,12 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         icon.alt='Fünh-Frutos, bloqueado';
         tile.setAttribute('aria-label','Fünh-Frutos, bloqueado');
       }
+      const axe=document.getElementById('funhFloatingAxe');
+      tile.classList.toggle('funh-guide',funhStage==='locked');
+      if(axe) {
+        axe.hidden=funhStage!=='axe';
+        axe.classList.toggle('funh-guide',funhStage==='axe');
+      }
       const label=document.getElementById('funhStatusLocked');
       if(label) label.textContent=unlocked?'Fünh-Frutos desbloqueado':'Nivel bloqueado';
     }
@@ -2756,10 +2752,12 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       applyFunhState();
       if(funhStage==='unlocked'){playActivityMapTileSound(button);return;}
       if(funhStage==='playing'||funhStage==='axe')return;
-      animateActivityMapTile(button,false);
-      if(funhStage==='locked') {playFunhBell();funhStage='armed';return;}
-      if(funhStage==='armed') {playActivityMapLockedSound();funhStage='axe';
-        document.getElementById('funhFloatingAxe').hidden=false;}
+      if(funhStage==='locked') {
+        animateActivityMapTile(button,false);
+        playFunhBell();
+        funhStage='axe';
+        applyFunhState();
+      }
     }
     let funhStrikeTimeout = null;
     function clearFunhStrikeTimeout() {
@@ -2771,7 +2769,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const video=document.getElementById('txegulEntryRight');
       const target=funhTile();
       if(!video||!target)return;
-      if(axe)axe.hidden=true;
+      if(axe){axe.hidden=true;axe.classList.remove('funh-guide');}
       stopActivityMapTxegul();
       clearFunhStrikeTimeout();
       funhStage='playing';
@@ -2811,7 +2809,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         clearFunhStrikeTimeout();
         video.pause();video.ontimeupdate=null;video.onended=null;
         video.classList.remove('playing','funh-travelling','funh-striking','funh-exiting');
-        if(funhStage==='playing'){funhStage='axe';if(axe)axe.hidden=false;}
+        if(funhStage==='playing'){funhStage='axe';applyFunhState();}
         console.warn('No se pudo reproducir el Txegül derecho:',error);
       }
       video.onerror=()=>restoreOnVideoError(video.src);
@@ -2823,6 +2821,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function resetFunhCeremonyOnExit(){
       const axe=document.getElementById('funhFloatingAxe');if(axe)axe.hidden=true;
       if(funhStage!=='unlocked')funhStage='locked';
+      applyFunhState();
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyFunhState);
     else applyFunhState();
