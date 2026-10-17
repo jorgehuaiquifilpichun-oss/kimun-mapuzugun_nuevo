@@ -1088,8 +1088,8 @@
     /* Fünh-Frutos: personaje inmóvil frente al candado; el movimiento es del video. */
     .activity-map-txegul.from-right.funh-striking {
       transform: translate3d(var(--funh-travel-x, 0px),var(--funh-travel-y, 0px),0);
-      /* Reduce ligeramente el halo verdoso sin alterar el alfa del WebM. */
-      filter: saturate(.88);
+      /* Atenuación moderada del verde residual, conservando el alfa del WebM. */
+      filter: saturate(.80);
     }
 
     .funh-lock-impact {
