@@ -991,8 +991,10 @@
     }
 
 
-    /* Ceremonia de Fünh-Frutos: capa independiente, sobre los mosaicos. */
-    .funh-floating-axe { position:absolute; z-index:8; left:28%; top:40%; width:27%; height:25%;
+    /* Ceremonia de Fünh-Frutos: capa independiente, sobre los mosaicos.
+       La miniatura del TokiKura se posiciona dinámicamente sobre el recuadro
+       de Frutos para que no invada las demás actividades. */
+    .funh-floating-axe { position:absolute; z-index:8; left:0; top:0; width:90px; height:90px;
       border:0; padding:0; background:transparent; cursor:pointer;
       filter:drop-shadow(0 0 11px #57fb63) drop-shadow(0 0 18px #3fd94d);
       animation:funhAxeHover 1.6s ease-in-out infinite; }
@@ -2714,6 +2716,23 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     let funhStage = readFunhUnlocked() ? 'unlocked' : 'locked';
     function funhTile() { return document.querySelector('#activityMap button[aria-label^="Fünh-Frutos"]'); }
     function isFunhUnlocked() { return funhStage==='unlocked'; }
+    function positionFunhAxe() {
+      const axe=document.getElementById('funhFloatingAxe');
+      const tile=funhTile();
+      const map=document.getElementById('activityMap');
+      if(!axe||!tile||!map)return;
+      const mapRect=map.getBoundingClientRect();
+      const tileRect=tile.getBoundingClientRect();
+      if(mapRect.width<=0||mapRect.height<=0||tileRect.width<=0||tileRect.height<=0)return;
+      const width=Math.max(58, tileRect.width*0.72);
+      const height=Math.max(72, tileRect.height*0.86);
+      const left=(tileRect.left-mapRect.left)+(tileRect.width-width)/2;
+      const top=(tileRect.top-mapRect.top)+(tileRect.height-height)/2;
+      axe.style.width=`${width}px`;
+      axe.style.height=`${height}px`;
+      axe.style.left=`${left}px`;
+      axe.style.top=`${top}px`;
+    }
     function applyFunhState() {
       const tile=funhTile(); if(!tile) return;
       const unlocked=isFunhUnlocked();
@@ -2732,6 +2751,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(axe) {
         axe.hidden=funhStage!=='axe';
         axe.classList.toggle('funh-guide',funhStage==='axe');
+        if(funhStage==='axe') requestAnimationFrame(positionFunhAxe);
       }
       const label=document.getElementById('funhStatusLocked');
       if(label) label.textContent=unlocked?'Fünh-Frutos desbloqueado':'Nivel bloqueado';
@@ -2823,8 +2843,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(funhStage!=='unlocked')funhStage='locked';
       applyFunhState();
     }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyFunhState);
-    else applyFunhState();
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{applyFunhState();positionFunhAxe();});
+    else { applyFunhState(); positionFunhAxe(); }
+    window.addEventListener('resize', positionFunhAxe);
 
     function openFiluFromMap(button) {
       // Sonido y movimiento visibles antes de navegar; sin alterar el juego.
