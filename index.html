@@ -1144,14 +1144,57 @@
     .funh-fruit-card:focus-visible {outline:3px solid #a6f3b2;outline-offset:2px;border-radius:50%;}
     .funh-fruit-card:active:not(:disabled){transform:scale(.96);}
     .funh-fruit-card:disabled{cursor:default;opacity:1;}
-    /* Fruto presionado: crece el doble (sin salirse de la pantalla) y vuelve a su tamaño al terminar su nombre. */
-    .funh-fruit-card.funh-big,.funh-fruit-card.funh-big:active:not(:disabled){z-index:5;transform:translate(var(--bx,0px),var(--by,0px)) scale(2);
-      filter:drop-shadow(0 8px 14px rgba(0,0,0,.55));}
+    /* Estados de exploración; los frutos nunca se agrandan ni se bloquean por visitarlos. */
+    .funh-fruit-card.funh-visited img {filter:grayscale(.25) saturate(.75) brightness(.92);}
+    .funh-fruit-card.funh-visited::after {content:"";position:absolute;inset:3%;border-radius:50%;
+      background:rgba(135,143,139,.15);pointer-events:none;}
+    .funh-fruit-card.funh-suggested::before {content:"";position:absolute;inset:-3%;border-radius:50%;
+      border:2px solid rgba(179,255,117,.95);background:rgba(103,255,96,.12);
+      box-shadow:0 0 9px 4px rgba(90,249,87,.75),inset 0 0 12px rgba(117,255,90,.35);
+      pointer-events:none;animation:funhFruitSuggest 1.45s ease-in-out infinite;}
+    @keyframes funhFruitSuggest {0%,100%{opacity:.52;transform:scale(.94)}50%{opacity:1;transform:scale(1.11)}}
+    .funh-fruit-card.funh-firing {filter:drop-shadow(0 0 12px #ddff94) drop-shadow(0 0 18px #66ff82);}
+    /* La trayectoria de luz se superpone al dibujo exacto de las ramas. */
+    .funh-energy-svg {position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:visible;}
+    .funh-energy-halo {fill:none;stroke:#9dff67;stroke-linecap:round;stroke-linejoin:round;
+      filter:drop-shadow(0 0 8px #6bff54);opacity:.68;}
+    .funh-energy-core {fill:none;stroke:#fff8c8;stroke-linecap:round;stroke-linejoin:round;
+      filter:drop-shadow(0 0 5px #f5ff8b);}
+    .funh-energy-spark {fill:#fffde1;stroke:#a4ff63;stroke-width:3;
+      filter:drop-shadow(0 0 9px #d5ff72);}
+    /* Receptor permanente en el centro del árbol; pulsarlo vuelve a pronunciar el fruto. */
+    .funh-center {position:absolute;z-index:6;left:50%;top:var(--funh-center-y,50%);
+      width:var(--funh-center-size,140px);height:var(--funh-center-size,140px);
+      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:5%;
+      display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(circle at 35% 25%,#436d51,#193e2e 64%,#10281f);
+      box-shadow:0 0 0 4px rgba(34,77,49,.78),0 7px 16px rgba(0,0,0,.42),
+        inset 0 0 17px rgba(211,224,149,.24);overflow:visible;
+      color:#fff5dd;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+    .funh-center:disabled {cursor:default;}
+    .funh-center:focus-visible {outline:3px solid #bfff7f;outline-offset:7px;}
+    .funh-center img {display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;}
+    .funh-center img[hidden] {display:none;}
+    .funh-center.funh-center-reveal {animation:funhCenterReveal .83s ease-out both;}
+    .funh-center.funh-center-repeat:not(:disabled) {animation:funhCenterRepeat .28s ease-out;}
+    @keyframes funhCenterRepeat {
+      0%{filter:brightness(1);}
+      45%{filter:brightness(1.4);box-shadow:0 0 0 5px #a5f882,0 0 19px #b3ff74,inset 0 0 20px #a5f882;}
+      100%{filter:brightness(1);}
+    }
+    @keyframes funhCenterReveal {
+      0%{filter:brightness(2.5);box-shadow:0 0 0 2px #fff7c1,0 0 12px 9px #b9ff72;}
+      35%{filter:brightness(1.6);box-shadow:0 0 0 14px rgba(181,255,119,.55),0 0 25px 12px #b9ff72;}
+      100%{filter:brightness(1);box-shadow:0 0 0 4px rgba(34,77,49,.78),0 7px 16px rgba(0,0,0,.42),inset 0 0 17px rgba(211,224,149,.24);}
+    }
     .funh-order {position:absolute;left:4%;top:4%;width:calc(var(--d,88px) * .22);height:calc(var(--d,88px) * .22);
       display:grid;place-items:center;border-radius:50%;background:rgba(24,63,49,.94);border:1px solid #e9c98a;
       color:#fff5dd;font-size:calc(var(--d,88px) * .13);font-weight:700;line-height:1;pointer-events:none;}
     @keyframes funhFruitGrow {from{opacity:0;transform:scale(.3);}to{opacity:1;transform:scale(1);}}
-    @media (prefers-reduced-motion:reduce){.funh-fruit-card,.funh-branch,.funh-leaf{animation:none;}.funh-fruit-card{transition:none;}}
+    @media (prefers-reduced-motion:reduce){.funh-fruit-card,.funh-branch,.funh-leaf,
+      .funh-fruit-card.funh-suggested::before,.funh-center.funh-center-reveal,
+      .funh-center.funh-center-repeat{animation:none;}
+      .funh-fruit-card{transition:none;}}
     .funh-gallery-back {position:absolute;z-index:3;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));
       transform:translateX(-50%);display:block;margin:0;padding:0;border:0;background:transparent;cursor:pointer;width:min(40%,160px);}
     .funh-gallery-back img {display:block;width:100%;height:auto;}
@@ -1337,7 +1380,11 @@
       <div class="funh-gallery">
         <h2>Fünh-Frutos</h2>
         <p>Reconocimiento de frutos</p>
-        <div id="funhGalleryGrid" class="funh-tree" role="group" aria-label="Árbol con 23 tarjetas de frutos"></div>
+        <div id="funhGalleryGrid" class="funh-tree" role="group" aria-label="Árbol con 23 tarjetas de frutos">
+          <button id="funhCenter" class="funh-center" type="button" disabled aria-label="Receptor central de frutos">
+            <img id="funhCenterImage" alt="" hidden draggable="false">
+          </button>
+        </div>
         <button class="funh-gallery-back" type="button" onclick="playFiluMapClick();showScreen('activityMap')" aria-label="Volver a Kimün Che ñi Rüpü"><img src="./boton_volver_atras.png" alt="Volver atrás"></button>
       </div>
     </section>
@@ -2600,6 +2647,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Una partida nueva reinicia solo la ceremonia de Fünh-Frutos.
       // Volver entre pantallas durante la misma partida conserva su estado.
       stopActivityMapTxegul();
+      funhResetGallery();
       funhStage = 'locked';
       try { localStorage.removeItem(FUNH_STORAGE_KEY); }
       catch (error) { console.warn('No se pudo reiniciar Fünh-Frutos:', error); }
@@ -2844,7 +2892,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const grid=document.getElementById('funhGalleryGrid');if(!grid||grid.querySelector('.funh-fruit-card'))return;
       const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
       svg.setAttribute('class','funh-tree-svg');svg.setAttribute('aria-hidden','true');
-      grid.append(svg);
+      grid.prepend(svg);
+      const light=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      light.setAttribute('class','funh-energy-svg');light.setAttribute('aria-hidden','true');
+      light.innerHTML='<path class="funh-energy-halo" stroke-width="10"/><path class="funh-energy-core" stroke-width="3.5"/><circle class="funh-energy-spark" r="6" visibility="hidden"/>';
+      svg.after(light);
       FUNH_FRUIT_IMAGES.forEach((item,index)=>{
         const button=document.createElement('button');button.type='button';button.className='funh-fruit-card';
         button.style.setProperty('--i',index);
@@ -2853,7 +2905,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         button.setAttribute('aria-label',img.alt);button.append(img);
         const badge=document.createElement('span');badge.className='funh-order';badge.textContent=index+1;badge.setAttribute('aria-hidden','true');
         button.append(badge);
-        button.addEventListener('click',()=>enlargeFunhFruit(button,item.name));
+        button.addEventListener('click',()=>selectFunhFruit(index));
         grid.append(button);
       });
       layoutFunhTree();
@@ -2888,8 +2940,14 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         if(Math.abs(t-d)<.3)break;
         d=d>t?Math.max(t,d*.97):Math.min(t,d*1.03);
       }
+      // Reservar una cavidad de dos diámetros para el receptor sin cubrir frutos.
+      d*=.88;
       g=funhGeo(W,top,bottom,d);
+      funhReserveCenter(g,d,W,top,bottom);
+      funhGeometry={...g,d,W,H};
       stage.style.setProperty('--d',d+'px');
+      stage.style.setProperty('--funh-center-y',g.center.y+'px');
+      stage.style.setProperty('--funh-center-size',(d*2)+'px');
       stage.querySelectorAll('.funh-fruit-card').forEach((card,i)=>{
         const p=g.pos[i];if(!p)return;
         card.style.width=card.style.height=d+'px';
@@ -2897,6 +2955,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       });
       const svg=stage.querySelector('.funh-tree-svg');if(!svg)return;
       svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+      const light=stage.querySelector('.funh-energy-svg');
+      if(light)light.setAttribute('viewBox',`0 0 ${W} ${H}`);
       const P=id=>id==='S0'?g.s0:g.pos[id];
       // Tamaño de cada rama = cuántos frutos cuelgan de ella (define su grosor).
       const kids={};FUNH_SLOTS.forEach((s,i)=>{(kids[s[2]]=kids[s[2]]||[]).push(i);});
@@ -2909,8 +2969,10 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       s+=`<ellipse cx="${g.cx}" cy="${g.gy-2}" rx="${W*.40}" ry="${d*.11}" fill="#2a6b49"/>`;
       g.pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.66}" fill="#14452f"/>`;});
       g.pos.forEach(p=>{s+=`<circle cx="${p.x}" cy="${p.y}" r="${d*.60}" fill="#1f6044"/>`;});
-      // Tronco con raíces.
+      // Prolongación del tronco hasta el receptor: el rayo sigue esta misma ruta.
       const w0=wOf(total),gy=g.gy,s0=g.s0;
+      s+=`<path d="M${g.cx} ${s0.y} L${g.center.x} ${g.center.y}" stroke="#5a3a1d" stroke-width="${w0*.88}" stroke-linecap="round" fill="none"/>`;
+      s+=`<path d="M${g.cx} ${s0.y} L${g.center.x} ${g.center.y}" stroke="#8d5d30" stroke-width="${w0*.39}" stroke-linecap="round" fill="none"/>`;
       s+=`<path d="M${g.cx-w0*.5} ${s0.y} L${g.cx-w0*.5} ${gy-d*.2} Q${g.cx-w0*.6} ${gy-d*.04} ${g.cx-w0*1.25} ${gy} L${g.cx+w0*1.25} ${gy} Q${g.cx+w0*.6} ${gy-d*.04} ${g.cx+w0*.5} ${gy-d*.2} L${g.cx+w0*.5} ${s0.y} Z" fill="url(#funhTrunkG)" stroke="#3a2410" stroke-width="2"/>`;
       // Ramas (las más gruesas primero) y hojas.
       const edges=FUNH_SLOTS.map((sl,i)=>({p:sl[2],c:i,n:size(i)})).sort((a,b)=>b.n-a.n);
@@ -2928,40 +2990,201 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       });
       s+=branches+leaves;
       svg.innerHTML=s;
+      // Un cambio de orientación completa la selección en curso, sin rayo desalineado.
+      if(funhTravelling && funhTravelIndex!==null)funhCompleteSelection(funhTravelIndex);
     }
-    // Un solo fruto agrandado a la vez.
-    let funhBigCard=null,funhBigTimer=null;
-    function funhRestore(){
-      if(funhBigTimer){clearTimeout(funhBigTimer);funhBigTimer=null;}
-      if(funhBigCard){funhBigCard.classList.remove('funh-big');funhBigCard=null;}
+    // Estado de exploración solo de esta partida. Se mantiene al salir y volver
+    // a entrar, sin añadir claves de almacenamiento ajenas al desbloqueo existente.
+    const funhVisited=new Set();
+    let funhCurrentIndex=null;
+    let funhGuideIndex=null;
+    let funhGeometry=null;
+    let funhTravelling=false;
+    let funhTravelFrame=null;
+    let funhTravelIndex=null;
+    let funhCenterRepeatFrame=null;
+
+    // Ajuste geométrico: conserva el orden y la estructura del árbol, desplaza
+    // principalmente las tarjetas centrales y respeta el espacio del receptor.
+    function funhReserveCenter(g,d,W,top,bottom){
+      const original=g.pos.map(p=>({x:p.x,y:p.y}));
+      const pos=g.pos;
+      const center={x:g.cx,y:(original[10].y+original[11].y)/2};
+      const radius=d*1.58,minimum=d*1.08;
+      for(const p of pos){
+        let dx=p.x-center.x,dy=p.y-center.y,dist=Math.hypot(dx,dy);
+        if(dist<radius){
+          if(Math.abs(dx)<d*.1 && Math.abs(dy)<d*.1)dy=-d*.65;
+          const norm=Math.hypot(dx,dy)||1;
+          p.x+=dx/norm*(radius-dist);p.y+=dy/norm*(radius-dist);
+        }
+      }
+      for(let step=0;step<450;step++){
+        for(let i=0;i<pos.length;i++){
+          pos[i].x+=(original[i].x-pos[i].x)*.018;
+          pos[i].y+=(original[i].y-pos[i].y)*.018;
+        }
+        for(const p of pos){
+          let dx=p.x-center.x,dy=p.y-center.y,dist=Math.hypot(dx,dy);
+          if(dist<radius){
+            if(dist<.0001){dx=1;dy=-.4;dist=Math.hypot(dx,dy);}
+            const force=(radius-dist)*.62;
+            p.x+=force*dx/dist;p.y+=force*dy/dist;
+          }
+        }
+        for(let i=0;i<pos.length;i++)for(let j=i+1;j<pos.length;j++){
+          const a=pos[i],b=pos[j];let dx=a.x-b.x,dy=a.y-b.y,dist=Math.hypot(dx,dy);
+          if(dist<minimum){
+            if(dist<.0001){dx=.001;dist=.001;}
+            const force=(minimum-dist)*.54;
+            a.x+=force*dx/dist;a.y+=force*dy/dist;
+            b.x-=force*dx/dist;b.y-=force*dy/dist;
+          }
+        }
+        for(const p of pos){
+          p.x=Math.max(d*.5+5,Math.min(W-d*.5-5,p.x));
+          p.y=Math.max(top+d*.5+3,Math.min(bottom-d*.5-2,p.y));
+        }
+      }
+      g.center=center;
     }
-    function enlargeFunhFruit(card,name){
-      funhRestore();
-      const stage=card.parentElement,W=stage.clientWidth,H=stage.clientHeight,d=card.offsetWidth,m=4;
-      const cx=card.offsetLeft+d/2,cy=card.offsetTop+d/2;
-      const clamp=(v,a,b)=>Math.min(Math.max(v,a),Math.max(a,b));
-      // Al duplicar su tamaño el fruto ocupa d de radio: se desplaza lo justo para no salirse de la pantalla.
-      card.style.setProperty('--bx',(clamp(cx,m+d,W-m-d)-cx)+'px');
-      card.style.setProperty('--by',(clamp(cy,m+d,H-m-d)-cy)+'px');
-      card.classList.add('funh-big');funhBigCard=card;
-      const t0=Date.now();
-      // Vuelve 0,35 s después de terminar el nombre, pero siempre se queda agrandado al menos 1 s.
-      const back=()=>{if(funhBigCard===card){clearTimeout(funhBigTimer);funhBigTimer=setTimeout(funhRestore,Math.max(350,1000-(Date.now()-t0)));}};
-      speakFunhName(name,back);
-      // Respaldo: si el navegador no avisa que terminó de hablar, igual vuelve a su tamaño.
-      funhBigTimer=setTimeout(funhRestore,name?4500:1000);
-      if(!name)return;
+    function funhClearRay(){
+      const layer=document.querySelector('#funhGalleryGrid .funh-energy-svg');
+      if(!layer)return;
+      layer.querySelectorAll('path').forEach(p=>{p.setAttribute('d','');p.removeAttribute('stroke-dasharray');p.removeAttribute('stroke-dashoffset');});
+      const spark=layer.querySelector('circle');if(spark)spark.setAttribute('visibility','hidden');
     }
-    function speakFunhName(name,onDone){
-      // Voz temporal del dispositivo; no se finge disponer de grabaciones MP3.
+    function funhUpdateGuide(){
+      const cards=document.querySelectorAll('#funhGalleryGrid .funh-fruit-card');
+      if(funhGuideIndex===null || funhVisited.has(funhGuideIndex)){
+        funhGuideIndex=FUNH_FRUIT_IMAGES.findIndex((_,i)=>!funhVisited.has(i));
+      }
+      cards.forEach((card,i)=>{
+        card.classList.toggle('funh-visited',funhVisited.has(i));
+        card.classList.toggle('funh-suggested',!funhTravelling && i===funhGuideIndex && !funhVisited.has(i));
+      });
+    }
+    function funhStopTravel(){
+      if(funhTravelFrame!==null){cancelAnimationFrame(funhTravelFrame);funhTravelFrame=null;}
+      funhTravelling=false;funhTravelIndex=null;
+      document.querySelectorAll('#funhGalleryGrid .funh-firing').forEach(c=>c.classList.remove('funh-firing'));
+      funhClearRay();
+    }
+    function funhPauseGallery(){
+      funhStopTravel();
+      document.querySelectorAll('#funhGalleryGrid .funh-suggested').forEach(c=>c.classList.remove('funh-suggested'));
+      if('speechSynthesis' in window)window.speechSynthesis.cancel();
+    }
+    function funhResetGallery(){
+      funhPauseGallery();funhVisited.clear();funhCurrentIndex=null;funhGuideIndex=null;
+      const center=document.getElementById('funhCenter'),img=document.getElementById('funhCenterImage');
+      if(center){center.disabled=true;center.setAttribute('aria-label','Receptor central de frutos');center.classList.remove('funh-center-reveal','funh-center-repeat');}
+      if(img){img.hidden=true;img.removeAttribute('src');img.alt='';}
+      funhUpdateGuide();
+    }
+    function funhResumeGallery(){
+      layoutFunhTree();
+      funhUpdateGuide();
+    }
+    function funhRayRoute(index){
+      const g=funhGeometry;if(!g||!g.pos[index])return '';
+      const p=g.pos[index];let d=`M${p.x} ${p.y}`;
+      let cursor=index;
+      for(let n=0;n<FUNH_SLOTS.length;n++){
+        const parent=FUNH_SLOTS[cursor][2];
+        const A=parent==='S0'?g.s0:g.pos[parent],B=g.pos[cursor];
+        const dx=B.x-A.x;
+        const c1={x:A.x+dx*.7,y:A.y};
+        const c2={x:B.x,y:B.y+(A.y-B.y)*.5};
+        // Mismo Bézier que la rama, recorrido en dirección contraria.
+        d+=` C${c2.x} ${c2.y},${c1.x} ${c1.y},${A.x} ${A.y}`;
+        if(parent==='S0')break;
+        cursor=parent;
+      }
+      d+=` L${g.center.x} ${g.center.y}`;
+      return d;
+    }
+    function funhCompleteSelection(index){
+      funhStopTravel();
+      const item=FUNH_FRUIT_IMAGES[index];if(!item)return;
+      funhCurrentIndex=index;funhVisited.add(index);
+      const center=document.getElementById('funhCenter'),img=document.getElementById('funhCenterImage');
+      if(img){img.src=item.src;img.alt=item.name||`Fruto ${index+1}, plantilla vacía`;img.hidden=false;}
+      if(center){
+        center.disabled=false;
+        center.setAttribute('aria-label',item.name?`Escuchar de nuevo ${item.name}`:`Fruto ${index+1}, sin nombre registrado`);
+        center.classList.remove('funh-center-reveal');
+        void center.offsetWidth;
+        center.classList.add('funh-center-reveal');
+      }
+      funhGuideIndex=null;
+      funhUpdateGuide();
+      // Comportamiento previo: tocar el fruto también pronuncia su nombre.
+      speakFunhName(item.name);
+    }
+    function selectFunhFruit(index){
+      if(funhTravelling||!document.getElementById('funhGallery').classList.contains('active'))return;
+      if(!funhGeometry)layoutFunhTree();
+      if('speechSynthesis' in window)window.speechSynthesis.cancel();
+      funhTravelling=true;funhTravelIndex=index;
+      funhGuideIndex=null;funhUpdateGuide();
+      const card=document.querySelectorAll('#funhGalleryGrid .funh-fruit-card')[index];
+      if(card)card.classList.add('funh-firing');
+      const svg=document.querySelector('#funhGalleryGrid .funh-energy-svg');
+      const paths=svg?Array.from(svg.querySelectorAll('path')):[];
+      const spark=svg?svg.querySelector('circle'):null;
+      const route=funhRayRoute(index);
+      if(paths.length!==2||!spark||!route){funhCompleteSelection(index);return;}
+      paths.forEach(p=>p.setAttribute('d',route));
+      let length;
+      try{length=paths[1].getTotalLength();}catch(_){length=0;}
+      if(!(length>0)){funhCompleteSelection(index);return;}
+      paths.forEach(p=>{p.style.strokeDasharray=`${length} ${length}`;p.style.strokeDashoffset=`${length}`;});
+      spark.setAttribute('visibility','visible');
+      const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      const duration=reduced?120:Math.min(2500,Math.max(1250,length*2.2));
+      let started=null;
+      function frame(t){
+        if(!funhTravelling||funhTravelIndex!==index)return;
+        if(started===null)started=t;
+        const progress=Math.min(1,(t-started)/duration);
+        const eased=1-Math.pow(1-progress,1.32);
+        paths.forEach(p=>p.style.strokeDashoffset=String(length*(1-eased)));
+        const at=paths[1].getPointAtLength(length*eased);
+        spark.setAttribute('cx',at.x);spark.setAttribute('cy',at.y);
+        if(progress>=1){funhCompleteSelection(index);return;}
+        funhTravelFrame=requestAnimationFrame(frame);
+      }
+      funhTravelFrame=requestAnimationFrame(frame);
+    }
+    function repeatFunhCenterAudio(){
+      if(funhCurrentIndex===null)return;
+      const center=document.getElementById('funhCenter');
+      if(center){
+        center.classList.remove('funh-center-reveal','funh-center-repeat');
+        void center.offsetWidth;
+        center.classList.add('funh-center-repeat');
+      }
+      // Sin reiniciar ni el rayo ni el progreso del árbol.
+      speakFunhName(FUNH_FRUIT_IMAGES[funhCurrentIndex].name);
+    }
+    function speakFunhName(name){
+      // Solo hay nombres definidos para Maki y Üñi. Se conserva la voz temporal
+      // del dispositivo usada por este HTML; no se inventan grabaciones MP3.
       playFiluMapClick();
       if(!name||!('speechSynthesis' in window))return;
-      try{window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(name);
+      try{
+        window.speechSynthesis.cancel();
+        const utterance=new SpeechSynthesisUtterance(name);
         utterance.lang='es-CL';utterance.rate=.75;
-        if(onDone){utterance.onend=onDone;utterance.onerror=onDone;}
         window.speechSynthesis.speak(utterance);
       }catch(error){console.warn('Voz temporal de Fünh-Frutos:',error);}
     }
+    document.getElementById('funhCenter')?.addEventListener('click',repeatFunhCenterAudio);
+    document.getElementById('funhCenter')?.addEventListener('animationend',e=>{
+      if(e.animationName==='funhCenterReveal')e.currentTarget.classList.remove('funh-center-reveal');
+      if(e.animationName==='funhCenterRepeat')e.currentTarget.classList.remove('funh-center-repeat');
+    });
     buildFunhGallery();
 
     function handleFunhFrutosTap(button) {
@@ -3975,7 +4198,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       }
       if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); }
       if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
-      if(screenId !== 'funhGallery' && typeof funhRestore==='function')funhRestore();
+      if(screenId !== 'funhGallery')funhPauseGallery();
       if (screenId !== 'newenRecovery') {
         const video = document.getElementById('newenDanceVideo');
         if (video && !video.paused) video.pause();
@@ -3998,6 +4221,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
 
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
+      if (screenId === 'funhGallery')requestAnimationFrame(funhResumeGallery);
       // Los Txegül solo se activarán mediante un disparador explícito posterior.
       if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); }
       const filuMapBack = document.getElementById('filuMapBack');
