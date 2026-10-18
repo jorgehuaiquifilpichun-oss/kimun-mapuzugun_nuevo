@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#183f31">
   <title>Kimün Mapuzungun</title>
+  <!-- Precarga del candado verde para mostrarlo sin demora al tercer golpe. -->
+  <link rel="preload" as="image" href="./item_funh_frutos_desbloqueado.png">
 
   <style>
     * { box-sizing: border-box; }
@@ -3362,13 +3364,23 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         catch(error){console.warn('No fue posible guardar Fünh-Frutos:',error);}
         applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
       }
-      // Abrir el candado al tercer golpe, sin esperar los fotogramas finales.
-      // Tiempo estimado sobre el WebM de 6,08 s a partir de la prueba 329.mp4.
-      // El evento ended queda como respaldo si un navegador omite timeupdate.
-      const funhThirdStrikeSecond = 5.15;
-      video.ontimeupdate=()=>{
-        if(funhStage==='playing' && video.currentTime>=funhThirdStrikeSecond)complete();
+      // El cambio a verde ocurre en el tercer impacto, no al terminar el video.
+      // Punto adelantado respecto al anterior (5.15 s). Ajustable si cambia el WebM.
+      const funhThirdStrikeSecond = 4.45;
+      const checkThirdStrike = (mediaTime=video.currentTime) => {
+        if(funhStage==='playing' && mediaTime>=funhThirdStrikeSecond)complete();
       };
+      // Verificar cada fotograma en Chrome/Android: timeupdate puede tardar 250 ms.
+      // timeupdate y ended son respaldos para navegadores sin callbacks de fotogramas.
+      if(typeof video.requestVideoFrameCallback==='function') {
+        const checkFrame=(_now,meta)=>{
+          if(finishing||funhStage!=='playing')return;
+          checkThirdStrike(meta&&Number.isFinite(meta.mediaTime)?meta.mediaTime:video.currentTime);
+          if(!finishing&&funhStage==='playing')video.requestVideoFrameCallback(checkFrame);
+        };
+        video.requestVideoFrameCallback(checkFrame);
+      }
+      video.ontimeupdate=()=>checkThirdStrike();
       video.onended=complete;
       function restoreOnVideoError(error){
         clearFunhStrikeTimeout();
