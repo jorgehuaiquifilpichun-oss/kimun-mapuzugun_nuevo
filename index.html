@@ -1165,7 +1165,7 @@
     /* Receptor permanente en el centro del árbol; pulsarlo vuelve a pronunciar el fruto. */
     .funh-center {position:absolute;z-index:6;left:50%;top:var(--funh-center-y,50%);
       width:var(--funh-center-size,140px);height:var(--funh-center-size,140px);
-      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:0;--funh-zoom:1.24;
+      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:0;--funh-zoom:1.45;
       display:flex;align-items:center;justify-content:center;
       background:radial-gradient(circle at 35% 25%,#436d51,#193e2e 64%,#10281f);
       box-shadow:0 0 0 4px rgba(34,77,49,.78),0 7px 16px rgba(0,0,0,.42),
@@ -2955,7 +2955,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         d=d>t?Math.max(t,d*.97):Math.min(t,d*1.03);
       }
       // Reservar una cavidad de dos diámetros para el receptor sin cubrir frutos.
-      d*=.88;
+      d*=.84;
       g=funhGeo(W,top,bottom,d);
       funhReserveCenter(g,d,W,top,bottom);
       funhGeometry={...g,d,W,H};
@@ -3025,7 +3025,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const pos=g.pos;
       const minY=Math.min(...original.map(p=>p.y)),maxY=Math.max(...original.map(p=>p.y));
       const center={x:g.cx,y:(minY+maxY)/2};
-      const radius=d*1.9,minimum=d*1.08;
+      const radius=d*2.05,minimum=d*1.04;
       for(const p of pos){
         let dx=p.x-center.x,dy=p.y-center.y,dist=Math.hypot(dx,dy);
         if(dist<radius){
