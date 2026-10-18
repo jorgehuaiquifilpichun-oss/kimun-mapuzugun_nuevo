@@ -1165,7 +1165,7 @@
     /* Receptor permanente en el centro del árbol; pulsarlo vuelve a pronunciar el fruto. */
     .funh-center {position:absolute;z-index:6;left:50%;top:var(--funh-center-y,50%);
       width:var(--funh-center-size,140px);height:var(--funh-center-size,140px);
-      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:0;--funh-zoom:1.15;
+      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:0;--funh-zoom:1.24;
       display:flex;align-items:center;justify-content:center;
       background:radial-gradient(circle at 35% 25%,#436d51,#193e2e 64%,#10281f);
       box-shadow:0 0 0 4px rgba(34,77,49,.78),0 7px 16px rgba(0,0,0,.42),
@@ -1175,7 +1175,7 @@
     .funh-center:focus-visible {outline:3px solid #bfff7f;outline-offset:7px;}
     /* La imagen se amplía (--funh-zoom) y se recorta en círculo para llenar todo el contorno del receptor. */
     .funh-center img {display:block;flex:none;width:calc(100% * var(--funh-zoom));height:calc(100% * var(--funh-zoom));
-      object-fit:contain;pointer-events:none;position:relative;z-index:1;clip-path:circle(calc(50% / var(--funh-zoom)));}
+      object-fit:contain;pointer-events:none;position:relative;z-index:1;clip-path:circle(50%);}
     .funh-center.funh-center-reveal img {animation:funhCenterImgGrow .83s cubic-bezier(.2,1.4,.4,1) both;}
     @keyframes funhCenterImgGrow {0%{transform:scale(.12);opacity:0;}35%{opacity:1;}100%{transform:scale(1);opacity:1;}}
     @media (prefers-reduced-motion:reduce){.funh-center.funh-center-reveal img{animation:none;}}
@@ -3025,7 +3025,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const pos=g.pos;
       const minY=Math.min(...original.map(p=>p.y)),maxY=Math.max(...original.map(p=>p.y));
       const center={x:g.cx,y:(minY+maxY)/2};
-      const radius=d*1.7,minimum=d*1.08;
+      const radius=d*1.9,minimum=d*1.08;
       for(const p of pos){
         let dx=p.x-center.x,dy=p.y-center.y,dist=Math.hypot(dx,dy);
         if(dist<radius){
