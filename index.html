@@ -1183,8 +1183,9 @@
       color:#fff5dd;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     .funh-center:disabled {cursor:default;}
     .funh-center:focus-visible {outline:3px solid #bfff7f;outline-offset:7px;}
+    /* La tarjeta seleccionada se amplía SOBRE el receptor fijo, sin modificar su posición ni el árbol. */
     .funh-center img {display:block;width:100%;height:100%;object-fit:contain;
-      pointer-events:none;transform:scale(1.13);transform-origin:center;}
+      pointer-events:none;transform:scale(1.29);transform-origin:center;}
     .funh-center img[hidden] {display:none;}
     .funh-center .funh-image-placeholder {inset:13%;font-size:clamp(32px,10vw,52px);}
     /* La imagen crece al revelarse, no sólo el brillo de su marco. */
@@ -1192,13 +1193,13 @@
     .funh-center.funh-center-repeat img:not([hidden]) {animation:funhFruitRepeat .4s ease-out both;}
     @keyframes funhFruitEnter {
       0% {opacity:0;transform:scale(.22);filter:brightness(2.5);}
-      48% {opacity:1;transform:scale(1.26);filter:brightness(1.4);}
-      77% {transform:scale(1.07);filter:brightness(1);}
-      100% {opacity:1;transform:scale(1.13);filter:brightness(1);}
+      48% {opacity:1;transform:scale(1.41);filter:brightness(1.4);}
+      77% {transform:scale(1.23);filter:brightness(1);}
+      100% {opacity:1;transform:scale(1.29);filter:brightness(1);}
     }
     @keyframes funhFruitRepeat {
-      0%,100% {transform:scale(1.13);}
-      50% {transform:scale(1.23);}
+      0%,100% {transform:scale(1.29);}
+      50% {transform:scale(1.38);}
     }
     .funh-center.funh-center-reveal {animation:funhCenterReveal .83s ease-out both;}
     .funh-center.funh-center-repeat:not(:disabled) {animation:funhCenterRepeat .28s ease-out;}
