@@ -1287,6 +1287,22 @@
     .cv-btn:disabled {opacity:.5;cursor:not-allowed;}
     .cv-weak {font-size:14px;line-height:1.5;}
 
+
+    /* Fünh-Frutos: nuevo juego de corte, canvas ligero. */
+    .funh-game-intro-header{top:8%;pointer-events:none;z-index:3}
+    .cv-area{top:17%;bottom:16%;background:radial-gradient(ellipse at 50% 65%,#347a52,#194834 72%,#103021);border-top:2px solid #ac8c55;border-bottom:2px solid #ac8c55}
+    .cv-area canvas{display:block;width:100%;height:100%;touch-action:none}
+    .cv-hud{z-index:5;top:5px;gap:10px;font-size:clamp(12px,3.7vw,16px);text-shadow:0 2px 3px #06170d}
+    .cv-target{z-index:5;top:38px;font-size:clamp(17px,5.2vw,24px);text-shadow:0 2px 5px #06170d}
+    .cv-timer{position:absolute;bottom:4px;left:10px;right:10px;height:6px;border:1px solid #e3cc7c;border-radius:5px;background:#153326;z-index:5;overflow:hidden;pointer-events:none}
+    .cv-timer span{display:block;height:100%;background:linear-gradient(90deg,#5ccd56,#e8f087);width:100%}
+    .cv-float{position:absolute;z-index:6;font-weight:900;font-size:clamp(18px,5vw,25px);color:#d9ff83;pointer-events:none;text-shadow:1px 2px 3px #10251c;animation:cvFloat .8s ease-out both}
+    .cv-float.bad{color:#ff978e}
+    @keyframes cvFloat{to{opacity:0;transform:translateY(-55px) scale(1.25)}}
+    .cv-ov{z-index:8;overflow-y:auto}
+    .cv-ov h3{font-size:clamp(19px,5.8vw,25px)}
+    .cv-ov p{max-width:330px}
+
 </style>
 </head>
 
@@ -1485,9 +1501,15 @@
       <div class="funh-game-intro">
         <header class="funh-game-intro-header">
           <h2>Fünh-Frutos</h2>
-          <p>Küme Fünh · Cosecha al vuelo</p>
+          <p>Küme Fünh · Corta y aprende</p>
         </header>
-        <div class="cv-area" id="cvArea" aria-label="Zona de juego: arrastra el canasto"><div class="cv-hud"><span id="cvLives"></span><span id="cvProg"></span><span id="cvScore"></span></div><div class="cv-target" id="cvTarget"></div><div class="cv-basket" id="cvBasket">🧺</div><div class="cv-ov on" id="cvOv"></div></div>
+        <div class="cv-area" id="cvArea" aria-label="Juego de cortar frutas deslizando el dedo">
+          <canvas id="cvCanvas" aria-label="Desliza el dedo sobre las frutas para cortarlas"></canvas>
+          <div class="cv-hud"><span id="cvLives"></span><span id="cvProg"></span><span id="cvScore"></span></div>
+          <div class="cv-target" id="cvTarget"></div>
+          <div class="cv-timer"><span id="cvTimer"></span></div>
+          <div class="cv-ov on" id="cvOv"></div>
+        </div>
         <div class="ack-controls" aria-label="Controles del juego de frutos">
           <button class="ack-control ack-back" type="button"
                   onclick="playFiluMapClick();showScreen('funhGallery')"
@@ -4625,73 +4647,119 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     buildDynamicActivities();
 
 
-    /* ===== Küme Fünh · Cosecha al vuelo ===== */
-    const CV_F=[['Avellana chilena','Gefüñ','🌰','#8d6e4a'],['Castaña','Kataña','🌰','#5a3a22'],['Cereza','Sereza','🍒','#c62828'],
-      ['Chaura','Chawra','🔴','#ef9a9a'],['Chupón','Nüyu','🍍','#7cb342'],['Ciruela','Siruela','🍑','#7b1fa2'],['Cóguil','Kowüll','🥒','#558b2f'],
-      ['Copihue (fruto)','Kopiw','🌺','#d81b60'],['Damasco','Zamasko','🍑','#fb8c00'],['Frambuesa','Füramfuesa','🍓','#ad1457'],
-      ['Frutilla','Kelleñ','🍓','#d32f2f'],['Maqui','Make','🫐','#1a237e'],['Manzana','Mansana','🍎','#e53935'],['Membrillo','Mempürillu','🍐','#fdd835'],
-      ['Michay','Michay','🍇','#880e4f'],['Mora','Mura','🍇','#6a1b9a'],['Murta o murtilla','Üñü','🍒','#ff7043'],['Pera','Pera','🍐','#aed581'],
-      ['Piñón','Gülliw','🌲','#6d4c41'],['Rosa mosqueta (fruto)','Moketa','🌹','#ff5722']];
-    const CV_GOAL=[8,10,12], CV_LANES=[.17,.5,.83];
-    const CV_INFO=['Arrastra el canasto y atrapa la fruta que se llama como la palabra en mapuzungun.',
-      'Ahora caen palabras en mapuzungun. Atrapa la que corresponde a la fruta que se pide en español.',
-      'Lluvia de palabras: atrapa solo la pedida. ¡Cada vez cae más rápido!'];
-    const CV={lv:0,lives:3,score:0,streak:0,prog:0,items:[],target:-1,raf:0,last:0,bx:.5,sp:0,weak:{},done:[false,false,false],run:false,W:300,H:400};
-    try{const s=JSON.parse(localStorage.getItem('cvFunh')||'null');if(s&&s.length===3)CV.done=s.map(Boolean);}catch(e){}
+    /* ===== Fünh-Frutos: juego original de corte, 3 niveles =====
+       Se conserva la galería y su estado; únicamente se reemplaza el juego posterior.
+       Los nombres proceden de la tabla de frutos de la versión anterior. */
+    const CV_F=[
+      ['Avellana chilena','Gefüñ','🌰'],['Cereza','Sereza','🍒'],['Chaura','Chawra','🍒'],
+      ['Chupón','Nüyu','🍍'],['Ciruela','Siruela','🍑'],['Cóguil','Kowüll','🥒'],
+      ['Copihue (fruto)','Kopiw','🌺'],['Damasco','Zamasko','🍑'],
+      ['Frambuesa','Füramfuesa','🍓'],['Frutilla','Kelleñ','🍓'],
+      ['Maqui','Make','🫐'],['Manzana','Mansana','🍎'],['Membrillo','Mempürillu','🍐'],
+      ['Michay','Michay','🍇'],['Mora','Mura','🍇'],['Murta','Üñi','🫐'],
+      ['Pera','Pera','🍐'],['Piñón','Gülliw','🌰'],['Rosa mosqueta','Moketa','🍒']
+    ];
+    const CV={level:0,done:[false,false,false],active:false,raf:0,last:0,elapsed:0,target:-1,
+      correct:0,score:0,fruits:[],particles:[],labels:[],trail:[],spawn:0,pointer:false,width:320,height:480,
+      duration:30,remaining:30,rotations:0,token:0};
+    try{const saved=JSON.parse(localStorage.getItem('cvSliceFunh')||'null');if(Array.isArray(saved)&&saved.length===3)CV.done=saved.map(Boolean);}catch(e){}
     const cvEl=id=>document.getElementById(id);
-    function cvBeep(f,d){try{const A=window.AudioContext||window.webkitAudioContext;if(!A)return;CV.ac=CV.ac||new A();const o=CV.ac.createOscillator(),g=CV.ac.createGain();o.frequency.value=f;g.gain.value=.07;o.connect(g);g.connect(CV.ac.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,CV.ac.currentTime+d);o.stop(CV.ac.currentTime+d);}catch(e){}}
-    function cvOv(h){const o=cvEl('cvOv');if(!o)return;if(h===null){o.classList.remove('on');return;}o.innerHTML=h;o.classList.add('on');}
-    function cvNextState(){const b=cvEl('cvNextBtn');if(b)b.disabled=!CV.done.every(Boolean);}
-    function cvNext(){if(!CV.done.every(Boolean))return;try{playFiluMapClick();}catch(e){}showScreen('activityMap');}
-    function cvStop(){CV.run=false;cancelAnimationFrame(CV.raf);CV.items.forEach(i=>i.el.remove());CV.items=[];}
-    function cvMenu(){cvStop();const n=['Reconocer','Escuchar y leer','Cosecha veloz'];
-      const t=cvEl('cvTarget');if(t)t.textContent='';cvHud();
-      cvOv('<h3>Elige tu desafío</h3>'+n.map((x,i)=>{const lock=i>0&&!CV.done[i-1];return '<button class="cv-btn" '+(lock?'disabled':'')+' onclick="cvStart('+i+')">'+(CV.done[i]?'✅ ':lock?'🔒 ':'')+'Nivel '+(i+1)+' · '+x+'</button>';}).join('')
-        +(CV.done.every(Boolean)?'<p>¡Completaste los 3 niveles! Toca Amulepe para seguir.</p>':''));cvNextState();}
-    function cvStart(lv){cvStop();CV.lv=lv;cvOv('<h3>Nivel '+(lv+1)+'</h3><p>'+CV_INFO[lv]+'</p><p>Meta: '+CV_GOAL[lv]+' aciertos · 3 vidas</p><button class="cv-btn" onclick="cvGo()">¡Empezar!</button><button class="cv-btn" onclick="cvMenu()">Volver</button>');}
-    function cvGo(){const a=cvEl('cvArea');CV.W=a.clientWidth||300;CV.H=a.clientHeight||400;CV.lives=3;CV.score=0;CV.streak=0;CV.prog=0;CV.weak={};CV.items=[];CV.target=-1;CV.sp=0;
-      cvOv(null);CV.run=true;CV.last=performance.now();cvNewTarget();if(CV.lv<2)cvRound();else CV.spawn=0;cvHud();CV.raf=requestAnimationFrame(cvLoop);}
-    function cvNewTarget(){let t;do{t=Math.floor(Math.random()*20);}while(t===CV.target);CV.target=t;const f=CV_F[t];
-      cvEl('cvTarget').textContent=CV.lv===0?f[1]:CV.lv===1?f[2]+' '+f[0]:f[0];}
-    function cvHud(){cvEl('cvLives').textContent='❤️'.repeat(Math.max(0,CV.lives));cvEl('cvProg').textContent=CV.run?CV.prog+'/'+CV_GOAL[CV.lv]:'';cvEl('cvScore').textContent=CV.run?'★ '+CV.score+(CV.streak>1?' x'+Math.min(CV.streak,5):''):'';}
-    function cvMk(idx,x,y){const f=CV_F[idx],el=document.createElement('div');el.className='cv-item';
-      el.innerHTML=CV.lv===0?'<span class="cv-chip" style="background:'+f[3]+'">'+f[2]+'</span><small>'+f[0]+'</small>':'<span class="cv-pill">'+f[1]+'</span>';
-      cvEl('cvArea').appendChild(el);const w=CV.lv===0?84:Math.max(80,f[1].length*11+28),h=CV.lv===0?84:40;CV.items.push({idx,x:Math.min(CV.W-w/2,Math.max(w/2,x)),y,w,h,el});}
-    function cvRound(){const o=[CV.target];while(o.length<3){const r=Math.floor(Math.random()*20);if(!o.includes(r))o.push(r);}
-      o.sort(()=>Math.random()-.5);const k=[0,1,2].sort(()=>Math.random()-.5);o.forEach((idx,i)=>cvMk(idx,CV_LANES[k[i]]*CV.W,-90-i*CV.H*.16));}
-    function cvClear(){CV.items.forEach(i=>i.el.remove());CV.items=[];}
-    function cvLoop(t){if(!CV.run)return;const dt=Math.min(.05,(t-CV.last)/1000);CV.last=t;
-      const base=CV.H/(CV.lv===0?4.6:CV.lv===1?4:3.4);CV.sp=base*(CV.lv===2?1+CV.prog*.07:1);
-      if(CV.lv===2){CV.spawn-=dt;if(CV.spawn<=0){CV.spawn=Math.max(.55,1.05-CV.prog*.03);const idx=Math.random()<.4?CV.target:Math.floor(Math.random()*20);cvMk(idx,CV.W*(.1+Math.random()*.8),-50);}}
-      const bx=CV.bx*CV.W,top=CV.H-70;cvEl('cvBasket').style.left=bx+'px';
-      for(const it of CV.items.slice()){if(!CV.run)break;it.y+=CV.sp*dt;it.el.style.transform='translate('+(it.x-it.w/2)+'px,'+it.y+'px)';
-        if(it.y+it.h>=top&&it.y<=CV.H-12&&Math.abs(it.x-bx)<it.w/2+36){cvCatch(it);continue;}
-        if(it.y>CV.H){cvMiss(it);}}
-      if(CV.run&&CV.lv<2&&!CV.items.length){cvNewTarget();cvRound();}
-      if(CV.run)CV.raf=requestAnimationFrame(cvLoop);}
-    function cvRm(it){it.el.remove();CV.items=CV.items.filter(x=>x!==it);}
-    function cvWeak(i){CV.weak[i]=(CV.weak[i]||0)+1;}
-    function cvCatch(it){cvRm(it);
-      if(it.idx===CV.target){CV.streak++;CV.score+=10*Math.min(CV.streak,5);CV.prog++;cvBeep(880,.15);
-        if(CV.prog>=CV_GOAL[CV.lv]){cvHud();return cvEnd(true);}
-        if(CV.lv<2){cvClear();cvNewTarget();cvRound();}else if(CV.prog%3===0)cvNewTarget();}
-      else{CV.streak=0;CV.lives--;cvWeak(it.idx);cvWeak(CV.target);cvBeep(160,.3);const a=cvEl('cvArea');a.classList.remove('cv-flash');void a.offsetWidth;a.classList.add('cv-flash');
-        if(CV.lives<=0){cvHud();return cvEnd(false);}}
-      cvHud();}
-    function cvMiss(it){cvRm(it);if(it.idx!==CV.target||CV.lv===2)return;
-      CV.streak=0;CV.lives--;cvWeak(it.idx);cvBeep(160,.3);
-      if(CV.lives<=0){cvHud();return cvEnd(false);}
-      cvClear();cvNewTarget();cvRound();cvHud();}
-    function cvEnd(win){CV.run=false;cancelAnimationFrame(CV.raf);cvClear();
-      const w=Object.keys(CV.weak).sort((a,b)=>CV.weak[b]-CV.weak[a]).slice(0,4).map(i=>CV_F[i][0]+' = <b>'+CV_F[i][1]+'</b>');
-      if(win){CV.done[CV.lv]=true;try{localStorage.setItem('cvFunh',JSON.stringify(CV.done));}catch(e){}cvBeep(660,.4);}
-      cvOv('<h3>'+(win?'¡Küme zugu! 🎉':'Se acabaron las vidas 🍂')+'</h3><p>Puntaje: '+CV.score+'</p>'
-        +(w.length?'<p class="cv-weak">Repasa:<br>'+w.join('<br>')+'</p>':'<p>¡Sin errores!</p>')
-        +(win&&CV.lv<2?'<button class="cv-btn" onclick="cvStart('+(CV.lv+1)+')">Siguiente nivel</button>':'')
-        +'<button class="cv-btn" onclick="cvStart('+CV.lv+')">'+(win?'Jugar otra vez':'Reintentar')+'</button><button class="cv-btn" onclick="cvMenu()">Menú de niveles</button>');
-      cvNextState();}
-    (function(){const a=cvEl('cvArea');if(!a)return;const mv=e=>{const r=a.getBoundingClientRect();CV.bx=Math.min(.92,Math.max(.08,(e.clientX-r.left)/r.width));};
-      a.addEventListener('pointerdown',mv);a.addEventListener('pointermove',mv);})();
+    const cvRand=(a,b)=>a+Math.random()*(b-a);
+    let cvAudio=null;
+    function cvSound(ok){
+      try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;cvAudio=cvAudio||new AC();
+        if(cvAudio.state==='suspended')cvAudio.resume();const osc=cvAudio.createOscillator(),gain=cvAudio.createGain();
+        osc.type=ok?'sine':'sawtooth';osc.frequency.setValueAtTime(ok?650:180,cvAudio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(ok?1050:100,cvAudio.currentTime+.14);
+        gain.gain.setValueAtTime(.16,cvAudio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,cvAudio.currentTime+.18);
+        osc.connect(gain);gain.connect(cvAudio.destination);osc.start();osc.stop(cvAudio.currentTime+.19);
+      }catch(e){}
+    }
+    function cvOverlay(html){const el=cvEl('cvOv');el.innerHTML=html;el.classList.add('on');}
+    function cvMenu(){cvStop();cvEl('cvTarget').textContent='';cvEl('cvLives').textContent='';cvEl('cvProg').textContent='';cvEl('cvScore').textContent='';
+      const names=['Corte libre','Encuentra la fruta','Desafío veloz'];
+      cvOverlay('<h3>Elige tu nivel</h3>'+names.map((name,i)=>'<button class="cv-btn" '+(i>0&&!CV.done[i-1]?'disabled':'')+
+        ' onclick="cvStart('+i+')">'+(CV.done[i]?'✓ ':i>0&&!CV.done[i-1]?'🔒 ':'')+'Nivel '+(i+1)+' · '+name+'</button>').join('')+
+        (CV.done.every(Boolean)?'<p>¡Completaste los tres niveles! Puedes pulsar Amulepe.</p>':''));cvNextState();}
+    function cvNextState(){const btn=cvEl('cvNextBtn');if(btn)btn.disabled=!CV.done.every(Boolean);}
+    function cvNext(){if(!CV.done.every(Boolean))return;try{playFiluMapClick()}catch(e){}showScreen('activityMap');}
+    function cvStart(level){cvStop();CV.level=level;const info=[
+      '30 segundos de juego libre. Corta todos los frutos y descubre sus nombres en mapuzungun.',
+      'Corta solo la fruta indicada arriba. Cambia cada 15 segundos. Consigue 10 aciertos. Un corte incorrecto reinicia el nivel.',
+      'Más frutas y mayor velocidad. El nombre cambia cada 10 segundos. Consigue 10 aciertos. Un error reinicia el nivel.'
+    ];
+      cvOverlay('<h3>Nivel '+(level+1)+'</h3><p>'+info[level]+'</p><button class="cv-btn" onclick="cvGo()">¡A jugar!</button>');cvNextState();}
+    function cvStop(){CV.active=false;CV.token++;cancelAnimationFrame(CV.raf);CV.raf=0;CV.pointer=false;CV.trail=[];}
+    function cvResize(){const area=cvEl('cvArea'),canvas=cvEl('cvCanvas');const rect=area.getBoundingClientRect();
+      CV.width=Math.max(200,rect.width);CV.height=Math.max(240,rect.height);
+      const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(CV.width*dpr);canvas.height=Math.round(CV.height*dpr);
+      const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);}
+    function cvSetTarget(){if(CV.level===0)return;let n;do{n=Math.floor(Math.random()*CV_F.length);}while(n===CV.target);
+      CV.target=n;cvEl('cvTarget').textContent='Corta: '+CV_F[n][1];}
+    function cvHud(){cvEl('cvProg').textContent=CV.level===0?'Nivel 1 · Libre':'Aciertos: '+CV.correct+'/10';
+      cvEl('cvScore').textContent='★ '+CV.score;cvEl('cvLives').textContent='Nivel '+(CV.level+1);
+      const pct=CV.level===0?CV.remaining/30:1-(CV.elapsed%CV.duration)/CV.duration;
+      cvEl('cvTimer').style.width=(100*Math.max(0,pct))+'%';}
+    function cvGo(){cvStop();cvResize();CV.correct=0;CV.score=0;CV.elapsed=0;CV.remaining=30;CV.fruits=[];CV.particles=[];CV.labels=[];
+      CV.trail=[];CV.target=-1;CV.spawn=0;CV.rotations=0;CV.duration=CV.level===1?15:10;
+      cvEl('cvOv').classList.remove('on');cvEl('cvTarget').textContent=CV.level===0?'Corta todas las frutas': '';
+      if(CV.level>0)cvSetTarget();CV.active=true;CV.last=performance.now();cvHud();CV.raf=requestAnimationFrame(cvLoop);}
+    function cvSpawn(){const r=cvRand(24,37),w=CV.width,h=CV.height;
+      let idx=Math.floor(Math.random()*CV_F.length);
+      if(CV.level>0&&Math.random()<(CV.level===1?.58:.43))idx=CV.target;
+      const x=cvRand(r+8,w-r-8),y=h+r;
+      CV.fruits.push({idx,x,y,r,vx:cvRand(-45,45),vy:cvRand(-h*1.45,-h*1.15),rot:cvRand(-.2,.2),spin:cvRand(-2,2),cut:false});}
+    function cvFloat(x,y,text,bad){const area=cvEl('cvArea'),el=document.createElement('span');el.className='cv-float'+(bad?' bad':'');
+      el.textContent=text;el.style.left=Math.max(6,Math.min(CV.width-125,x-35))+'px';el.style.top=Math.max(55,y-12)+'px';area.appendChild(el);setTimeout(()=>el.remove(),850);}
+    function cvSlice(f){if(f.cut||!CV.active)return;f.cut=true;const valid=CV.level===0||f.idx===CV.target;
+      cvSound(valid);for(let i=0;i<14;i++){let angle=cvRand(0,Math.PI*2),speed=cvRand(60,180);
+        CV.particles.push({x:f.x,y:f.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:.55,r:cvRand(2,6),color:valid?'#a9f273':'#ff706b'});}
+      cvFloat(f.x,f.y,valid?CV_F[f.idx][1]+' +1':'✕ Error',!valid);
+      if(!valid){cvEnd(false,true);return;}
+      CV.correct++;CV.score+=10;cvHud();if(CV.level>0&&CV.correct>=10)cvEnd(true,false);
+    }
+    function cvEnd(win,error){cvStop();CV.fruits=[];if(win){CV.done[CV.level]=true;
+      try{localStorage.setItem('cvSliceFunh',JSON.stringify(CV.done));}catch(e){}cvSound(true);}
+      cvNextState();const text=win?'¡Küme zugu!':error?'Cortaste una fruta distinta.':'Terminó el tiempo.';
+      cvOverlay('<h3>'+text+'</h3><p>Aciertos: '+CV.correct+' · Puntaje: '+CV.score+'</p>'+
+        (win&&CV.level<2?'<button class="cv-btn" onclick="cvStart('+(CV.level+1)+')">Siguiente nivel</button>':'')+
+        '<button class="cv-btn" onclick="cvStart('+CV.level+')">'+(win?'Volver a jugar':'Reintentar nivel')+'</button>'+ 
+        '<button class="cv-btn" onclick="cvMenu()">Menú de niveles</button>');}
+    function cvDraw(){const ctx=cvEl('cvCanvas').getContext('2d'),w=CV.width,h=CV.height;ctx.clearRect(0,0,w,h);
+      for(const f of CV.fruits){if(f.cut)continue;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);
+        ctx.shadowColor='#081d14';ctx.shadowBlur=9;ctx.shadowOffsetY=5;
+        ctx.font=(f.r*1.85)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(CV_F[f.idx][2],0,1);ctx.restore();}
+      for(const p of CV.particles){ctx.beginPath();ctx.fillStyle=p.color;ctx.globalAlpha=Math.max(0,p.life/.55);
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+      if(CV.trail.length>1){ctx.beginPath();ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
+        ctx.strokeStyle='#e8fff0';ctx.shadowColor='#8affca';ctx.shadowBlur=15;
+        CV.trail.forEach((pt,i)=>i?ctx.lineTo(pt.x,pt.y):ctx.moveTo(pt.x,pt.y));ctx.stroke();ctx.shadowBlur=0;}
+    }
+    function cvLoop(now){if(!CV.active)return;const dt=Math.min(.05,(now-CV.last)/1000);CV.last=now;CV.elapsed+=dt;
+      if(CV.level===0){CV.remaining=Math.max(0,30-CV.elapsed);if(CV.remaining===0){cvEnd(true,false);return;}}
+      else if(CV.elapsed>=CV.duration*(CV.rotations+1)){CV.rotations++;cvSetTarget();}
+      CV.spawn-=dt;if(CV.spawn<=0){cvSpawn();CV.spawn=cvRand(CV.level===0?.27:CV.level===1?.65:.25,CV.level===0?.48:CV.level===1?.9:.44);}
+      const gravity=CV.height*(CV.level===2?2.1:1.6);
+      for(const f of CV.fruits){f.x+=f.vx*dt;f.y+=f.vy*dt;f.vy+=gravity*dt;f.rot+=f.spin*dt;}
+      CV.fruits=CV.fruits.filter(f=>!f.cut&&f.y<CV.height+f.r*2&&f.x>-f.r*2&&f.x<CV.width+f.r*2);
+      for(const p of CV.particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=200*dt;p.life-=dt;}
+      CV.particles=CV.particles.filter(p=>p.life>0);if(!CV.pointer&&CV.trail.length)CV.trail.shift();cvDraw();cvHud();
+      if(CV.active)CV.raf=requestAnimationFrame(cvLoop);}
+    function cvSegment(ax,ay,bx,by,x,y){const dx=bx-ax,dy=by-ay;
+      const t=Math.max(0,Math.min(1,((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy||1)));
+      return Math.hypot(x-(ax+t*dx),y-(ay+t*dy));}
+    (function(){const canvas=cvEl('cvCanvas');if(!canvas)return;
+      const point=e=>{const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*CV.width/r.width,y:(e.clientY-r.top)*CV.height/r.height}};
+      const down=e=>{if(!CV.active)return;e.preventDefault();CV.pointer=true;CV.trail=[point(e)];canvas.setPointerCapture(e.pointerId)};
+      const move=e=>{if(!CV.active||!CV.pointer)return;e.preventDefault();const p=point(e),prev=CV.trail[CV.trail.length-1]||p;
+        if(Math.hypot(p.x-prev.x,p.y-prev.y)<3)return;CV.trail.push(p);if(CV.trail.length>7)CV.trail.shift();
+        for(const f of CV.fruits.slice())if(!f.cut&&cvSegment(prev.x,prev.y,p.x,p.y,f.x,f.y)<=f.r*.8){cvSlice(f);if(!CV.active)break;}};
+      const up=()=>{CV.pointer=false;CV.trail=[];};
+      canvas.addEventListener('pointerdown',down);canvas.addEventListener('pointermove',move);
+      canvas.addEventListener('pointerup',up);canvas.addEventListener('pointercancel',up);
+      window.addEventListener('resize',()=>{if(CV.active)cvResize()});
+    })();
     const __cvShow=showScreen;
     showScreen=function(id){if(id!=='funhGameIntro')cvStop();__cvShow(id);if(id==='funhGameIntro')cvMenu();};
     cvNextState();
