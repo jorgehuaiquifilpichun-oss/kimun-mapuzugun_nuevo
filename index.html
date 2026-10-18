@@ -1173,10 +1173,19 @@
       color:#fff5dd;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     .funh-center:disabled {cursor:default;}
     .funh-center:focus-visible {outline:3px solid #bfff7f;outline-offset:7px;}
-    .funh-center img {display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;}
+    .funh-center img {display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;position:relative;z-index:1;}
     .funh-center img[hidden] {display:none;}
     .funh-center.funh-center-reveal {animation:funhCenterReveal .83s ease-out both;}
     .funh-center.funh-center-repeat:not(:disabled) {animation:funhCenterRepeat .28s ease-out;}
+    /* Anillo luminoso expansivo y destello al abrirse el receptor central. */
+    .funh-center::before,.funh-center::after {content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;}
+    .funh-center.funh-center-reveal::before {background:radial-gradient(circle,rgba(255,252,210,.95),rgba(190,255,120,.45) 55%,rgba(190,255,120,0) 72%);
+      animation:funhCenterFlash .6s ease-out both;}
+    .funh-center.funh-center-reveal::after {border:3px solid #d6ff8f;box-shadow:0 0 14px 4px rgba(157,255,103,.8),inset 0 0 12px rgba(157,255,103,.5);
+      animation:funhCenterRing .8s ease-out both;}
+    @keyframes funhCenterFlash {0%{opacity:1;transform:scale(.6);}100%{opacity:0;transform:scale(1.25);}}
+    @keyframes funhCenterRing {0%{opacity:.95;transform:scale(1);}100%{opacity:0;transform:scale(1.9);}}
+    @media (prefers-reduced-motion:reduce){.funh-center.funh-center-reveal::before,.funh-center.funh-center-reveal::after{animation:none;}}
     @keyframes funhCenterRepeat {
       0%{filter:brightness(1);}
       45%{filter:brightness(1.4);box-shadow:0 0 0 5px #a5f882,0 0 19px #b3ff74,inset 0 0 20px #a5f882;}
