@@ -1228,6 +1228,43 @@
       transform:translateX(-50%);display:block;margin:0;padding:0;border:0;background:transparent;cursor:pointer;width:min(40%,160px);}
     .funh-gallery-back img {display:block;width:100%;height:auto;}
 
+    /* Continuación de Fünh-Frutos: solo se muestra al explorar las 23 posiciones. */
+    .funh-play-entry {
+      position:absolute;z-index:8;left:50%;top:var(--funh-center-y,50%);
+      transform:translate(-50%,-50%);
+      width:var(--funh-center-size,140px);height:var(--funh-center-size,140px);
+      border:4px solid #c8f48d;border-radius:50%;padding:10px;
+      display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(circle at 35% 25%,#9dfa78 0%,#43ae4b 47%,#18723a 100%);
+      box-shadow:inset 0 0 0 3px #236f38,0 0 17px 5px rgba(118,255,92,.76),0 5px 18px #091d13;
+      color:#fffde1;text-align:center;text-shadow:0 2px 3px #0d4320;
+      font:900 clamp(17px,4.8vw,25px)/1.05 Arial,Helvetica,sans-serif;
+      cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+      animation:funhPlayHeartbeat 1.25s ease-in-out infinite;
+    }
+    .funh-play-entry[hidden] {display:none;}
+    .funh-play-entry:focus-visible {outline:3px solid #fff8c5;outline-offset:8px;}
+    @keyframes funhPlayHeartbeat {
+      0%,100% {transform:translate(-50%,-50%) scale(1);filter:brightness(1);}
+      28% {transform:translate(-50%,-50%) scale(1.065);filter:brightness(1.25);}
+      50% {transform:translate(-50%,-50%) scale(1);filter:brightness(1);}
+      68% {transform:translate(-50%,-50%) scale(1.095);filter:brightness(1.28);}
+    }
+    /* Pantalla previa al juego; reutiliza la botonera gráfica original. */
+    .funh-game-intro {
+      position:relative;width:100%;height:100dvh;min-height:0;overflow:hidden;
+      background:radial-gradient(120% 70% at 50% 45%,#2a7050,#1b4a37 55%,#12332a 100%);
+      color:#fff5dd;text-align:center;
+    }
+    .funh-game-intro-header {position:absolute;left:5%;right:5%;top:22%;}
+    .funh-game-intro-header h2 {margin:0 0 8px;font-size:clamp(24px,7vw,34px);}
+    .funh-game-intro-header p {margin:0;font-size:clamp(15px,4vw,20px);}
+    .funh-game-intro-note {position:absolute;left:8%;right:8%;top:49%;margin:0;
+      transform:translateY(-50%);font-size:clamp(14px,3.8vw,18px);line-height:1.45;}
+    .funh-game-intro .ack-next:disabled {opacity:.55;cursor:not-allowed;}
+    .funh-game-intro .ack-control:focus-visible {outline:3px solid #bdff94;outline-offset:2px;}
+    @media (prefers-reduced-motion:reduce) {.funh-play-entry {animation:none;}}
+
 </style>
 </head>
 
@@ -1414,8 +1451,36 @@
             <img id="funhCenterImage" alt="" hidden draggable="false">
             <span class="funh-image-placeholder" aria-hidden="true">?</span>
           </button>
+          <button id="funhPlayButton" class="funh-play-entry" type="button" hidden
+                  onclick="openFunhGameIntro()" aria-label="A jugar, continuar al juego de frutos">A jugar</button>
         </div>
-        <button class="funh-gallery-back" type="button" onclick="playFiluMapClick();showScreen('activityMap')" aria-label="Volver a Kimün Che ñi Rüpü"><img src="./boton_volver_atras.png" alt="Volver atrás"></button>
+        <button class="funh-gallery-back" type="button" onclick="playFiluMapClick();showScreen('activityMap')" aria-label="Wiñotxekage, volver a Kimün Che ñi Rüpü"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
+      </div>
+    </section>
+
+    <!-- Pantalla previa al juego: el juego todavía no está definido. -->
+    <section id="funhGameIntro" class="screen" aria-label="Fünh-Frutos — Inicio del juego">
+      <div class="funh-game-intro">
+        <header class="funh-game-intro-header">
+          <h2>Fünh-Frutos</h2>
+          <p>Juego de frutos</p>
+        </header>
+        <p class="funh-game-intro-note">Juego pendiente de definir.</p>
+        <div class="ack-controls" aria-label="Controles del juego de frutos">
+          <button class="ack-control ack-back" type="button"
+                  onclick="playFiluMapClick();showScreen('funhGallery')"
+                  aria-label="Wiñotxekage, volver al reconocimiento de frutos">
+            <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
+          </button>
+          <button class="ack-control ack-next" type="button" disabled
+                  aria-label="Amulepe, disponible cuando se integre el juego">
+            <img src="./boton_seguir.png" alt="Amulepe — Seguir">
+          </button>
+          <button class="ack-control ack-consult" type="button"
+                  onclick="openRamtuchiFromFunhGame()" aria-label="Ramtuchi, consultar">
+            <img src="./boton_consultar.png" alt="Ramtuchi — Consultar">
+          </button>
+        </div>
       </div>
     </section>
 
@@ -3043,6 +3108,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     let funhTravelIndex=null;
     let funhCenterRepeatFrame=null;
     let funhSpeechTimer=null;
+    let funhGameReadyTimer=null;
     // Efectos sintetizados sólo para Fünh-Frutos. Sin archivos externos ni URLs ficticias.
     // Un solo contexto reutilizado: evita crear decenas de AudioContexts al tocar el árbol.
     let funhFxContext=null,funhEnergyVoice=null;
@@ -3179,12 +3245,14 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
     function funhPauseGallery(){
       if(funhSpeechTimer!==null){clearTimeout(funhSpeechTimer);funhSpeechTimer=null;}
+      if(funhGameReadyTimer!==null){clearTimeout(funhGameReadyTimer);funhGameReadyTimer=null;}
       funhStopTravel();
       document.querySelectorAll('#funhGalleryGrid .funh-suggested').forEach(c=>c.classList.remove('funh-suggested'));
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
     }
     function funhResetGallery(){
       funhPauseGallery();funhVisited.clear();funhCurrentIndex=null;funhGuideIndex=null;
+      const play=document.getElementById('funhPlayButton');if(play)play.hidden=true;
       const center=document.getElementById('funhCenter'),img=document.getElementById('funhCenterImage');
       if(center){center.disabled=true;center.setAttribute('aria-label','Receptor central de frutos');center.classList.remove('funh-center-reveal','funh-center-repeat');}
       if(img){img.hidden=true;img.removeAttribute('src');img.alt='';}
@@ -3194,6 +3262,19 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function funhResumeGallery(){
       layoutFunhTree();
       funhUpdateGuide();
+      // Si ya completó la exploración durante esta partida, conserva el acceso.
+      const play=document.getElementById('funhPlayButton');
+      if(play)play.hidden=funhVisited.size!==FUNH_FRUIT_IMAGES.length;
+    }
+    function openFunhGameIntro(){
+      if(funhVisited.size!==FUNH_FRUIT_IMAGES.length)return;
+      playFiluMapClick();
+      showScreen('funhGameIntro');
+    }
+    function openRamtuchiFromFunhGame(){
+      playFiluMapClick();
+      consultOrigin='funhGameIntro';
+      showScreen('consult');
     }
     function funhRayRoute(index){
       const g=funhGeometry;if(!g||!g.pos[index])return '';
@@ -3237,6 +3318,17 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       funhGuideIndex=null;
       funhUpdateGuide();
       funhPlayFx('reveal');
+      // Solo al visitar las 23 tarjetas distintas, y después de ver el último fruto.
+      if(funhVisited.size===FUNH_FRUIT_IMAGES.length){
+        if(funhGameReadyTimer!==null)clearTimeout(funhGameReadyTimer);
+        funhGameReadyTimer=setTimeout(()=>{
+          funhGameReadyTimer=null;
+          if(document.getElementById('funhGallery')?.classList.contains('active')){
+            const play=document.getElementById('funhPlayButton');
+            if(play)play.hidden=false;
+          }
+        },1900);
+      }
       // Dejar que termine el destello antes de pronunciar el fruto, sin solapar sonidos.
       if(funhSpeechTimer!==null)clearTimeout(funhSpeechTimer);
       funhSpeechTimer=setTimeout(()=>{
