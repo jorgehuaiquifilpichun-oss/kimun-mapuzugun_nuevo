@@ -1157,15 +1157,15 @@
     /* La trayectoria de luz se superpone al dibujo exacto de las ramas. */
     .funh-energy-svg {position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:visible;}
     .funh-energy-halo {fill:none;stroke:#9dff67;stroke-linecap:round;stroke-linejoin:round;
-      filter:drop-shadow(0 0 8px #6bff54);opacity:.68;}
+      filter:drop-shadow(0 0 14px #6bff54) drop-shadow(0 0 24px #4dff7a);opacity:.8;}
     .funh-energy-core {fill:none;stroke:#fff8c8;stroke-linecap:round;stroke-linejoin:round;
-      filter:drop-shadow(0 0 5px #f5ff8b);}
+      filter:drop-shadow(0 0 9px #f5ff8b);}
     .funh-energy-spark {fill:#fffde1;stroke:#a4ff63;stroke-width:3;
-      filter:drop-shadow(0 0 9px #d5ff72);}
+      filter:drop-shadow(0 0 16px #d5ff72) drop-shadow(0 0 28px #8dff5a);}
     /* Receptor permanente en el centro del árbol; pulsarlo vuelve a pronunciar el fruto. */
     .funh-center {position:absolute;z-index:6;left:50%;top:var(--funh-center-y,50%);
       width:var(--funh-center-size,140px);height:var(--funh-center-size,140px);
-      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:5%;
+      transform:translate(-50%,-50%);border:3px solid #d6b876;border-radius:50%;padding:0;--funh-zoom:1.15;
       display:flex;align-items:center;justify-content:center;
       background:radial-gradient(circle at 35% 25%,#436d51,#193e2e 64%,#10281f);
       box-shadow:0 0 0 4px rgba(34,77,49,.78),0 7px 16px rgba(0,0,0,.42),
@@ -1173,18 +1173,23 @@
       color:#fff5dd;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
     .funh-center:disabled {cursor:default;}
     .funh-center:focus-visible {outline:3px solid #bfff7f;outline-offset:7px;}
-    .funh-center img {display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;position:relative;z-index:1;}
+    /* La imagen se amplía (--funh-zoom) y se recorta en círculo para llenar todo el contorno del receptor. */
+    .funh-center img {display:block;flex:none;width:calc(100% * var(--funh-zoom));height:calc(100% * var(--funh-zoom));
+      object-fit:contain;pointer-events:none;position:relative;z-index:1;clip-path:circle(calc(50% / var(--funh-zoom)));}
+    .funh-center.funh-center-reveal img {animation:funhCenterImgGrow .83s cubic-bezier(.2,1.4,.4,1) both;}
+    @keyframes funhCenterImgGrow {0%{transform:scale(.12);opacity:0;}35%{opacity:1;}100%{transform:scale(1);opacity:1;}}
+    @media (prefers-reduced-motion:reduce){.funh-center.funh-center-reveal img{animation:none;}}
     .funh-center img[hidden] {display:none;}
     .funh-center.funh-center-reveal {animation:funhCenterReveal .83s ease-out both;}
     .funh-center.funh-center-repeat:not(:disabled) {animation:funhCenterRepeat .28s ease-out;}
     /* Anillo luminoso expansivo y destello al abrirse el receptor central. */
     .funh-center::before,.funh-center::after {content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:0;}
     .funh-center.funh-center-reveal::before {background:radial-gradient(circle,rgba(255,252,210,.95),rgba(190,255,120,.45) 55%,rgba(190,255,120,0) 72%);
-      animation:funhCenterFlash .6s ease-out both;}
-    .funh-center.funh-center-reveal::after {border:3px solid #d6ff8f;box-shadow:0 0 14px 4px rgba(157,255,103,.8),inset 0 0 12px rgba(157,255,103,.5);
+      animation:funhCenterFlash .7s ease-out both;}
+    .funh-center.funh-center-reveal::after {border:5px solid #e6ffa8;box-shadow:0 0 22px 8px rgba(157,255,103,.95),inset 0 0 18px rgba(157,255,103,.7);
       animation:funhCenterRing .8s ease-out both;}
     @keyframes funhCenterFlash {0%{opacity:1;transform:scale(.6);}100%{opacity:0;transform:scale(1.25);}}
-    @keyframes funhCenterRing {0%{opacity:.95;transform:scale(1);}100%{opacity:0;transform:scale(1.9);}}
+    @keyframes funhCenterRing {0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(2.2);}}
     @media (prefers-reduced-motion:reduce){.funh-center.funh-center-reveal::before,.funh-center.funh-center-reveal::after{animation:none;}}
     @keyframes funhCenterRepeat {
       0%{filter:brightness(1);}
@@ -2904,7 +2909,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       grid.prepend(svg);
       const light=document.createElementNS('http://www.w3.org/2000/svg','svg');
       light.setAttribute('class','funh-energy-svg');light.setAttribute('aria-hidden','true');
-      light.innerHTML='<path class="funh-energy-halo" stroke-width="10"/><path class="funh-energy-core" stroke-width="3.5"/><circle class="funh-energy-spark" r="6" visibility="hidden"/>';
+      light.innerHTML='<path class="funh-energy-halo" stroke-width="18"/><path class="funh-energy-core" stroke-width="6"/><circle class="funh-energy-spark" r="11" visibility="hidden"/>';
       svg.after(light);
       FUNH_FRUIT_IMAGES.forEach((item,index)=>{
         const button=document.createElement('button');button.type='button';button.className='funh-fruit-card';
@@ -3073,7 +3078,76 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         card.classList.toggle('funh-suggested',!funhTravelling && i===funhGuideIndex && !funhVisited.has(i));
       });
     }
+    // Efectos de sonido sintetizados con Web Audio: no se crean ni se referencian archivos de audio.
+    let funhAudioCtx=null,funhRaySfx=null;
+    function funhCtx(){
+      const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;
+      if(!funhAudioCtx)funhAudioCtx=new A();
+      if(funhAudioCtx.state==='suspended')funhAudioCtx.resume().catch(()=>{});
+      return funhAudioCtx;
+    }
+    function funhNoise(c,sec){
+      const buf=c.createBuffer(1,Math.max(1,Math.floor(c.sampleRate*sec)),c.sampleRate),a=buf.getChannelData(0);
+      for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;
+      const n=c.createBufferSource();n.buffer=buf;return n;
+    }
+    function funhStopRaySound(){
+      const c=funhAudioCtx,sfx=funhRaySfx;funhRaySfx=null;
+      if(!sfx||!c)return;
+      try{
+        const t=c.currentTime;sfx.master.gain.cancelScheduledValues(t);
+        sfx.master.gain.setValueAtTime(sfx.master.gain.value,t);sfx.master.gain.linearRampToValueAtTime(0,t+.06);
+        sfx.sources.forEach(o=>{try{o.stop(t+.08);}catch(_){}});
+      }catch(_){}
+    }
+    function funhPlayRaySound(sec){
+      try{
+        const c=funhCtx();if(!c)return;funhStopRaySound();
+        const t=c.currentTime,sources=[];
+        const master=c.createGain();master.gain.setValueAtTime(0,t);
+        master.gain.linearRampToValueAtTime(.55,t+.05);master.gain.setValueAtTime(.55,t+Math.max(.1,sec-.2));
+        master.gain.linearRampToValueAtTime(0,t+sec);master.connect(c.destination);
+        const lp=c.createBiquadFilter();lp.type='lowpass';lp.Q.value=5;
+        lp.frequency.setValueAtTime(600,t);lp.frequency.exponentialRampToValueAtTime(6000,t+sec);lp.connect(master);
+        const o1=c.createOscillator();o1.type='sawtooth';
+        o1.frequency.setValueAtTime(150,t);o1.frequency.exponentialRampToValueAtTime(1400,t+sec);
+        const g1=c.createGain();g1.gain.value=.55;o1.connect(g1);g1.connect(lp);
+        const o2=c.createOscillator();o2.type='sine';
+        o2.frequency.setValueAtTime(300,t);o2.frequency.exponentialRampToValueAtTime(2800,t+sec);
+        const g2=c.createGain();g2.gain.value=.3;o2.connect(g2);g2.connect(master);
+        // Vibración eléctrica que se acelera mientras el rayo sube.
+        const lfo=c.createOscillator();lfo.frequency.setValueAtTime(14,t);lfo.frequency.linearRampToValueAtTime(48,t+sec);
+        const lg=c.createGain();lg.gain.value=.28;lfo.connect(lg);lg.connect(g1.gain);
+        // Chisporroteo.
+        const nz=funhNoise(c,sec+.1),bp=c.createBiquadFilter();bp.type='bandpass';bp.Q.value=1.2;
+        bp.frequency.setValueAtTime(1800,t);bp.frequency.exponentialRampToValueAtTime(7000,t+sec);
+        const gn=c.createGain();gn.gain.value=.22;nz.connect(bp);bp.connect(gn);gn.connect(master);
+        [o1,o2,lfo,nz].forEach(o=>{o.start(t);o.stop(t+sec+.15);sources.push(o);});
+        funhRaySfx={master,sources};
+      }catch(error){console.warn('Sonido del rayo:',error);}
+    }
+    function funhPlayArrivalSound(){
+      try{
+        const c=funhCtx();if(!c)return;const t=c.currentTime;
+        const out=c.createGain();out.gain.value=.9;out.connect(c.destination);
+        // Golpe grave de impacto.
+        const th=c.createOscillator();th.type='sine';th.frequency.setValueAtTime(170,t);th.frequency.exponentialRampToValueAtTime(42,t+.5);
+        const tg=c.createGain();tg.gain.setValueAtTime(.95,t);tg.gain.exponentialRampToValueAtTime(.001,t+.6);
+        th.connect(tg);tg.connect(out);th.start(t);th.stop(t+.65);
+        // Destello brillante: acorde que se apaga.
+        [660,990,1320,1980].forEach((f,i)=>{
+          const o=c.createOscillator();o.type=i%2?'triangle':'sine';o.frequency.value=f;
+          const g=c.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.3/(i+1)+.05,t+.03);
+          g.gain.exponentialRampToValueAtTime(.001,t+.9);o.connect(g);g.connect(out);o.start(t);o.stop(t+.95);
+        });
+        // Chasquido inicial.
+        const nz=funhNoise(c,.25),hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=2500;
+        const ng=c.createGain();ng.gain.setValueAtTime(.5,t);ng.gain.exponentialRampToValueAtTime(.001,t+.22);
+        nz.connect(hp);hp.connect(ng);ng.connect(out);nz.start(t);nz.stop(t+.25);
+      }catch(error){console.warn('Sonido de llegada:',error);}
+    }
     function funhStopTravel(){
+      funhStopRaySound();
       if(funhTravelFrame!==null){cancelAnimationFrame(funhTravelFrame);funhTravelFrame=null;}
       funhTravelling=false;funhTravelIndex=null;
       document.querySelectorAll('#funhGalleryGrid .funh-firing').forEach(c=>c.classList.remove('funh-firing'));
@@ -3097,7 +3171,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
     function funhRayRoute(index){
       const g=funhGeometry;if(!g||!g.pos[index])return '';
-      const p=g.pos[index];let d=`M${p.x} ${p.y}`;
+      const C=g.center,p=g.pos[index];let d=`M${p.x} ${p.y}`;
       let cursor=index;
       for(let n=0;n<FUNH_SLOTS.length;n++){
         const parent=FUNH_SLOTS[cursor][2];
@@ -3105,12 +3179,28 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         const dx=B.x-A.x;
         const c1={x:A.x+dx*.7,y:A.y};
         const c2={x:B.x,y:B.y+(A.y-B.y)*.5};
-        // Mismo Bézier que la rama, recorrido en dirección contraria.
+        // Mismo Bézier que la rama, recorrido en dirección contraria: B, c2, c1, A.
+        if(B.y<C.y && A.y>C.y){
+          // La rama cruza la altura del receptor: se corta ahí y se entra directo al centro.
+          const at=(t,a,b,c,e)=>{const m=1-t;return m*m*m*a+3*m*m*t*b+3*m*t*t*c+t*t*t*e;};
+          let t=1;
+          for(let k=1;k<=200;k++){const tt=k/200;if(at(tt,B.y,c2.y,c1.y,A.y)>=C.y){t=tt;break;}}
+          const lerp=(a,b)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+          const q01=lerp(B,c2),q12=lerp(c2,c1),q23=lerp(c1,A);
+          const r0=lerp(q01,q12),r1=lerp(q12,q23),m=lerp(r0,r1);
+          d+=` C${q01.x} ${q01.y},${r0.x} ${r0.y},${m.x} ${m.y} L${C.x} ${C.y}`;
+          return d;
+        }
+        if(parent==='S0' && B.y>=C.y && Math.abs(B.x-g.cx)<g.d*.4){
+          // Fruto sobre el tronco, por debajo del receptor: sube directo, sin bajar a la base.
+          d+=` L${C.x} ${C.y}`;
+          return d;
+        }
         d+=` C${c2.x} ${c2.y},${c1.x} ${c1.y},${A.x} ${A.y}`;
         if(parent==='S0')break;
         cursor=parent;
       }
-      d+=` L${g.center.x} ${g.center.y}`;
+      d+=` L${C.x} ${C.y}`;
       return d;
     }
     function funhCompleteSelection(index){
@@ -3128,6 +3218,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       }
       funhGuideIndex=null;
       funhUpdateGuide();
+      funhPlayArrivalSound();
       // Comportamiento previo: tocar el fruto también pronuncia su nombre.
       speakFunhName(item.name);
     }
@@ -3152,6 +3243,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       spark.setAttribute('visibility','visible');
       const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       const duration=reduced?120:Math.min(2500,Math.max(1250,length*2.2));
+      funhPlayRaySound(duration/1000);
       let started=null;
       function frame(t){
         if(!funhTravelling||funhTravelIndex!==index)return;
@@ -3248,10 +3340,17 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Abrir el candado al tercer golpe, sin esperar los fotogramas finales.
       // Tiempo estimado sobre el WebM de 6,08 s a partir de la prueba 329.mp4.
       // El evento ended queda como respaldo si un navegador omite timeupdate.
-      const funhThirdStrikeSecond = 5.15;
+      // Calibrado con la grabación del 18/10: el tercer golpe cae ~5,4 s después de iniciar el video.
+      const funhThirdStrikeSecond = 5.4;
       video.ontimeupdate=()=>{
         if(funhStage==='playing' && video.currentTime>=funhThirdStrikeSecond)complete();
       };
+      // Revisión por fotograma para que el cambio a verde ocurra en el golpe y no en el siguiente timeupdate.
+      (function pollStrike(){
+        if(funhStage!=='playing')return;
+        if(video.currentTime>=funhThirdStrikeSecond){complete();return;}
+        requestAnimationFrame(pollStrike);
+      })();
       video.onended=complete;
       function restoreOnVideoError(error){
         clearFunhStrikeTimeout();
