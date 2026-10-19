@@ -1563,8 +1563,7 @@
           <div class="cv-ov on" id="cvOv"></div>
         </div>
         <div class="cv-exit" id="cvExit" hidden><div class="cv-card"><div class="mp-band"></div><h3>¿Quieres abandonar el juego?</h3>
-          <p>Si sales ahora, perderás los puntos y el progreso de esta actividad.</p>
-          <p>Fünh-Frutos volverá a quedar bloqueado y aparecerá nuevamente en rojo en el Camino del Sabio. Deberás completar nuevamente la actividad para desbloquearla.</p>
+          <p>Si sales ahora, terminará la ronda actual. Los niveles completados y el desbloqueo de Fünh–Frutos se conservarán.</p>
           <p class="cv-obj">¿Quieres salir de todas formas?</p>
           <button class="cv-go" type="button" onclick="cvExitNo()">Continuar jugando</button>
           <button class="cv-go cv-red" type="button" onclick="cvExitYes()">Salir del juego</button><div class="mp-band"></div></div></div>
@@ -2845,9 +2844,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Volver entre pantallas durante la misma partida conserva su estado.
       stopActivityMapTxegul();
       funhResetGallery();
-      funhStage = 'locked';
-      try { localStorage.removeItem(FUNH_STORAGE_KEY); }
-      catch (error) { console.warn('No se pudo reiniciar Fünh-Frutos:', error); }
+      // Una nueva partida general no debe revocar un desbloqueo permanente.
+      funhStage = readFunhUnlocked() ? 'unlocked' : 'locked';
       const funhAxe = document.getElementById('funhFloatingAxe');
       if (funhAxe) funhAxe.hidden = true;
       applyFunhState();
@@ -4734,6 +4732,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     const CV_MAIN=['Piñón','Manzana','Frutilla','Uvas']; // Nivel 3: 4 bloques de 15 s, en este orden
     const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uvas'];
     const CV_AUDIO={}; // nombre en mapuzungun -> ruta de audio validado (aún no hay grabaciones)
+    const CV_COMPLETE_KEY='kimun_funh_minigame_completed_v1'; // independiente del desbloqueo general
     const CV_VOICE=new Set(['Make','Üñü']); // los únicos con voz temporal ya usada en el árbol
     const cvIdx=n=>CV_F.findIndex(f=>f[0]===n);
     const CV={level:0,done:[false,false,false],res:[[0,0],[0,0],[0,0]],hk:'',pausedWas:false,active:false,raf:0,last:0,elapsed:0,target:-1,seq:[],cd:0,aud:null,
@@ -4835,9 +4834,9 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       if(!valid){cvEnd(false,true);return;}
       CV.correct++;CV.score+=10;cvHud();}
     function cvEnd(win,error){cvStop();CV.fruits=[];const L=CV.level;CV.res[L]=[CV.score,CV.correct];cvEl('cvCd').textContent='';
-      if(win){CV.done[L]=true;try{localStorage.setItem('cvSliceFunh',JSON.stringify(CV.done));}catch(e){}cvSound(L<2?'win':'cut');}cvNextState();
+      if(win){CV.done[L]=true;try{localStorage.setItem('cvSliceFunh',JSON.stringify(CV.done));if(CV.done.every(Boolean))localStorage.setItem(CV_COMPLETE_KEY,'1');}catch(e){}cvSound(L<2?'win':'cut');}cvNextState();
       const btn=(label,fn)=>'<button class="cv-go" type="button" onclick="'+fn+'">'+label+'</button>',R=CV.res;
-      if(win&&L===2){cvCard('<div class="cv-lv win">¡Küme zugu!</div><h3>¡Felicitaciones!</h3><p>Completaste los tres niveles.</p><p>Nivel 1: '+R[0][0]+' puntos<br>Nivel 2: '+R[1][0]+' puntos · '+R[1][1]+' aciertos<br>Nivel 3: '+R[2][0]+' puntos · '+R[2][1]+' aciertos</p><p class="cv-obj">Pulsa Amulepe para seguir.</p>'+btn('JUGAR OTRA VEZ','cvStart(0)'));return;}
+      if(win&&L===2){cvCard('<div class="cv-lv win">¡Küme zugu!</div><h3>¡HAS COMPLETADO LA ACTIVIDAD!</h3><p>Completaste los tres niveles.</p><p>Nivel 1: '+R[0][0]+' puntos · '+R[0][1]+' aciertos<br>Nivel 2: '+R[1][0]+' puntos · '+R[1][1]+' aciertos<br>Nivel 3: '+R[2][0]+' puntos · '+R[2][1]+' aciertos</p>'+btn('VOLVER A JUGAR','cvStart(0)')+btn('SALIR','cvExitCompleted()'));cvConfetti();return;}
       if(win){cvCard('<div class="cv-lv win">¡Nivel '+(L+1)+' superado!</div><p>'+(L?'Puntos: '+CV.score+' · Aciertos: '+CV.correct:'Puntos: '+CV.score)+'</p>'+btn('SIGUIENTE NIVEL','cvStart('+(L+1)+')'));cvConfetti();return;}
       cvCard('<div class="cv-lv">'+(error?'Cortaste otra fruta':'Se acabó el tiempo')+'</div><p>Puntos: '+CV.score+' · Aciertos: '+CV.correct+'</p>'+btn('REINTENTAR','cvStart('+L+')'));}
     function cvDraw(){const ctx=cvEl('cvCanvas').getContext('2d'),w=CV.width,h=CV.height;ctx.clearRect(0,0,w,h);
@@ -4880,9 +4879,16 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     function cvAskExit(){try{playFiluMapClick();}catch(e){}CV.pausedWas=CV.active;
       if(CV.active){CV.active=false;cancelAnimationFrame(CV.raf);CV.raf=0;CV.pointer=false;CV.trail=[];}cvEl('cvExit').hidden=false;}
     function cvExitNo(){cvEl('cvExit').hidden=true;if(CV.pausedWas){CV.pausedWas=false;CV.active=true;CV.last=performance.now();CV.raf=requestAnimationFrame(cvLoop);}}
-    function cvExitYes(){cvEl('cvExit').hidden=true;cvStop();CV.pausedWas=false;CV.done=[false,false,false];CV.res=[[0,0],[0,0],[0,0]];
-      try{localStorage.removeItem('cvSliceFunh');localStorage.removeItem(FUNH_STORAGE_KEY);}catch(e){}
-      funhStage='locked';funhResetGallery();cvNextState();showScreen('activityMap');}
+    function cvExitCompleted(){
+      cvStop();CV.pausedWas=false;cvEl('cvExit').hidden=true;
+      // El minijuego completado y la sección desbloqueada permanecen disponibles.
+      showScreen('activityMap');
+    }
+    function cvExitYes(){
+      cvEl('cvExit').hidden=true;cvStop();CV.pausedWas=false;
+      // Salir no borra niveles superados ni vuelve a bloquear la sección.
+      cvNextState();showScreen('activityMap');
+    }
     const __cvShow=showScreen;
     showScreen=function(id){if(id!=='funhGameIntro')cvStop();__cvShow(id);if(id==='funhGameIntro')cvMenu();};
     cvNextState();
