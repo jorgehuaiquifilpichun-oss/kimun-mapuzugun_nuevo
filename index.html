@@ -5119,8 +5119,12 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
         const useMaleVideo=SN.ch==='b'&&SN.st==='run';
         const activeVideo=SN.py>0?SN_JUMP_VIDEO:SN_RUN_VIDEO;
         if(useMaleVideo&&activeVideo.readyState>=2){
+          // Anclar el personaje por los pies, no por el borde del video transparente.
+          // Fracciones verificadas en los fotogramas WebM: carrera ~0.705, salto en reposo ~0.875.
+          // La elevación del salto sigue controlada por SN.py y no altera el suelo ni las colisiones.
           const bh=h*.57,bw=bh*9/16;
-          c.drawImage(activeVideo,-bw/2,-bh*.76,bw,bh);
+          const footFraction=SN.py>0?0.875:0.705;
+          c.drawImage(activeVideo,-bw/2,-bh*footFraction,bw,bh);
         }else c.drawImage(im,-pw/2,-ph+(run?Math.abs(Math.sin(d*.06))*-4:0),pw,ph);
         c.restore();}
       for(const q of SN.pops){c.globalAlpha=Math.min(1,q.life*2);c.font='900 '+Math.round(h*.07)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.fillStyle=q.c;c.fillText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.globalAlpha=1;}
