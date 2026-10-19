@@ -1349,23 +1349,6 @@
     .cv-conf{position:absolute;top:-14px;width:8px;height:12px;z-index:9;pointer-events:none;opacity:0;animation:cvConf linear forwards;}
     @keyframes cvConf{0%{opacity:1;transform:translate(0,0) rotate(0)}85%{opacity:1}100%{opacity:0;transform:translate(var(--dx),560px) rotate(540deg)}}
     @media (prefers-reduced-motion:reduce){.cv-lv.win{animation:none}.cv-conf{display:none}}
-
-    /* Panel compacto compartido por los tres niveles de Fünh-Frutos. */
-    .funh-game-intro-header::after{display:none!important}
-    .cv-area{top:22%;bottom:16%}
-    .cv-hud{position:absolute;top:calc(22% - 94px);left:3%;right:3%;height:88px;z-index:9;display:grid;grid-template-columns:.9fr 1fr 1.15fr .95fr;gap:3px;padding:7px 5px;border:3px ridge #d2a65b;border-radius:16px;background:linear-gradient(145deg,#7c4b27,#3b2a19 55%,#235638);box-shadow:0 4px 13px #0009,inset 0 1px 4px #f9df8e77;pointer-events:none;align-items:center;text-align:center}
-    .cv-hud-stat{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff6ce;text-shadow:0 1px 3px #000}
-    .cv-hud .cv-hud-stat small{font:900 clamp(8px,2.4vw,11px)/1.12 Arial,sans-serif;letter-spacing:0;opacity:1;white-space:nowrap}
-    .cv-hud .cv-hud-stat strong{font:900 clamp(15px,4.6vw,24px)/1 Arial,sans-serif;white-space:nowrap;color:#fff9d7}
-    .cv-hud .cv-hud-clock strong{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border:3px solid #e5c26b;border-radius:50%;background:radial-gradient(circle,#305b39,#172f25);color:#eaff9c;box-shadow:0 0 10px #b8f26c55;font-size:clamp(19px,5.4vw,27px)}
-    .cv-hud #cvScore{background:none;border:0;padding:0;color:#ffd766;font-size:clamp(15px,4.5vw,23px)}
-    .cv-card .cv-lv.win{color:#aa781c;background:linear-gradient(#fff4a5,#efc13c,#9e6514);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 2px 3px #84541d);letter-spacing:.02em}
-    .cv-card .cv-score-results{font-weight:900;font-size:clamp(17px,5vw,22px);color:#174a2c}
-    .cv-card.cv-intro-level2{box-shadow:0 0 24px #b6f67e88,0 8px 22px #0008;animation:cvGrow .8s ease-out}
-    .cv-card .cv-intro-fruit{font-size:clamp(45px,15vw,75px);line-height:1.1;animation:cvIntroFruit 1.7s ease-in-out infinite alternate}
-    @keyframes cvIntroFruit{from{transform:translateY(5px) rotate(-8deg)}to{transform:translateY(-5px) rotate(8deg)}}
-    @media (max-width:355px){.cv-hud{left:1%;right:1%;gap:1px;padding:5px 2px}.cv-hud .cv-hud-stat small{font-size:8px}.cv-hud .cv-hud-clock strong{height:41px;width:41px}}
-    @media (prefers-reduced-motion:reduce){.cv-card .cv-intro-fruit{animation:none}}
 </style>
 </head>
 
@@ -1571,21 +1554,17 @@
         <header class="funh-game-intro-header">
           <h2>Fünh-Frutos</h2>
         </header>
-          <div class="cv-hud" aria-label="Panel de información del juego">
-            <div class="cv-hud-stat"><small>NIVEL</small><strong id="cvLives">1/3</strong></div>
-            <div class="cv-hud-stat cv-hud-clock"><small>TIEMPO</small><strong id="cvProg">45</strong></div>
-            <div class="cv-hud-stat"><small>★ PUNTAJE</small><strong id="cvScore">0</strong></div>
-            <div class="cv-hud-stat"><small>ACIERTOS</small><strong id="cvHits">0</strong></div>
-          </div>
         <div class="cv-area" id="cvArea" aria-label="Juego de cortar frutas deslizando el dedo">
           <canvas id="cvCanvas" aria-label="Desliza el dedo sobre las frutas para cortarlas"></canvas>
+          <div class="cv-hud"><span id="cvLives"></span><span id="cvProg"></span><span id="cvScore"></span></div>
           <div class="cv-target" id="cvTarget"></div>
           <div class="cv-timer"><span id="cvTimer"></span></div>
           <div class="cv-cd" id="cvCd" aria-hidden="true"></div>
           <div class="cv-ov on" id="cvOv"></div>
         </div>
         <div class="cv-exit" id="cvExit" hidden><div class="cv-card"><div class="mp-band"></div><h3>¿Quieres abandonar el juego?</h3>
-          <p>Si sales ahora, terminará la ronda actual. Los niveles completados y el desbloqueo de Fünh–Frutos se conservarán.</p>
+          <p>Si sales ahora, perderás los puntos y el progreso de esta actividad.</p>
+          <p>Fünh-Frutos volverá a quedar bloqueado y aparecerá nuevamente en rojo en el Camino del Sabio. Deberás completar nuevamente la actividad para desbloquearla.</p>
           <p class="cv-obj">¿Quieres salir de todas formas?</p>
           <button class="cv-go" type="button" onclick="cvExitNo()">Continuar jugando</button>
           <button class="cv-go cv-red" type="button" onclick="cvExitYes()">Salir del juego</button><div class="mp-band"></div></div></div>
@@ -2866,8 +2845,15 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Volver entre pantallas durante la misma partida conserva su estado.
       stopActivityMapTxegul();
       funhResetGallery();
-      // Una nueva partida general no debe revocar un desbloqueo permanente.
-      funhStage = readFunhUnlocked() ? 'unlocked' : 'locked';
+      funhStage = 'locked';
+      try {
+        localStorage.removeItem(FUNH_STORAGE_KEY);
+        localStorage.removeItem('cvSliceFunh');
+      } catch (error) { console.warn('No se pudo reiniciar Fünh-Frutos:', error); }
+      // Una partida nueva también reinicia los resultados del minijuego.
+      CV.done=[false,false,false];
+      CV.res=[[0,0],[0,0],[0,0]];
+      cvNextState();
       const funhAxe = document.getElementById('funhFloatingAxe');
       if (funhAxe) funhAxe.hidden = true;
       applyFunhState();
@@ -2901,7 +2887,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       });
     }
     function requestNewGame() {
-      resetEntireGame();
+      // Abrir o cancelar el formulario no borra la partida vigente.
       const overlay=document.getElementById('playerEntry');
       const input=document.getElementById('playerEntryName');
       input.value='';validatePlayerName();
@@ -2912,6 +2898,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       event.preventDefault();
       const name=document.getElementById('playerEntryName').value.trim();
       if(!name) return;
+      // Confirmar «Comenzar» inicia una partida nueva y vuelve el candado a rojo.
+      resetEntireGame();
       LEVEL_STATS.name=name;
       const overlay=document.getElementById('playerEntry');
       overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
@@ -3579,8 +3567,23 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         applyFunhState();playFiluMapClick();animateActivityMapTile(funhTile(),true);
         setTimeout(()=>{if(funhStage==='unlocked'&&document.getElementById('activityMap').classList.contains('active'))showScreen('funhWelcome');},650);
       }
-      // Esperar la animación completa, incluida la expresión final de alegría.
-      // No avanzar mientras el video esté reproduciéndose.
+      // El cambio a verde ocurre en el tercer impacto, no al terminar el video.
+      // Punto adelantado respecto al anterior (5.15 s). Ajustable si cambia el WebM.
+      const funhThirdStrikeSecond = 4.45;
+      const checkThirdStrike = (mediaTime=video.currentTime) => {
+        if(funhStage==='playing' && mediaTime>=funhThirdStrikeSecond)complete();
+      };
+      // Verificar cada fotograma en Chrome/Android: timeupdate puede tardar 250 ms.
+      // timeupdate y ended son respaldos para navegadores sin callbacks de fotogramas.
+      if(typeof video.requestVideoFrameCallback==='function') {
+        const checkFrame=(_now,meta)=>{
+          if(finishing||funhStage!=='playing')return;
+          checkThirdStrike(meta&&Number.isFinite(meta.mediaTime)?meta.mediaTime:video.currentTime);
+          if(!finishing&&funhStage==='playing')video.requestVideoFrameCallback(checkFrame);
+        };
+        video.requestVideoFrameCallback(checkFrame);
+      }
+      video.ontimeupdate=()=>checkThirdStrike();
       video.onended=complete;
       function restoreOnVideoError(error){
         clearFunhStrikeTimeout();
@@ -4734,16 +4737,15 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       ['Frambuesa','Füramfuesa','🍓'],
       ['Membrillo','Mempürillu','🍐'],
       ['Damasco','Zamasko','🍑'],
-      ['Uva','Ufaz','🍇']
+      ['Uvas','Ufaz','🍇']
     ];
-    const CV_MAIN=['Piñón','Manzana','Frutilla','Uva']; // Nivel 3: 4 bloques de 15 s, en este orden
-    const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uva'];
+    const CV_MAIN=['Piñón','Manzana','Frutilla','Uvas']; // Nivel 3: 4 bloques de 15 s, en este orden
+    const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uvas'];
     const CV_AUDIO={}; // nombre en mapuzungun -> ruta de audio validado (aún no hay grabaciones)
-    const CV_COMPLETE_KEY='kimun_funh_minigame_completed_v1'; // independiente del desbloqueo general
     const CV_VOICE=new Set(['Make','Üñü']); // los únicos con voz temporal ya usada en el árbol
     const cvIdx=n=>CV_F.findIndex(f=>f[0]===n);
     const CV={level:0,done:[false,false,false],res:[[0,0],[0,0],[0,0]],hk:'',pausedWas:false,active:false,raf:0,last:0,elapsed:0,target:-1,seq:[],cd:0,aud:null,
-      correct:0,score:0,fruits:[],particles:[],trail:[],spawn:0,pointer:false,width:320,height:480,dur:45,rotations:0,token:0,resume:null};
+      correct:0,score:0,fruits:[],particles:[],trail:[],spawn:0,pointer:false,width:320,height:480,dur:45,rotations:0,token:0};
     try{const saved=JSON.parse(localStorage.getItem('cvSliceFunh')||'null');if(Array.isArray(saved)&&saved.length===3)CV.done=saved.map(Boolean);}catch(e){}
     const cvEl=id=>document.getElementById(id);
     const cvRand=(a,b)=>a+Math.random()*(b-a);
@@ -4781,19 +4783,19 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       ['Corte de fruta libre','Objetivo: cortar frutas y sumar puntos','¡Corta todas las frutas que puedas! Descubre sus nombres en mapuzungun y consigue puntos.'],
       ['Identifica y corta','Objetivo: corta solo el fruto indicado durante 45 segundos','Observa la imagen, escucha el nombre del fruto en mapuzungun y corta solamente el fruto indicado.'],
       ['Desafío avanzado','Objetivo: corta solo el fruto indicado durante 60 segundos','¡Demuestra lo que aprendiste! Encuentra el fruto indicado entre muchos otros y córtalo antes de que cambie.']];
-    function cvClear(){['cvTarget','cvLives','cvProg','cvScore','cvHits','cvCd'].forEach(id=>{cvEl(id).textContent='';});}
+    function cvClear(){['cvTarget','cvLives','cvProg','cvScore','cvCd'].forEach(id=>{cvEl(id).textContent='';});}
     function cvMenu(){cvStart(0);}
     function cvNextState(){const btn=cvEl('cvNextBtn');if(btn)btn.disabled=!CV.done.every(Boolean);}
     function cvNext(){if(!CV.done.every(Boolean))return;try{playFiluMapClick()}catch(e){}showScreen('activityMap');}
-    function cvStart(level){cvStop();CV.resume=null;CV.level=level;cvClear();cvEl('cvTimer').style.width='100%';const t=CV_INFO[level],lv='<div class="cv-lv">Nivel '+(level+1)+'/3</div><h3>'+t[0]+'</h3>';
-      cvCard((level===0?'<div class="cv-hdr">'+CV_ART+'<div>'+lv+'</div></div>':level===1?lv+'<div class="cv-intro-fruit">🍓</div>':lv)+'<p class="cv-obj">'+t[1]+'</p><button class="cv-go" type="button" onclick="cvGo()">A JUGAR</button>');if(level===1)cvEl('cvOv').querySelector('.cv-card').classList.add('cv-intro-level2');cvNextState();}
+    function cvStart(level){cvStop();CV.level=level;cvClear();cvEl('cvTimer').style.width='100%';const t=CV_INFO[level],lv='<div class="cv-lv">Nivel '+(level+1)+'/3</div><h3>'+t[0]+'</h3>';
+      cvCard((level===0?'<div class="cv-hdr">'+CV_ART+'<div>'+lv+'</div></div>':lv)+'<p class="cv-obj">'+t[1]+'</p><p>'+t[2]+'</p><button class="cv-go" type="button" onclick="cvGo()">A JUGAR</button>');cvNextState();}
     function cvStop(){CV.active=false;CV.token++;cancelAnimationFrame(CV.raf);CV.raf=0;CV.pointer=false;CV.trail=[];
       if(CV.aud){CV.aud.pause();CV.aud=null;}}
     function cvResize(){const area=cvEl('cvArea'),canvas=cvEl('cvCanvas');const rect=area.getBoundingClientRect();
       CV.width=Math.max(200,rect.width);CV.height=Math.max(240,rect.height);
       const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(CV.width*dpr);canvas.height=Math.round(CV.height*dpr);
       const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);}
-    function cvSetTarget(){if(CV.level===0)return;const n=CV.seq[Math.min(CV.rotations,CV.seq.length-1)];CV.target=n;
+    function cvSetTarget(){if(CV.level===0)return;const n=CV.seq[Math.min(CV.rotations,2)];CV.target=n;
       CV.fruits=[];CV.spawn=0;CV.cd=0;cvEl('cvCd').textContent='';
       const el=cvEl('cvTarget');el.replaceChildren();
       const heading=document.createElement('div');heading.className='cv-target-heading';heading.textContent='¡Busca y corta esta fruta!';
@@ -4802,13 +4804,14 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       const word=document.createElement('span');word.className='cv-target-word';word.textContent=CV_F[n][1].toLocaleUpperCase('es');
       row.append(picture,word);el.append(heading,row);cvSpeak(n);}
     function cvHud(){const L=CV.level,rem=Math.max(0,Math.ceil(CV.dur-CV.elapsed)),k=L+'|'+rem+'|'+CV.score+'|'+CV.correct;
-      if(k!==CV.hk){CV.hk=k;cvEl('cvLives').textContent=(L+1)+'/3';cvEl('cvProg').textContent=rem;
-        cvEl('cvScore').textContent=CV.score;cvEl('cvHits').textContent=CV.correct;}
+      if(k!==CV.hk){CV.hk=k;
+        if(L===0){cvEl('cvLives').textContent='Nivel 1/3';cvEl('cvProg').textContent='⏱ '+rem+' s';cvEl('cvScore').textContent='★ '+CV.score;}
+        else{cvEl('cvLives').textContent='Puntos: '+CV.score;cvEl('cvProg').innerHTML='<small>Nivel '+(L+1)+'/3</small><br>Tiempo: '+rem+' s';cvEl('cvScore').textContent='Aciertos: '+CV.correct;}}
       cvEl('cvTimer').style.width=(100*Math.max(0,1-CV.elapsed/CV.dur))+'%';}
-    function cvGo(){try{playFiluMapClick();}catch(e){}const saved=CV.resume;cvStop();cvResize();
-      Object.assign(CV,{correct:saved?saved.correct:0,score:saved?saved.score:0,elapsed:saved?saved.elapsed:0,fruits:[],particles:[],trail:[],target:-1,spawn:0,rotations:saved?saved.rotations:0,cd:0,hk:'',dur:CV.level===2?60:45});CV.resume=null;
+    function cvGo(){try{playFiluMapClick();}catch(e){}cvStop();cvResize();
+      Object.assign(CV,{correct:0,score:0,elapsed:0,fruits:[],particles:[],trail:[],target:-1,spawn:0,rotations:0,cd:0,hk:'',dur:CV.level===2?60:45});
       const pool=(CV.level===2?CV_MAIN:CV_L2).map(cvIdx).filter(i=>i>=0);
-      CV.seq=saved?saved.seq:(CV.level===2?pool:pool.sort(()=>Math.random()-.5).slice(0,3));
+      CV.seq=CV.level===2?pool:pool.sort(()=>Math.random()-.5).slice(0,3);
       cvEl('cvOv').classList.remove('on');cvEl('cvCd').textContent='';
       cvEl('cvTarget').innerHTML=CV.level===0?'<span class="cv-target-free">¡Corta todas las frutas!</span>':'';
       if(CV.level>0)cvSetTarget();CV.active=true;CV.last=performance.now();cvHud();CV.raf=requestAnimationFrame(cvLoop);}
@@ -4819,24 +4822,20 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       CV.fruits.push({idx,x,y:top?-r:h+r,r,vx:vx===undefined?cvRand(-sp,sp):vx,vy:top?cvRand(.2,.35)*h:-Math.sqrt(2*g*(riseK||cvRand(.8,.95))*h),
         rot:cvRand(-.2,.2),spin:cvRand(-1.35,1.35),cut:false});}
     function cvSpawn(){const L=CV.level,w=CV.width,r=Math.max(34,Math.min(48,w*.115));
-      const top=L===2&&Math.floor(CV.elapsed/7.5)%2===1;
-      if(L===2){
-        const left=CV.rotations%2===0,center=w*(left?.25:.75);
-        if(Math.random()<.72){const count=2+Math.floor(Math.random()*2),gap=r*1.7;
-          for(let i=0;i<count;i++){const x=Math.max(r+4,Math.min(w-r-4,center+(i-(count-1)/2)*gap));cvMake(CV.target,x,r,top,0,cvRand(.81,.90));}return;}
-        let idx;do{idx=Math.floor(Math.random()*CV_F.length);}while(idx===CV.target||CV_F[idx][2]===CV_F[CV.target][2]);
-        const x=w*(left?.78:.22)+cvRand(-w*.075,w*.075);
-        cvMake(idx,Math.max(r+5,Math.min(w-r-5,x)),r,top,0);return;
-      }
-      if(L>0&&Math.random()<.65){cvMake(CV.target,cvLane(r,6),r,false);return;}
+      const top=L===2&&Math.floor(CV.elapsed/7.5)%2===1; // nivel 3: alterna abajo→arriba y arriba→abajo
+      if(L>0&&Math.random()<(L===1?.65:.4)){
+        if(L===2){ // solo el fruto pedido se agrupa
+          const n=2+Math.floor(Math.random()*2),gap=r*2.15,half=(n-1)*gap/2,cx=cvRand(r+8+half,w-r-8-half),vx=cvRand(-12,12),rk=cvRand(.82,.92);
+          for(let k=0;k<n;k++)cvMake(CV.target,cx-half+k*gap,r,top,vx,rk);
+        }else cvMake(CV.target,cvLane(r,6),r,false);
+        return;}
       let idx;do{idx=Math.floor(Math.random()*CV_F.length);}while(L>0&&(idx===CV.target||CV_F[idx][2]===CV_F[CV.target][2]));
-      cvMake(idx,cvLane(r,L===0?3:6),r,false);
-    }
+      cvMake(idx,cvLane(r,L===0?3:L===1?6:8),r,top);}
     function cvConfetti(){const a=cvEl('cvArea'),c=['#ffd23f','#ff6b6b','#4ecdc4','#a9f273','#ff9f43','#b983ff'];
       for(let i=0;i<36;i++){const s=document.createElement('i');s.className='cv-conf';s.style.cssText='left:'+cvRand(2,98)+'%;background:'+c[i%6]+';animation-delay:'+cvRand(0,.5)+'s;animation-duration:'+cvRand(1.5,2.3)+'s;--dx:'+cvRand(-40,40)+'px';a.appendChild(s);setTimeout(()=>s.remove(),3000);}}
     function cvFloat(x,y,text,bad){const area=cvEl('cvArea'),el=document.createElement('span');el.className='cv-float'+(bad?' bad':'');
       el.textContent=text;area.appendChild(el);const fw=el.offsetWidth;el.style.left=Math.max(5,Math.min(CV.width-fw-5,x-fw/2))+'px';
-      let fy=Math.max(CV.level?119:40,Math.min(CV.height-60,y-15));for(const other of area.querySelectorAll('.cv-float')){if(other===el)continue;const ox=parseFloat(other.style.left),oy=parseFloat(other.style.top);if(Math.abs(oy-fy)<38&&Math.abs(ox-(x-fw/2))<fw+10)fy=Math.min(CV.height-55,oy+42);}el.style.top=fy+'px';setTimeout(()=>el.remove(),1600);}
+      el.style.top=Math.max(CV.level?119:40,Math.min(CV.height-60,y-15))+'px';setTimeout(()=>el.remove(),1600);}
     function cvSlice(f){if(f.cut||!CV.active)return;f.cut=true;const valid=CV.level===0||f.idx===CV.target;
       cvSound(valid?'cut':'bad');for(let i=0;i<14;i++){let angle=cvRand(0,Math.PI*2),speed=cvRand(60,180);
         CV.particles.push({x:f.x,y:f.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:.55,r:cvRand(2,6),color:valid?'#a9f273':'#ff706b'});}
@@ -4844,16 +4843,11 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
       if(!valid){cvEnd(false,true);return;}
       CV.correct++;CV.score+=10;cvHud();}
     function cvEnd(win,error){cvStop();CV.fruits=[];const L=CV.level;CV.res[L]=[CV.score,CV.correct];cvEl('cvCd').textContent='';
-      if(win){CV.done[L]=true;try{localStorage.setItem('cvSliceFunh',JSON.stringify(CV.done));if(CV.done.every(Boolean))localStorage.setItem(CV_COMPLETE_KEY,'1');}catch(e){}cvSound('win');}else if(L===2){CV.resume={correct:CV.correct,score:CV.score,elapsed:CV.elapsed,rotations:CV.rotations,seq:[...CV.seq]};}cvNextState();
+      if(win){CV.done[L]=true;try{localStorage.setItem('cvSliceFunh',JSON.stringify(CV.done));}catch(e){}cvSound(L<2?'win':'cut');}cvNextState();
       const btn=(label,fn)=>'<button class="cv-go" type="button" onclick="'+fn+'">'+label+'</button>',R=CV.res;
-      if(win&&L===2){cvCard('<div class="cv-lv win">¡Küme zugu!</div><h3>¡HAS COMPLETADO LA ACTIVIDAD!</h3><p>Completaste los tres niveles.</p><p>Nivel 1: '+R[0][0]+' puntos · '+R[0][1]+' aciertos<br>Nivel 2: '+R[1][0]+' puntos · '+R[1][1]+' aciertos<br>Nivel 3: '+R[2][0]+' puntos · '+R[2][1]+' aciertos</p>'+btn('VOLVER A JUGAR','cvStart(0)')+btn('SALIR','cvExitCompleted()'));cvConfetti();return;}
-      if(win){cvCard('<div class="cv-lv win">¡NIVEL '+(L+1)+' SUPERADO!</div><p class="cv-score-results">PUNTOS: '+CV.score+' · ACIERTOS: '+CV.correct+'</p>'+btn('SIGUIENTE NIVEL','cvStart('+(L+1)+')'));cvConfetti();return;}
-      cvCard('<div class="cv-lv">'+(error?'Cortaste otra fruta':'Se acabó el tiempo')+'</div><p>Puntos: '+CV.score+' · Aciertos: '+CV.correct+'</p>'+btn('REINTENTAR',L===2?'cvRetryCurrent()':'cvStart('+L+')'));}
-    function cvRetryCurrent(){
-      if(!CV.resume){cvStart(CV.level);return;}
-      if(CV.resume.elapsed>=CV.dur)CV.resume.elapsed=Math.max(0,CV.dur-1);
-      cvGo();
-    }
+      if(win&&L===2){cvCard('<div class="cv-lv win">¡Küme zugu!</div><h3>¡Felicitaciones!</h3><p>Completaste los tres niveles.</p><p>Nivel 1: '+R[0][0]+' puntos<br>Nivel 2: '+R[1][0]+' puntos · '+R[1][1]+' aciertos<br>Nivel 3: '+R[2][0]+' puntos · '+R[2][1]+' aciertos</p><p class="cv-obj">Pulsa Amulepe para seguir.</p>'+btn('JUGAR OTRA VEZ','cvStart(0)'));return;}
+      if(win){cvCard('<div class="cv-lv win">¡Nivel '+(L+1)+' superado!</div><p>'+(L?'Puntos: '+CV.score+' · Aciertos: '+CV.correct:'Puntos: '+CV.score)+'</p>'+btn('SIGUIENTE NIVEL','cvStart('+(L+1)+')'));cvConfetti();return;}
+      cvCard('<div class="cv-lv">'+(error?'Cortaste otra fruta':'Se acabó el tiempo')+'</div><p>Puntos: '+CV.score+' · Aciertos: '+CV.correct+'</p>'+btn('REINTENTAR','cvStart('+L+')'));}
     function cvDraw(){const ctx=cvEl('cvCanvas').getContext('2d'),w=CV.width,h=CV.height;ctx.clearRect(0,0,w,h);
       for(const f of CV.fruits){if(f.cut)continue;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);
         ctx.shadowColor='#081d14';ctx.shadowBlur=9;ctx.shadowOffsetY=5;
@@ -4894,14 +4888,10 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     function cvAskExit(){try{playFiluMapClick();}catch(e){}CV.pausedWas=CV.active;
       if(CV.active){CV.active=false;cancelAnimationFrame(CV.raf);CV.raf=0;CV.pointer=false;CV.trail=[];}cvEl('cvExit').hidden=false;}
     function cvExitNo(){cvEl('cvExit').hidden=true;if(CV.pausedWas){CV.pausedWas=false;CV.active=true;CV.last=performance.now();CV.raf=requestAnimationFrame(cvLoop);}}
-    function cvExitCompleted(){
-      cvStop();CV.pausedWas=false;cvEl('cvExit').hidden=true;
-      // El minijuego completado y la sección desbloqueada permanecen disponibles.
-      showScreen('activityMap');
-    }
     function cvExitYes(){
-      cvEl('cvExit').hidden=true;cvStop();CV.pausedWas=false;
-      // Salir no borra niveles superados ni vuelve a bloquear la sección.
+      cvEl('cvExit').hidden=true;
+      cvStop();CV.pausedWas=false;
+      // Salir del minijuego no inicia una partida nueva ni cierra Fünh-Frutos.
       cvNextState();showScreen('activityMap');
     }
     const __cvShow=showScreen;
