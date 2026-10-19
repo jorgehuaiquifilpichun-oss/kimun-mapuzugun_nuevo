@@ -1382,6 +1382,28 @@
     .rk-cell.bad{animation:rkShake .35s;} @keyframes rkShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
     .rk-ov{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(12,40,30,.88);} .rk-ov[hidden]{display:none;}
     .rk .cv-conf{z-index:30;}
+
+    /* ===== Rakiayiñ: acabado profesional ===== */
+    .rk{background:radial-gradient(90% 50% at 50% 0%,rgba(255,240,190,.16),transparent 70%),radial-gradient(120% 70% at 50% 40%,#2e7a56,#1b4b38 58%,#0e2b21 100%);}
+    .rk::before{opacity:.05;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24'%3E%3Cpath d='M24 2l20 10-20 10L4 12z M24 8l9 4-9 4-9-4z' fill='none' stroke='%23FFFFFF' stroke-width='1.5'/%3E%3C/svg%3E") repeat center/48px 24px;}
+    .rk::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 60px rgba(0,0,0,.35);}
+    .rk-back{filter:drop-shadow(0 3px 4px rgba(0,0,0,.45));-webkit-user-drag:none;user-select:none;} .rk-back img{-webkit-user-drag:none;}
+    .rk-title{position:relative;background:repeating-linear-gradient(92deg,rgba(0,0,0,.05) 0 2px,transparent 2px 7px),linear-gradient(#b3702f,#7a4519 60%,#6a3b14);
+      border:2px solid #e3c987;box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),inset 0 2px 0 rgba(255,255,255,.25),0 4px 10px rgba(0,0,0,.45);}
+    .rk-title::before,.rk-title::after{content:"◆";position:absolute;top:50%;transform:translateY(-50%);color:#e3c987;font-size:10px;} .rk-title::before{left:8px} .rk-title::after{right:8px}
+    .rk-tabs button.on{box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 2px 0 #08461a;}
+    .rk-panel{background:radial-gradient(120% 100% at 50% 0%,#fbf0d4,#ecd9a6);box-shadow:inset 0 0 0 3px #f6e9c4,inset 0 0 0 5px #b8863b,0 5px 12px rgba(0,0,0,.35);}
+    .rk-chip{box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 2px 0 rgba(0,0,0,.25);}
+    .rk-cell{border-radius:14px;background:linear-gradient(#fbf0d6,#efdca8 55%,#e2c78a);text-shadow:0 1px 0 rgba(255,255,255,.6);
+      box-shadow:inset 0 2px 0 rgba(255,255,255,.7),0 3px 0 var(--c),0 6px 8px rgba(0,0,0,.3);animation:rkIn .32s backwards;animation-delay:calc(var(--i,0)*10ms);}
+    @keyframes rkIn{from{transform:scale(.82)}}
+    .rk-cell:active{box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 1px 0 var(--c);}
+    .rk-cell.sel{outline:3px solid #ffd23f;outline-offset:1px;}
+    .rk-cell.ok{animation:rkOk .45s ease-out;box-shadow:0 0 16px rgba(95,215,124,.85),0 3px 0 #0e7a2c;} @keyframes rkOk{50%{transform:scale(1.12)}}
+    .rk-cell.off{opacity:.4;filter:grayscale(.65);}
+    .rk-ov{overflow-y:auto;} .rk-ov .cv-card{margin:auto;}
+    .rk-celebra{display:block;width:auto;max-width:78%;max-height:min(24dvh,190px);margin:0 auto 4px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35));}
+    @media (prefers-reduced-motion:reduce){.rk-cell,.rk-cell.ok{animation:none}}
 </style>
 </head>
 
@@ -4958,7 +4980,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     function rkPanel(html){const p=rkEl('rkPanel');p.innerHTML=html;p.classList.remove('pop');void p.offsetWidth;p.classList.add('pop');}
     function rkBoard(){const b=rkEl('rkBoard');b.replaceChildren();const r=RK.mode==='f'?RK_ST[RK.stage]:[1,40];
       for(let n=1;n<=40;n++){const c=document.createElement('button');c.type='button';c.className='rk-cell d'+Math.floor((n-1)/10)+(n<r[0]||n>r[1]?' off':'');c.textContent=n;
-        c.setAttribute('aria-label',n+', '+rkName(n));c.onclick=()=>rkTap(n,c);b.appendChild(c);}}
+        c.style.setProperty('--i',n);c.setAttribute('aria-label',n+', '+rkName(n));c.onclick=()=>rkTap(n,c);b.appendChild(c);}}
     function rkMode(m){rkStopAudio();RK.mode=m;RK.lock=false;rkEl('rkOv').hidden=true;
       rkEl('rkTabX').classList.toggle('on',m==='x');rkEl('rkTabF').classList.toggle('on',m==='f');
       if(m==='x'){rkBoard();rkPanel('<small>Toca un número para verlo y escucharlo</small><div class="rk-row">'+rkChips(10)+'</div><small>Mari = 10 · cada color es una decena</small>');}
@@ -4977,7 +4999,7 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
         setTimeout(()=>{c.classList.remove('ok');RK.i++;if(RK.i>=RK.targets.length)rkDone();else rkAsk();},1300);}
       else{try{cvSound('bad');}catch(e){}c.classList.remove('bad');void c.offsetWidth;c.classList.add('bad');}}
     function rkDone(){rkStopAudio();const o=rkEl('rkOv'),last=RK.stage===2,btn=(l,f)=>'<button class="cv-go" type="button" onclick="'+f+'">'+l+'</button>';
-      o.innerHTML='<div class="cv-card"><div class="mp-band"></div>'+(last?'<div class="cv-lv win">¡Küme zugu!</div><p>Completaste todas las etapas.</p>'+btn('JUGAR OTRA VEZ',"rkMode('f')")+btn('EXPLORAR',"rkMode('x')")
+      o.innerHTML='<div class="cv-card"><div class="mp-band"></div><img class="rk-celebra" src="./kume_zugun.png" alt="Txegül: Küme zugun" onerror="this.remove()">'+(last?'<div class="cv-lv win">¡Küme zugu!</div><p>Completaste todas las etapas.</p>'+btn('JUGAR OTRA VEZ',"rkMode('f')")+btn('EXPLORAR',"rkMode('x')")
         :'<div class="cv-lv win">¡Etapa '+(RK.stage+1)+' completa!</div><p>¡Muy bien!</p>'+btn('SIGUIENTE ETAPA','rkNextStage()'))+'<div class="mp-band"></div></div>';
       o.hidden=false;try{cvSound('win');}catch(e){}cvConfetti(rkEl('rkRoot'));}
     function rkNextStage(){try{playFiluMapClick();}catch(e){}rkEl('rkOv').hidden=true;RK.stage++;rkStage();}
