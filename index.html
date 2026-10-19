@@ -1414,6 +1414,22 @@
     .sn-pick{display:flex;gap:10px;margin:8px 0;} .sn-pick button{flex:1;padding:6px;background:linear-gradient(#fbf0d4,#ecd9a6);border:3px solid #6f431e;border-radius:16px;cursor:pointer;box-shadow:0 4px 0 #6f431e;}
     .sn-pick button:active{transform:translateY(2px);} .sn-pick img,.sn-prev{display:block;width:100%;height:auto;max-height:24dvh;object-fit:contain;margin:0 auto;} .sn-prev{width:auto;max-height:15dvh;}
     .sn-link{background:none;border:0;color:#6f431e;font-weight:800;font-size:15px;text-decoration:underline;cursor:pointer;padding:8px;}
+
+/* KIMÜN VOXEL: actividad autónoma en el casillero derecho de Fünh–Frutos. */
+.kv-map-tile{position:relative}.kv-map-title{position:absolute;top:7%;left:8%;right:8%;z-index:1;color:#fff0c6;text-shadow:0 2px 3px #28140c,0 0 3px #2b1408;font:900 clamp(9px,2.6vw,14px)/1.1 Arial,sans-serif;pointer-events:none}
+.kv-screen{position:relative;height:100dvh;overflow:hidden;background:#1a2f23;font-family:'Trebuchet MS',Arial,sans-serif;color:#fff5dc;touch-action:manipulation}
+.kv-world{position:absolute;inset:0;width:100%;height:100%;touch-action:manipulation}
+.kv-hud{position:absolute;top:max(8px,env(safe-area-inset-top));left:8px;right:8px;z-index:5;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.kv-hudbox{background:rgba(20,30,20,.88);border:2px solid #d8b35a;border-radius:12px;padding:8px 10px;font-size:11px;max-width:67%;pointer-events:auto}
+.kv-hudbox strong{color:#ffd166;font-size:17px}.kv-progress{height:7px;background:#ffffff29;border-radius:10px;overflow:hidden;margin:6px 0}.kv-progress>i{display:block;width:0;height:100%;background:linear-gradient(90deg,#8bc34a,#ffd166)}
+.kv-exit{border:2px solid #d8b35a;border-radius:12px;background:#254c36;color:#ffefc6;padding:9px 11px;font:800 12px Arial;pointer-events:auto}
+.kv-footer{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));left:8px;right:8px;z-index:5;display:flex;justify-content:space-between;align-items:end;gap:8px}
+.kv-mini{display:block;width:112px;height:112px;background:#14251cdd;border:2px solid #d8b35a;border-radius:9px}
+.kv-invbutton,.kv-close{border:0;background:#d8b35a;color:#302112;border-radius:16px;padding:10px 14px;font-weight:900}
+.kv-tip{position:absolute;bottom:132px;left:8px;right:8px;text-align:center;z-index:4;font-size:12px;text-shadow:0 2px 4px #000;background:#182f24aa;border-radius:9px;padding:6px}
+.kv-card{position:absolute;z-index:10;top:43%;left:50%;width:min(88%,320px);padding:18px;background:#fff8e7;color:#624325;text-align:center;border:4px solid #c9933b;border-radius:18px;box-shadow:0 12px 35px #0008;opacity:0;pointer-events:none;transform:translate(-50%,-55%) scale(.8);transition:opacity .25s,transform .25s}
+.kv-card.show{opacity:1;transform:translate(-50%,-50%) scale(1)}.kv-card .mp{font-size:29px;color:#8a4b20;font-weight:900}.kv-card .plus{color:#367d35;font-weight:bold;font-size:13px}
+.kv-panel{position:absolute;inset:0;z-index:15;background:#101b16f5;overflow-y:auto;padding:20px;display:none}.kv-panel.open{display:block}.kv-panel h2{text-align:center;color:#ffd166;margin:18px 0}.kv-panel .kv-close{float:right}.kv-grid{clear:both;display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px;padding-top:12px}.kv-item{border:2px solid #a58a52;background:#2a3f2e;border-radius:10px;padding:9px;text-align:center;font-size:11px}.kv-item strong{color:#ffd166;display:block;font-size:13px;overflow-wrap:anywhere}.kv-item.locked{opacity:.4}
 </style>
 </head>
 
@@ -1566,7 +1582,7 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="handleFunhFrutosTap(this)" aria-label="Fünh-Frutos, bloqueado">          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false"></button>
-<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 1">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 1" draggable="false"></button>
+<button class="activity-map-tile-button kv-map-tile" type="button" onclick="openKimunVoxel(this)" aria-label="Kimün Voxel, abrir actividad"><img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Kimün Voxel — ítem en preparación" draggable="false"><span class="kv-map-title">Kimün Voxel</span></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
@@ -1591,6 +1607,15 @@
       </div>
     </section>
 
+
+<section id="kimunVoxel" class="screen" aria-label="Kimün Voxel — Excavación de palabras">
+ <div class="kv-screen" id="kvStage"><canvas class="kv-world" id="kvWorld"></canvas>
+ <header class="kv-hud"><div class="kv-hudbox"><div style="color:#ffd166;font-weight:900">Kimün Voxel</div><strong id="kvScore">Puntaje: 0</strong><div class="kv-progress"><i id="kvProgress"></i></div><div>Palabras aprendidas: <span id="kvFound">0</span>/28</div></div><button class="kv-exit" type="button" onclick="exitKimunVoxel()">Wiñotxekage — Volver</button></header>
+ <div class="kv-tip">Toca tres veces un cubo para excavarlo. Toca nuevamente el objeto encontrado para recogerlo.</div>
+ <div class="kv-footer"><canvas class="kv-mini" id="kvMini"></canvas><button class="kv-invbutton" type="button" id="kvInventoryBtn">Mis palabras</button></div>
+ <div class="kv-card" id="kvCard" aria-live="polite"><div id="kvDiscEs"></div><div class="mp" id="kvDiscMp"></div><div class="plus" id="kvDiscPlus"></div></div>
+ <div class="kv-panel" id="kvPanel"><button class="kv-close" id="kvClose" type="button">Cerrar</button><h2>Mis palabras en mapuzungun</h2><div class="kv-grid" id="kvGrid"></div></div>
+ </div></section>
 <section id="funhGallery" class="screen" aria-label="Fünh-Frutos — Reconocimiento">
       <div class="funh-gallery">
         <h2>Fünh-Frutos</h2>
@@ -4619,8 +4644,51 @@ function pairSelect(id,side,value){
 }
 Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
 
+
+/* KIMÜN VOXEL: código encapsulado para no intervenir en otras actividades. */
+const KV = (() => {
+ const OBJECTS=[
+ ['hacha','toki','herramienta'],['pala','pala','herramienta'],['azadón','pal','herramienta'],['barreta','kalla','herramienta'],
+ ['mesa','mesa','casa'],['silla','silla','casa'],['cuchara','wütrü','casa'],['cuchillo','cuchillo','casa'],['plato',"ral'i",'casa'],['olla','challa','casa'],['vaso','vaso','casa'],['taza','taza','casa'],['puerta','puerta','casa'],['ventana','ventana','casa'],
+ ['rojo','kelü','color'],['verde','karü','color'],['azul','kallfü','color'],['amarillo','chod','color'],['blanco','lig','color'],['negro','kurü','color'],['café','kolü','color'],['morado','koñolwe','color'],
+ ['papa','poñü','verdura'],['zapallo','pengka','verdura'],['lechuga','lechukas','verdura'],['arveja','allfid','verdura'],['poroto','dengüll','verdura'],['maíz','wa','verdura']
+ ].map(([es,mp,cat])=>({es,mp,cat}));
+ const COLORS={herramienta:'#b08968',casa:'#d8b35a',color:'#7fb3d5',verdura:'#8bc34a'};
+ const NW=14,NH=14,TW=58,TH=30,DEPTH=22;
+ const $=id=>document.getElementById(id);
+ let canvas,ctx,mundo=[],W=0,H=0,scale=1,offsetX=0,offsetY=0,raf=0,last=0,score=0,cardTimer=0,particles=[],aCtx;
+ const inventory=Object.create(null);OBJECTS.forEach(o=>inventory[o.es]=false);
+ function create(){const pool=OBJECTS.slice().sort(()=>Math.random()-.5);let i=0;return Array.from({length:NH},()=>Array.from({length:NW},()=>{const has=Math.random()<.42;return {altura:1+Math.floor(Math.random()*2),vida:3,vidaMax:3,tieneObjeto:has,objeto:has?pool[i++%pool.length]:null,revelado:false,tono:Math.random()*.15};}));}
+ function size(){if(!canvas)return;const rect=canvas.getBoundingClientRect();W=rect.width;H=rect.height;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);scale=Math.min(1.13,Math.max(.55,(W-14)/(NW*TW/2+NW*TW/2)));offsetX=W/2;offsetY=Math.max(155,H*.23);}
+ function pos(x,y,h=0){return {x:offsetX+(x-y)*TW/2*scale,y:offsetY+(x+y)*TH/2*scale-h*DEPTH*scale};}
+ function poly(p,coords,color){ctx.beginPath();ctx.moveTo(p.x+coords[0][0]*scale,p.y+coords[0][1]*scale);for(let i=1;i<coords.length;i++)ctx.lineTo(p.x+coords[i][0]*scale,p.y+coords[i][1]*scale);ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#0003';ctx.stroke();}
+ function cellAt(px,py){let best=null,bestZ=-1;for(let y=0;y<NH;y++)for(let x=0;x<NW;x++){const c=mundo[y][x],p=pos(x,y,c.altura);const dx=Math.abs(px-p.x)/(TW/2*scale),dy=Math.abs(py-(p.y+TH/2*scale))/(TH/2*scale);if(dx+dy<=1&&x+y>=bestZ){bestZ=x+y;best={x,y};}}return best;}
+ function drawCube(x,y,c){const p=pos(x,y,c.altura),top=c.tieneObjeto&&!c.revelado?`hsl(45,70%,${55+c.tono*40}%)`:`hsl(95,30%,${28+c.tono*40}%)`;
+ poly(p,[[0,0],[TW/2,TH/2],[0,TH],[-TW/2,TH/2]],top);
+ poly(p,[[-TW/2,TH/2],[0,TH],[0,TH+DEPTH],[-TW/2,TH/2+DEPTH]],'#365333');
+ poly(p,[[TW/2,TH/2],[0,TH],[0,TH+DEPTH],[TW/2,TH/2+DEPTH]],'#284b2e');
+ if(c.vida<c.vidaMax){ctx.fillStyle='#000a';ctx.fillRect(p.x-16*scale,p.y-9*scale,32*scale,4*scale);ctx.fillStyle='#b5db4b';ctx.fillRect(p.x-16*scale,p.y-9*scale,32*c.vida/c.vidaMax*scale,4*scale);}
+ if(c.revelado&&c.objeto){ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.max(10,12*scale)}px Arial`;ctx.fillStyle='#ffffff';ctx.shadowColor='#132317';ctx.shadowBlur=3;ctx.fillText(c.objeto.mp,p.x,p.y-15*scale+Math.sin(performance.now()/250+x+y)*3);ctx.shadowBlur=0;}}
+ function frame(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#9fd8e8');g.addColorStop(1,'#1a2f23');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);for(let k=0;k<=NW+NH-2;k++)for(let y=0;y<NH;y++){const x=k-y;if(x>=0&&x<NW)drawCube(x,y,mundo[y][x]);}particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=80*dt;p.life-=dt;ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,4*scale,4*scale);});ctx.globalAlpha=1;particles=particles.filter(p=>p.life>0);raf=requestAnimationFrame(frame);}
+ function beep(f,d=.1,type='square'){try{aCtx=aCtx||new(window.AudioContext||window.webkitAudioContext)();const o=aCtx.createOscillator(),g=aCtx.createGain();o.type=type;o.frequency.value=f;g.gain.value=.055;o.connect(g);g.connect(aCtx.destination);o.start();g.gain.exponentialRampToValueAtTime(.0001,aCtx.currentTime+d);o.stop(aCtx.currentTime+d);}catch(e){}}
+ function burst(p,color){for(let i=0;i<13;i++)particles.push({x:p.x,y:p.y,vx:(Math.random()-.5)*120,vy:(Math.random()-1.1)*110,life:.5+Math.random()*.4,color});}
+ function hit(e){if(!$('kimunVoxel').classList.contains('active')||$('kvPanel').classList.contains('open'))return;e.preventDefault();const r=canvas.getBoundingClientRect(),at=cellAt(e.clientX-r.left,e.clientY-r.top);if(!at)return;const c=mundo[at.y][at.x],p=pos(at.x,at.y,c.altura);if(c.revelado&&c.objeto){collect(c,p);return;}c.vida--;beep(220,.07);burst(p,'#caa472');if(c.vida<=0){beep(140,.15,'sawtooth');if(c.tieneObjeto){c.revelado=true;c.vida=1;c.vidaMax=1;}else{c.altura=Math.max(0,c.altura-1);c.vida=c.vidaMax=3;setTimeout(()=>{if(!c.tieneObjeto)c.altura=Math.min(2,c.altura+1);},6000);}}drawMini();}
+ function collect(c,p){const obj=c.objeto,repeat=inventory[obj.es];inventory[obj.es]=true;score+=repeat?2:10;showCard(obj,repeat);beep(523,.1,'sine');setTimeout(()=>beep(659,.1,'sine'),100);setTimeout(()=>beep(784,.15,'sine'),200);burst(p,'#ffd166');c.tieneObjeto=false;c.objeto=null;c.revelado=false;c.altura=Math.max(0,c.altura-1);c.vida=c.vidaMax=3;setTimeout(()=>{if(Math.random()<.5){c.tieneObjeto=true;c.objeto=OBJECTS[Math.floor(Math.random()*OBJECTS.length)];}c.altura=Math.min(2,c.altura+1);drawMini();},7000);update();drawMini();}
+ function showCard(obj,repeat){$('kvDiscEs').textContent=obj.es;$('kvDiscMp').textContent=obj.mp;$('kvDiscPlus').textContent=repeat?'+2 puntos, palabra repetida':'+10 puntos, palabra nueva';$('kvCard').classList.add('show');clearTimeout(cardTimer);cardTimer=setTimeout(()=>$('kvCard').classList.remove('show'),1800);}
+ function update(){const count=Object.values(inventory).filter(Boolean).length;$('kvScore').textContent='Puntaje: '+score;$('kvFound').textContent=count;$('kvProgress').style.width=(count/OBJECTS.length*100)+'%';}
+ function drawMini(){const c=$('kvMini'),m=c.getContext('2d');c.width=140;c.height=140;for(let y=0;y<NH;y++)for(let x=0;x<NW;x++){const z=mundo[y][x];m.fillStyle=z.tieneObjeto?(z.revelado?'#ffd166':'#d8b35a'):'#355c3a';m.fillRect(x*10,y*10,9,9);}}
+ function showInventory(){const box=$('kvGrid');box.textContent='';OBJECTS.forEach(o=>{const d=document.createElement('div'),found=inventory[o.es];d.className='kv-item'+(found?'':' locked');d.style.borderColor=COLORS[o.cat];const strong=document.createElement('strong');strong.textContent=found?o.mp:'???';const sub=document.createElement('div');sub.textContent=found?o.es:o.cat;d.append(strong,sub);box.appendChild(d);});$('kvPanel').classList.add('open');}
+ function init(){canvas=$('kvWorld');ctx=canvas.getContext('2d');mundo=create();size();update();drawMini();canvas.addEventListener('pointerdown',hit);$('kvInventoryBtn').addEventListener('click',showInventory);$('kvClose').addEventListener('click',()=>$('kvPanel').classList.remove('open'));window.addEventListener('resize',()=>{if($('kimunVoxel').classList.contains('active'))size();});}
+ function enter(){if(!canvas)init();size();if(!raf){last=performance.now();raf=requestAnimationFrame(frame);}drawMini();}
+ function leave(){if(raf)cancelAnimationFrame(raf);raf=0;clearTimeout(cardTimer);$('kvCard').classList.remove('show');$('kvPanel').classList.remove('open');}
+ return {enter,leave};
+})();
+function openKimunVoxel(btn){try{playActivityMapTileSound(btn);}catch(e){}try{animateActivityMapTile(btn,true);}catch(e){}setTimeout(()=>{showScreen('kimunVoxel');KV.enter();},260);}
+function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScreen('activityMap');}
+
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
+      if (screenId !== 'kimunVoxel') KV.leave();
       if (NEWEN_EXERCISES.has(screenId) && newenLives === 0) {
         beginNewenRecovery(screenId);
         return;
