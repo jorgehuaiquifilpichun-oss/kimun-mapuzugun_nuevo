@@ -5095,27 +5095,37 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     function snJump(){if(SN.st==='run'&&SN.py===0&&SN.vy===0){SN.vy=SN.h*1.75;
       if(SN.ch==='b'){SN_JUMP_VIDEO.pause();SN_JUMP_VIDEO.currentTime=0;
         SN_JUMP_VIDEO.playbackRate=4.5;SN_JUMP_VIDEO.play().catch(()=>{});}}}
-    // Cada número se presenta aislado: nunca hay dos números juntos.
-    // Entre números aparecen 1 o 2 cubos vacíos. La siguiente palabra
-    // espera más tiempo al crecer su extensión, sin acelerar la locución.
+    // Del 1 al 9: únicamente los números, como en el juego original.
+    // Desde el 10: un cubo vacío intermedio, con DISTANCIAS AMPLIAS
+    // entre obstáculos y más tiempo para oír el nombre completo.
     function snSpawn(sp){
       const os=SN.h*.1;
       if(SN.emptyLeft>0){
         SN.obs.push({n:null,x:SN.w+20,p:0});
         SN.emptyLeft--;
-        SN.spawnIn=Math.max(.85,(os*2.6)/sp);
+        // Dar tiempo a saltar el cubo vacío ANTES del próximo número.
+        SN.spawnIn=2.5;
         return;
       }
       if(SN.next>40)return;
       const n=SN.next++;
       SN.obs.push({n,x:SN.w+20,p:0});
-      SN.emptyLeft=n<=10?1:2;
-      // Se mide en segundos de juego: la velocidad del desplazamiento
-      // nunca reduce el tiempo reservado para pronunciar los números largos.
-      const word=rkName(n)||'';
-      const readingTime=n<=10?2.5:n<20?3.5:Math.min(5.2,3.8+word.length*.045);
-      SN.numberAfter=SN.clock+readingTime;
-      SN.spawnIn=Math.max(.95,os*2.8/sp);
+      if(n<10){
+        // Conservar la secuencia simple 1–9, sin obstáculos adicionales.
+        SN.emptyLeft=0;
+        SN.spawnIn=2.5;
+        SN.numberAfter=SN.clock+2.5;
+      }else{
+        // A partir del 10: NÚMERO -> espacio -> CUBO VACÍO -> espacio -> NÚMERO.
+        // Nunca aparecen dos cubos numerados seguidos.
+        SN.emptyLeft=n<40?1:0;
+        SN.spawnIn=2.4;
+        // El próximo número espera a que termine la pronunciación y
+        // haya suficiente distancia para aterrizar y volver a saltar.
+        const word=rkName(n)||'';
+        const pause=n<20?5.6:Math.max(6.2,Math.min(7.2,5.7+word.length*.075));
+        SN.numberAfter=SN.clock+pause;
+      }
     }
     function snPass(n){SN.done=n;if(n>SN.best){SN.best=n;try{localStorage.setItem('snBest',n);}catch(e){}}snHud();
       SN.pops.push({t:rkName(n),life:1.6,c:RK_C[Math.min(3,Math.floor((n-1)/10))]});
