@@ -5041,6 +5041,31 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
     }
     SN_RUN_VIDEO.src='./txegul_macho_carrera.webm';SN_RUN_VIDEO.loop=true;
     SN_JUMP_VIDEO.src='./txegul_macho_salto.webm';SN_JUMP_VIDEO.loop=false;
+    // Respaldo de croma en Canvas: Android puede ignorar el alfa VP9 de WebM.
+    // Procesa solo el área del video a baja resolución, sin afectar el escenario.
+    const SN_CHROMA_CANVAS=document.createElement('canvas');
+    SN_CHROMA_CANVAS.width=180;SN_CHROMA_CANVAS.height=320;
+    const SN_CHROMA_CTX=SN_CHROMA_CANVAS.getContext('2d',{willReadFrequently:true});
+    function snTransparentFrame(v){
+      if(!v||v.readyState<2)return null;
+      const cc=SN_CHROMA_CTX,cw=180,ch=320;
+      cc.clearRect(0,0,cw,ch);cc.drawImage(v,0,0,cw,ch);
+      const frame=cc.getImageData(0,0,cw,ch),a=frame.data;
+      for(let i=0;i<a.length;i+=4){
+        const r=a[i],g=a[i+1],b=a[i+2];
+        // Diferencia verde respecto a rojo/azul; transición gradual en contornos.
+        const excess=g-Math.max(r,b);
+        const strength=Math.min(1,Math.max(0,(excess-15)/24));
+        const greenish=(g>r*1.17&&g>b*1.13);
+        if(greenish){
+          const retained=1-strength;
+          a[i+3]=Math.round(a[i+3]*retained);
+          if(retained>0&&retained<1){a[i+1]=Math.round(Math.max(0,g-strength*45));}
+        }
+      }
+      cc.putImageData(frame,0,0);
+      return SN_CHROMA_CANVAS;
+    }
     function snMediaStop(){SN_RUN_VIDEO.pause();SN_JUMP_VIDEO.pause();}
     function snMediaStart(){if(SN.ch!=='b')return;
       SN_JUMP_VIDEO.pause();SN_RUN_VIDEO.playbackRate=1;
@@ -5124,7 +5149,8 @@ Object.keys(PAIR_CONFIG).forEach(id=>{pairBuild(id);pairRender(id);});
           // La elevación del salto sigue controlada por SN.py y no altera el suelo ni las colisiones.
           const bh=h*.57,bw=bh*9/16;
           const footFraction=SN.py>0?0.875:0.705;
-          c.drawImage(activeVideo,-bw/2,-bh*footFraction,bw,bh);
+          const keyed=snTransparentFrame(activeVideo);
+          c.drawImage(keyed||activeVideo,-bw/2,-bh*footFraction,bw,bh);
         }else c.drawImage(im,-pw/2,-ph+(run?Math.abs(Math.sin(d*.06))*-4:0),pw,ph);
         c.restore();}
       for(const q of SN.pops){c.globalAlpha=Math.min(1,q.life*2);c.font='900 '+Math.round(h*.07)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.fillStyle=q.c;c.fillText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.globalAlpha=1;}
