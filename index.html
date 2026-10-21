@@ -5724,16 +5724,39 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function cvMake(idx,x,r,top,vx,riseK){const h=CV.height,g=cvG(),sp=CV.level===0?40:25;
       CV.fruits.push({idx,x,y:top?-r:h+r,r,vx:vx===undefined?cvRand(-sp,sp):vx,vy:top?cvRand(.2,.35)*h:-Math.sqrt(2*g*(riseK||cvRand(.8,.95))*h),
         rot:cvRand(-.2,.2),spin:cvRand(-1.35,1.35),cut:false});}
+    // Niveles 2 y 3: la fruta pedida se concentra a un costado.
+    // El lado cambia con cada bloque de 15 segundos; unas pocas frutas
+    // correctas pueden aparecer al otro lado para conservar el desafío.
+    function cvFruitSide(){return Math.floor(CV.elapsed/15)%2===0?-1:1;}
+    function cvSideX(side,r){
+      const pad=r+8,mid=CV.width/2;
+      const lo=side<0?pad:mid+r*.12,hi=side<0?mid-r*.12:CV.width-pad;
+      return lo<=hi?cvRand(lo,hi):CV.width/2;
+    }
     function cvSpawn(){const L=CV.level,w=CV.width,r=Math.max(34,Math.min(48,w*.115));
       const top=L===2&&Math.floor(CV.elapsed/7.5)%2===1; // nivel 3: alterna abajo→arriba y arriba→abajo
-      if(L>0&&Math.random()<(L===1?.65:.4)){
-        if(L===2){ // solo el fruto pedido se agrupa
-          const n=2+Math.floor(Math.random()*2),gap=r*2.15,half=(n-1)*gap/2,cx=cvRand(r+8+half,w-r-8-half),vx=cvRand(-12,12),rk=cvRand(.82,.92);
-          for(let k=0;k<n;k++)cvMake(CV.target,cx-half+k*gap,r,top,vx,rk);
-        }else cvMake(CV.target,cvLane(r,6),r,false);
-        return;}
-      let idx;do{idx=Math.floor(Math.random()*CV_F.length);}while(L>0&&(idx===CV.target||CV_F[idx][2]===CV_F[CV.target][2]));
-      cvMake(idx,cvLane(r,L===0?3:L===1?6:8),r,top);}
+      if(L===0){
+        const idx=Math.floor(Math.random()*CV_F.length);
+        cvMake(idx,cvLane(r,3),r,false);
+        return;
+      }
+      const side=cvFruitSide(),isTarget=Math.random()<(L===1?.65:.4);
+      if(isTarget){
+        // Nivel 2: menos frutas y grupos pequeños. Nivel 3: grupos de 2 o 3.
+        const opposite=Math.random()<(L===1?.12:.16);
+        const targetSide=opposite?-side:side;
+        const n=opposite?1:(L===1?2:2+Math.floor(Math.random()*2));
+        const gap=Math.min(r*1.65,(w-2*(r+8))/Math.max(1,n-1));
+        const half=(n-1)*gap/2,pad=r+8;
+        const center=(targetSide<0?w*.29:w*.71);
+        const cx=Math.max(pad+half,Math.min(w-pad-half,center+cvRand(-r*.15,r*.15)));
+        const vx=cvRand(-12,12),rise=cvRand(.82,.92);
+        for(let k=0;k<n;k++)cvMake(CV.target,cx-half+k*gap,r,top,vx,rise);
+        return;
+      }
+      let idx;do{idx=Math.floor(Math.random()*CV_F.length);}while(idx===CV.target||CV_F[idx][2]===CV_F[CV.target][2]);
+      cvMake(idx,cvSideX(-side,r),r,top);
+    }
     function cvConfetti(a){a=a||cvEl('cvArea');const c=['#ffd23f','#ff6b6b','#4ecdc4','#a9f273','#ff9f43','#b983ff'];
       for(let i=0;i<36;i++){const s=document.createElement('i');s.className='cv-conf';s.style.cssText='left:'+cvRand(2,98)+'%;background:'+c[i%6]+';animation-delay:'+cvRand(0,.5)+'s;animation-duration:'+cvRand(1.5,2.3)+'s;--dx:'+cvRand(-40,40)+'px';a.appendChild(s);setTimeout(()=>s.remove(),3000);}}
     function cvFloat(x,y,text,bad){const area=cvEl('cvArea'),el=document.createElement('span');el.className='cv-float'+(bad?' bad':'');
