@@ -5974,7 +5974,25 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function snSpawnSilverCoins(){
       // Tres piezas en el centro del intervalo; nunca son obstáculos.
       const os=SN.h*.1;
-      for(let i=0;i<3;i++)SN.coins.push({x:SN.w+20+os*(1.9+i*.9), altitude:SN.h*(.125+(i%2)*.045),r:Math.max(10,os*.22),phase:i*1.6});
+      for(let i=0;i<3;i++)SN.coins.push({x:SN.w+20+os*(1.9+i*.9), altitude:SN.h*(.34+(i%2)*.045),r:Math.max(12,os*.265),phase:i*1.6});
+    }
+    // Tintineo corto de plata, sintetizado en Web Audio; no requiere archivo externo.
+    function snSilverSound(){
+      try{
+        const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+        cvAudio=cvAudio||new AC();if(cvAudio.state==='suspended')cvAudio.resume().catch(()=>{});
+        const t=cvAudio.currentTime;
+        for(const [freq,delay,volume] of [[1175,0,.045],[1760,.065,.028]]){
+          const osc=cvAudio.createOscillator(),gain=cvAudio.createGain();
+          osc.type='sine';osc.frequency.setValueAtTime(freq,t+delay);
+          osc.frequency.exponentialRampToValueAtTime(freq*.94,t+delay+.18);
+          gain.gain.setValueAtTime(.0001,t+delay);
+          gain.gain.exponentialRampToValueAtTime(volume,t+delay+.012);
+          gain.gain.exponentialRampToValueAtTime(.0001,t+delay+.24);
+          osc.connect(gain);gain.connect(cvAudio.destination);
+          osc.start(t+delay);osc.stop(t+delay+.25);
+        }
+      }catch(e){}
     }
     function snPass(n){SN.done=n;if(n>SN.best){SN.best=n;try{localStorage.setItem('snBest',n);}catch(e){}}snHud();
       SN.pops.push({t:rkName(n),life:1.6,c:RK_C[Math.min(3,Math.floor((n-1)/10))]});
@@ -5993,11 +6011,11 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         for(const o of SN.obs)o.x-=sp*dt;
         for(const coin of SN.coins){
           coin.x-=sp*dt;coin.phase+=dt*3;
-          const dy=SN.h*.8-coin.altitude;
+          const dy=SN.h*.8-coin.altitude+Math.sin(coin.phase)*3;
           const foot=SN.h*.8-SN.py;
           // Recolección solo con salto real, usando distancia horizontal y vertical.
           if(SN.py>0&&Math.abs(coin.x-w*.16)<coin.r+os*.36&&Math.abs(dy-(foot-SN.h*.16))<coin.r+SN.h*.17){
-            coin.taken=true;SN.coinCount++;SN.coinFx.push({x:coin.x,y:dy,life:.5});snHud();
+            coin.taken=true;SN.coinCount++;SN.coinFx.push({x:coin.x,y:dy,life:.38,r:coin.r});snSilverSound();snHud();
           }
         }
         SN.coins=SN.coins.filter(k=>!k.taken&&k.x>-k.r);
@@ -6045,7 +6063,13 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         for(let j=0;j<4;j++){const a=j*Math.PI/2+Math.PI/4;const xx=Math.cos(a)*r*.43,yy=Math.sin(a)*r*.43;c.beginPath();c.arc(xx,yy,r*.11,0,Math.PI*2);c.fillStyle='#576b7b';c.fill();}
         c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=1.5;c.beginPath();c.arc(-r*.12,-r*.12,r*.69,Math.PI*1.12,Math.PI*1.62);c.stroke();c.restore();
       }
-      for(const f of SN.coinFx){c.save();c.globalAlpha=f.life/.5;c.strokeStyle='#f0f8ff';c.lineWidth=2;c.beginPath();c.arc(f.x,f.y,12+(1-f.life/.5)*22,0,Math.PI*2);c.stroke();c.restore();}
+      for(const f of SN.coinFx){
+        const progress=1-f.life/.38,rad=f.r*(.8+progress*.9);
+        c.save();c.globalAlpha=Math.max(0,f.life/.38)*.75;c.strokeStyle='#f5fbff';c.lineWidth=1.5;
+        c.beginPath();c.arc(f.x,f.y,rad,0,Math.PI*2);c.stroke();
+        c.beginPath();c.moveTo(f.x-rad*.55,f.y);c.lineTo(f.x+rad*.55,f.y);
+        c.moveTo(f.x,f.y-rad*.55);c.lineTo(f.x,f.y+rad*.55);c.stroke();c.restore();
+      }
       const im=SN.img[SN.ch],ph=h*.36;
       if(im&&im.complete&&im.naturalWidth){const pw=ph*im.naturalWidth/im.naturalHeight,px=w*.16,run=SN.st==='run'&&SN.py===0;
         c.fillStyle='rgba(0,0,0,.2)';c.beginPath();c.ellipse(px,gy+3,pw*.32*(1-Math.min(.5,SN.py/(h*.3))),5,0,0,7);c.fill();
