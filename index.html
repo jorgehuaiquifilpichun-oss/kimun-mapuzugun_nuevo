@@ -6010,7 +6010,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       SN.pops.push({t:rkName(n),life:1.6,c:RK_C[Math.min(3,Math.floor((n-1)/10))]});
       snEl('snPanel').innerHTML='<div class="rk-big">'+n+'</div><div class="rk-row">'+rkChips(n)+'</div>';rkPlay(n);if(n>=40)snWin();}
     function snCrash(o){SN.st='crash';SN.crash=1.2;SN.hit=o.n;rkStopAudio();try{cvSound('bad');}catch(e){}
-      const s=Math.floor((o.n-1)/10)*10+1;snEl('snPanel').innerHTML='<div class="rk-name">¡Uy! Volvemos al '+s+'</div><small>¡Tú puedes!</small>';}
+      const s=Math.floor((o.n-1)/10)*10+1;snEl('snPanel').innerHTML='<div class="rk-name">¡Ay fotxü! Volvemos al '+s+'</div><small>¡Tú puedes!</small>';}
     function snResume(){const s=Math.floor((SN.hit-1)/10)*10+1;Object.assign(SN,{st:'run',done:s-1,next:s,obs:[],coins:[],coinFx:[],py:0,vy:0,grace:1.2,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();snMediaStart();}
     function snWin(){snStop();try{cvSound('win');}catch(e){}
       snCard('<img class="rk-celebra" src="./kume_zugun.png" alt="Txegül: Küme zugun" onerror="this.remove()"><div class="cv-lv win">¡Küme zugu!</div><p>¡Llegaste al 40!</p>'+
@@ -6103,7 +6103,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         }else c.drawImage(im,-pw/2,-ph+(run?Math.abs(Math.sin(d*.06))*-4:0),pw,ph);
         c.restore();}
       for(const q of SN.pops){c.globalAlpha=Math.min(1,q.life*2);c.font='900 '+Math.round(h*.07)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.fillStyle=q.c;c.fillText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.globalAlpha=1;}
-      if(SN.st==='crash'){c.font='900 '+Math.round(h*.08)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText('¡Uy!',w*.5,h*.4);c.fillStyle='#c4622d';c.fillText('¡Uy!',w*.5,h*.4);}}
+      if(SN.st==='crash'){c.font='900 '+Math.round(h*.08)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText('¡Ay fotxü!',w*.5,h*.4);c.fillStyle='#c4622d';c.fillText('¡Ay fotxü!',w*.5,h*.4);}}
     function snExit(){try{playFiluMapClick();}catch(e){}snStop();showScreen('activityMap');}
     function openSaltaFromMap(button){if(button&&button.dataset.opening==='1')return;
       if(button){button.dataset.opening='1';animateActivityMapTile(button,true);}playFiluMapClick();
