@@ -1410,6 +1410,9 @@
     .sn-tile-art{position:absolute;left:24%;width:52%;top:22%;height:58%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35));}
     .sn-bar{position:relative;height:22px;border-radius:11px;background:rgba(0,0,0,.35);overflow:hidden;border:1px solid #d9bd79;}
     .sn-fill{height:100%;width:0;background:linear-gradient(#5fd77c,#1f9a46);transition:width .25s;} .sn-bar span{position:absolute;inset:0;font-weight:800;font-size:13px;line-height:22px;text-shadow:0 1px 2px rgba(0,0,0,.6);}
+    .sn-stage{position:relative;flex:1;min-height:0;width:100%;overflow:hidden;border-radius:16px;}
+    .sn-bg-video{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;}
+    .sn-stage .sn-canvas{position:relative;z-index:1;height:100%;background:transparent;}
     .sn-canvas{flex:1;min-height:0;width:100%;display:block;border-radius:16px;border:2px solid #d9bd79;box-shadow:0 5px 12px rgba(0,0,0,.4);touch-action:none;background:#cfe8ef;}
     .sn-pick{display:flex;gap:10px;margin:8px 0;} .sn-pick button{flex:1;padding:6px;background:linear-gradient(#fbf0d4,#ecd9a6);border:3px solid #6f431e;border-radius:16px;cursor:pointer;box-shadow:0 4px 0 #6f431e;}
     .sn-pick button:active{transform:translateY(2px);} .sn-pick img,.sn-prev{display:block;width:100%;height:auto;max-height:24dvh;object-fit:contain;margin:0 auto;} .sn-prev{width:auto;max-height:15dvh;}
@@ -1713,7 +1716,7 @@
         <div class="rk-top"><button class="rk-back" type="button" onclick="snExit()" aria-label="Wiñotxekage, volver al Camino del Sabio"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
           <div class="rk-title"><h2>Salta el número</h2><small>Cuenta en mapuzungun</small></div></div>
         <div class="sn-bar"><div class="sn-fill" id="snFill"></div><span id="snTxt"></span></div>
-        <canvas id="snCanvas" class="sn-canvas" aria-label="Juego: toca para saltar el número"></canvas>
+        <div class="sn-stage"><video id="snBgVideo" class="sn-bg-video" src="./fondo_txegul_kimun_mapuzungun.mp4" muted playsinline loop preload="auto" aria-hidden="true"></video><canvas id="snCanvas" class="sn-canvas" aria-label="Juego: toca para saltar el número"></canvas></div>
         <div class="rk-panel" id="snPanel" aria-live="polite"></div>
         <div class="rk-ov" id="snOv" hidden></div>
       </div>
@@ -5905,22 +5908,23 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       cc.putImageData(frame,0,0);
       return SN_CHROMA_CANVAS;
     }
-    function snMediaStop(){SN_RUN_VIDEO.pause();SN_JUMP_VIDEO.pause();}
-    function snMediaStart(){if(SN.ch!=='b')return;
+    const SN_BG_VIDEO=document.getElementById('snBgVideo');
+    function snMediaStop(){SN_RUN_VIDEO.pause();SN_JUMP_VIDEO.pause();SN_BG_VIDEO.pause();}
+    function snMediaStart(){SN_BG_VIDEO.play().catch(()=>{});if(SN.ch!=='b')return;
       SN_JUMP_VIDEO.pause();SN_RUN_VIDEO.playbackRate=1;
       SN_RUN_VIDEO.play().catch(()=>{});
     }
-    const SN={st:'idle',ch:'a',done:0,next:1,hit:0,obs:[],dist:0,last:0,raf:0,py:0,vy:0,grace:0,crash:0,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,pops:[],img:{},best:0,w:320,h:400};
+    const SN={st:'idle',ch:'a',done:0,next:1,hit:0,obs:[],dist:0,last:0,raf:0,py:0,vy:0,grace:0,crash:0,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,pops:[],img:{},best:0,w:320,h:400,coins:[],coinCount:0,coinFx:[]};
     try{SN.best=+localStorage.getItem('snBest')||0;}catch(e){}
     for(const k in SN_IMG){const i=new Image();i.src=SN_IMG[k];SN.img[k]=i;}
     const snEl=id=>document.getElementById(id);
     snEl('snTileArt').src=SN_IMG.a;
     function snSize(){const c=snEl('snCanvas'),r=c.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
       SN.w=Math.max(200,r.width);SN.h=Math.max(200,r.height);c.width=Math.round(SN.w*d);c.height=Math.round(SN.h*d);c.getContext('2d').setTransform(d,0,0,d,0,0);}
-    function snHud(){snEl('snFill').style.width=(100*SN.done/40)+'%';snEl('snTxt').textContent='Número '+SN.done+' de 40 · Récord '+SN.best;}
+    function snHud(){snEl('snFill').style.width=(100*SN.done/40)+'%';snEl('snTxt').textContent='Número '+SN.done+' de 40 · Plata '+SN.coinCount+' · Récord '+SN.best;}
     function snCard(inner){const o=snEl('snOv');o.innerHTML='<div class="cv-card"><div class="mp-band"></div>'+inner+'<div class="mp-band"></div></div>';o.hidden=false;}
     function snStop(){SN.st='idle';cancelAnimationFrame(SN.raf);SN.raf=0;snMediaStop();rkStopAudio();}
-    function snPick(){snStop();SN.done=0;SN.next=1;SN.obs=[];SN.pops=[];SN.py=0;snHud();
+    function snPick(){snStop();SN.done=0;SN.next=1;SN.obs=[];SN.pops=[];SN.coins=[];SN.coinFx=[];SN.coinCount=0;SN.py=0;snHud();
       snEl('snPanel').innerHTML='<small>Elige a tu personaje para comenzar</small>';
       snCard('<h3>Elige tu personaje</h3><div class="sn-pick"><button type="button" onclick="snChoose(\'a\')" aria-label="Txegül con kultrún"><img src="'+SN_IMG.a+'" alt="Txegül con kultrún"></button>'+
         '<button type="button" onclick="snChoose(\'b\')" aria-label="Txegül con poncho"><img src="'+SN_IMG.b+'" alt="Txegül con poncho"></button></div>');snDraw(0);}
@@ -5929,7 +5933,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       '<button class="cv-go" type="button" onclick="snStart()">A JUGAR</button><button class="sn-link" type="button" onclick="snPick()">Cambiar personaje</button>');
       snEl('snPanel').innerHTML='<small>Toca la pantalla para saltar</small>';snDraw(0);}
     function snStart(){try{playFiluMapClick();}catch(e){}snEl('snOv').hidden=true;snSize();
-      Object.assign(SN,{st:'run',done:0,next:1,obs:[],pops:[],py:0,vy:0,dist:0,grace:1.3,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();
+      Object.assign(SN,{st:'run',done:0,next:1,obs:[],pops:[],coins:[],coinFx:[],coinCount:0,py:0,vy:0,dist:0,grace:1.3,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();
       snEl('snPanel').innerHTML='<small>¡Toca para saltar!</small>';snMediaStart();SN.raf=requestAnimationFrame(snLoop);}
     function snJump(){if(SN.st==='run'&&SN.py===0&&SN.vy===0){SN.vy=SN.h*1.75;
       if(SN.ch==='b'){SN_JUMP_VIDEO.pause();SN_JUMP_VIDEO.currentTime=0;
@@ -5942,6 +5946,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       if(SN.emptyLeft>0){
         SN.obs.push({n:null,x:SN.w+20,p:0});
         SN.emptyLeft--;
+        if(SN.done>=9)snSpawnSilverCoins();
         // Dar tiempo a saltar el cubo vacío ANTES del próximo número.
         SN.spawnIn=2.5;
         return;
@@ -5966,12 +5971,17 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         SN.numberAfter=SN.clock+pause;
       }
     }
+    function snSpawnSilverCoins(){
+      // Tres piezas en el centro del intervalo; nunca son obstáculos.
+      const os=SN.h*.1;
+      for(let i=0;i<3;i++)SN.coins.push({x:SN.w+20+os*(1.9+i*.9), altitude:SN.h*(.125+(i%2)*.045),r:Math.max(10,os*.22),phase:i*1.6});
+    }
     function snPass(n){SN.done=n;if(n>SN.best){SN.best=n;try{localStorage.setItem('snBest',n);}catch(e){}}snHud();
       SN.pops.push({t:rkName(n),life:1.6,c:RK_C[Math.min(3,Math.floor((n-1)/10))]});
       snEl('snPanel').innerHTML='<div class="rk-big">'+n+'</div><div class="rk-row">'+rkChips(n)+'</div>';rkPlay(n);if(n>=40)snWin();}
     function snCrash(o){SN.st='crash';SN.crash=1.2;SN.hit=o.n;rkStopAudio();try{cvSound('bad');}catch(e){}
       const s=Math.floor((o.n-1)/10)*10+1;snEl('snPanel').innerHTML='<div class="rk-name">¡Uy! Volvemos al '+s+'</div><small>¡Tú puedes!</small>';}
-    function snResume(){const s=Math.floor((SN.hit-1)/10)*10+1;Object.assign(SN,{st:'run',done:s-1,next:s,obs:[],py:0,vy:0,grace:1.2,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();snMediaStart();}
+    function snResume(){const s=Math.floor((SN.hit-1)/10)*10+1;Object.assign(SN,{st:'run',done:s-1,next:s,obs:[],coins:[],coinFx:[],py:0,vy:0,grace:1.2,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();snMediaStart();}
     function snWin(){snStop();try{cvSound('win');}catch(e){}
       snCard('<img class="rk-celebra" src="./kume_zugun.png" alt="Txegül: Küme zugun" onerror="this.remove()"><div class="cv-lv win">¡Küme zugu!</div><p>¡Llegaste al 40!</p>'+
         '<button class="cv-go" type="button" onclick="snStart()">JUGAR OTRA VEZ</button><button class="sn-link" type="button" onclick="snPick()">Cambiar personaje</button>');try{cvConfetti(snEl('snRoot'));}catch(e){}}
@@ -5981,6 +5991,16 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         if(SN.py>0||SN.vy>0){SN.vy-=h*4*dt;SN.py+=SN.vy*dt;if(SN.py<=0){SN.py=0;SN.vy=0;}}
         SN.clock+=dt;
         for(const o of SN.obs)o.x-=sp*dt;
+        for(const coin of SN.coins){
+          coin.x-=sp*dt;coin.phase+=dt*3;
+          const dy=SN.h*.8-coin.altitude;
+          const foot=SN.h*.8-SN.py;
+          // Recolección solo con salto real, usando distancia horizontal y vertical.
+          if(SN.py>0&&Math.abs(coin.x-w*.16)<coin.r+os*.36&&Math.abs(dy-(foot-SN.h*.16))<coin.r+SN.h*.17){
+            coin.taken=true;SN.coinCount++;SN.coinFx.push({x:coin.x,y:dy,life:.5});snHud();
+          }
+        }
+        SN.coins=SN.coins.filter(k=>!k.taken&&k.x>-k.r);
         SN.grace-=dt;SN.spawnIn-=dt;
         if(SN.next<=40||SN.emptyLeft>0){
           // El cronómetro impide la aparición anticipada del siguiente número.
@@ -5997,9 +6017,12 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
           }}
         SN.obs=SN.obs.filter(o=>o.x>-os*2);}
       else if(SN.st==='crash'){SN.crash-=dt;if(SN.crash<=0)snResume();}
+      for(const f of SN.coinFx)f.life-=dt;SN.coinFx=SN.coinFx.filter(f=>f.life>0);
       for(const q of SN.pops)q.life-=dt;SN.pops=SN.pops.filter(q=>q.life>0);snDraw(dt);SN.raf=requestAnimationFrame(snLoop);}
     function snRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
     function snDraw(){const c=snEl('snCanvas').getContext('2d'),w=SN.w,h=SN.h,gy=h*.8,d=SN.dist,os=h*.1;
+      c.clearRect(0,0,w,h);
+      if(SN_BG_VIDEO.readyState<2){
       let g=c.createLinearGradient(0,0,0,gy);g.addColorStop(0,'#a9d8ea');g.addColorStop(1,'#f6edd2');c.fillStyle=g;c.fillRect(0,0,w,h);
       c.fillStyle='rgba(255,240,180,.85)';c.beginPath();c.arc(w*.82,h*.14,h*.06,0,7);c.fill();
       const P=w*1.3,vx=-(d*.06)%P;for(let k=0;k<2;k++){const x=vx+k*P+w*.2;c.fillStyle='#7f9fb3';c.beginPath();c.moveTo(x,gy);c.lineTo(x+w*.36,gy-h*.3);c.lineTo(x+w*.46,gy-h*.3);c.lineTo(x+w*.82,gy);c.fill();
@@ -6008,10 +6031,21 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         c.beginPath();c.ellipse(x,gy-h*.19,w*.075,h*.04,0,0,7);c.fill();c.beginPath();c.ellipse(x,gy-h*.235,w*.045,h*.025,0,0,7);c.fill();}
       c.fillStyle='#c9a86a';c.fillRect(0,gy,w,h-gy);c.fillStyle='#6f431e';c.fillRect(0,gy,w,3);
       c.fillStyle='rgba(111,67,30,.45)';const G=46,gx=-(d)%G;for(let x=gx;x<w;x+=G){c.fillRect(x,gy+h*.05+(x*7%11),9,3);c.fillRect(x+22,gy+h*.1+(x*5%9),5,2);}
+      }
       for(const o of SN.obs){const x=o.x,y=gy-os,col=o.n===null?'#74604b':RK_C[Math.min(3,Math.floor((o.n-1)/10))];
         c.fillStyle='rgba(0,0,0,.18)';c.beginPath();c.ellipse(x+os/2,gy+3,os*.6,5,0,0,7);c.fill();
         let q=c.createLinearGradient(0,y,0,gy);q.addColorStop(0,'#fbf0d4');q.addColorStop(1,'#e2c78a');snRR(c,x,y,os,os,os*.18);c.fillStyle=q;c.fill();c.lineWidth=4;c.strokeStyle=col;c.stroke();
         if(o.n!==null){c.fillStyle='#3b2412';c.font='900 '+Math.round(os*(o.n>9?.5:.62))+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(o.n,x+os/2,y+os/2+1);}}
+      // Kultrún de plata interpretado mediante Canvas; sin archivo de imagen.
+      for(const coin of SN.coins){const x=coin.x,y=gy-coin.altitude+Math.sin(coin.phase)*3,r=coin.r;
+        c.save();c.translate(x,y);c.shadowColor='rgba(230,245,255,.9)';c.shadowBlur=8;
+        const silver=c.createLinearGradient(-r,-r,r,r);silver.addColorStop(0,'#ffffff');silver.addColorStop(.22,'#b8c8d3');silver.addColorStop(.5,'#f4f7fc');silver.addColorStop(.78,'#788a9c');silver.addColorStop(1,'#d9e3ec');
+        c.fillStyle=silver;c.strokeStyle='#526677';c.lineWidth=Math.max(1.5,r*.15);c.beginPath();c.arc(0,0,r,0,Math.PI*2);c.fill();c.stroke();
+        c.shadowBlur=0;c.strokeStyle='#445c70';c.lineWidth=Math.max(1,r*.12);c.beginPath();c.moveTo(-r*.72,0);c.lineTo(r*.72,0);c.moveTo(0,-r*.72);c.lineTo(0,r*.72);c.stroke();
+        for(let j=0;j<4;j++){const a=j*Math.PI/2+Math.PI/4;const xx=Math.cos(a)*r*.43,yy=Math.sin(a)*r*.43;c.beginPath();c.arc(xx,yy,r*.11,0,Math.PI*2);c.fillStyle='#576b7b';c.fill();}
+        c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=1.5;c.beginPath();c.arc(-r*.12,-r*.12,r*.69,Math.PI*1.12,Math.PI*1.62);c.stroke();c.restore();
+      }
+      for(const f of SN.coinFx){c.save();c.globalAlpha=f.life/.5;c.strokeStyle='#f0f8ff';c.lineWidth=2;c.beginPath();c.arc(f.x,f.y,12+(1-f.life/.5)*22,0,Math.PI*2);c.stroke();c.restore();}
       const im=SN.img[SN.ch],ph=h*.36;
       if(im&&im.complete&&im.naturalWidth){const pw=ph*im.naturalWidth/im.naturalHeight,px=w*.16,run=SN.st==='run'&&SN.py===0;
         c.fillStyle='rgba(0,0,0,.2)';c.beginPath();c.ellipse(px,gy+3,pw*.32*(1-Math.min(.5,SN.py/(h*.3))),5,0,0,7);c.fill();
