@@ -89,6 +89,10 @@
       font: inherit;
     }
 
+    /* INTRO TXEGÜL — reproducción automática posterior a Comenzar. */
+    .intro-txegul-screen { width:100%; height:100dvh; min-height:0; overflow:hidden; background:#000; }
+    .intro-txegul-video { display:block; width:100%; height:100%; object-fit:contain; }
+
     /* PANTALLA DE AGRADECIMIENTOS */
     .ack-screen {
       position: relative;
@@ -1479,6 +1483,14 @@
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
         </div>
+      </div>
+    </section>
+
+    <section id="introTxegul" class="screen" aria-label="Introducción de los Txegül">
+      <div class="intro-txegul-screen">
+        <video id="introTxegulVideo" class="intro-txegul-video" preload="auto" playsinline webkit-playsinline onended="finishTxegulIntro()" onerror="finishTxegulIntro()">
+          <source src="./intro_txegul_kimun_mapuzungun.mp4" type="video/mp4">
+        </video>
       </div>
     </section>
 
@@ -3086,7 +3098,27 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       LEVEL_STATS.name=name;
       const overlay=document.getElementById('playerEntry');
       overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
-      openAcknowledgements();
+      startTxegulIntro();
+    }
+
+    function startTxegulIntro() {
+      stopAcknowledgementsAudio();
+      showScreen('introTxegul');
+      const video = document.getElementById('introTxegulVideo');
+      if (!video) { finishTxegulIntro(); return; }
+      video.currentTime = 0;
+      const playback = video.play();
+      if (playback && typeof playback.catch === 'function') {
+        playback.catch(() => {
+          // Sin reproducción automática no avanzar en silencio: ofrecer inicio manual.
+          if (!document.getElementById('introTxegul').classList.contains('active')) return;
+          video.controls = true;
+        });
+      }
+    }
+    function finishTxegulIntro() {
+      if (!document.getElementById('introTxegul').classList.contains('active')) return;
+      showScreen('filu');
     }
 
     function openAcknowledgements() {
@@ -5442,6 +5474,10 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
+      if (screenId !== 'introTxegul') {
+        const introVideo = document.getElementById('introTxegulVideo');
+        if (introVideo) { introVideo.pause(); introVideo.controls = false; }
+      }
       if (screenId !== 'kimunVoxel') KV.leave();
       if (NEWEN_EXERCISES.has(screenId) && newenLives === 0) {
         beginNewenRecovery(screenId);
