@@ -89,6 +89,12 @@
       font: inherit;
     }
 
+    /* Introducción: pantalla independiente entre registro y Agradecimientos. */
+    .intro-video-stage { position:relative; width:100%; height:100dvh; overflow:hidden; background:#080e0c; }
+    .intro-video-media { display:block; width:100%; height:100%; object-fit:contain; background:#080e0c; }
+    .intro-video-action { position:absolute; left:50%; bottom:max(22px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:2; padding:12px 23px; border:2px solid #a8d48e; border-radius:999px; background:rgba(24,63,49,.91); color:#fff; font:700 1rem Arial,sans-serif; cursor:pointer; }
+    .intro-video-action[hidden] { display:none !important; }
+
     /* PANTALLA DE AGRADECIMIENTOS */
     .ack-screen {
       position: relative;
@@ -1491,6 +1497,14 @@
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
         </div>
+      </div>
+    </section>
+
+    <section id="introVideoScreen" class="screen" aria-label="Video de introducción">
+      <div class="intro-video-stage">
+        <video id="introVideoMedia" class="intro-video-media" src="./intro_txegul_kimun_mapuzungun.mp4" preload="metadata" playsinline webkit-playsinline></video>
+        <button id="introVideoAction" class="intro-video-action" type="button" onclick="resumeIntroVideo()" hidden>Reproducir introducción</button>
+        <button id="introVideoSkip" class="intro-video-action" type="button" onclick="finishIntroVideo()" hidden>Continuar a Agradecimientos</button>
       </div>
     </section>
 
@@ -3121,8 +3135,37 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       LEVEL_STATS.name=name;
       const overlay=document.getElementById('playerEntry');
       overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
+      startIntroVideo();
+    }
+
+    function startIntroVideo() {
+      const video=document.getElementById('introVideoMedia');
+      document.getElementById('introVideoAction').hidden=true;
+      document.getElementById('introVideoSkip').hidden=true;
+      showScreen('introVideoScreen');
+      video.currentTime=0;
+      const playback=video.play();
+      if(playback && typeof playback.catch==='function')playback.catch(()=>{
+        if(document.getElementById('introVideoScreen').classList.contains('active'))document.getElementById('introVideoAction').hidden=false;
+      });
+    }
+    function resumeIntroVideo() {
+      document.getElementById('introVideoAction').hidden=true;
+      const playback=document.getElementById('introVideoMedia').play();
+      if(playback && typeof playback.catch==='function')playback.catch(()=>{document.getElementById('introVideoAction').hidden=false;});
+    }
+    function finishIntroVideo() {
+      const video=document.getElementById('introVideoMedia');
+      video.pause();
       openAcknowledgements();
     }
+    document.getElementById('introVideoMedia').addEventListener('ended',finishIntroVideo);
+    document.getElementById('introVideoMedia').addEventListener('error',()=>{
+      if(document.getElementById('introVideoScreen').classList.contains('active')){
+        document.getElementById('introVideoAction').hidden=true;
+        document.getElementById('introVideoSkip').hidden=false;
+      }
+    });
 
     function openAcknowledgements() {
       showScreen("acknowledgements");
@@ -5477,6 +5520,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
+      if(screenId !== 'introVideoScreen')document.getElementById('introVideoMedia').pause();
       if (screenId !== 'kimunVoxel') KV.leave();
       if (NEWEN_EXERCISES.has(screenId) && newenLives === 0) {
         beginNewenRecovery(screenId);
