@@ -3683,7 +3683,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(funhGameReadyTimer!==null){clearTimeout(funhGameReadyTimer);funhGameReadyTimer=null;}
       funhStopTravel();
       document.querySelectorAll('#funhGalleryGrid .funh-suggested').forEach(c=>c.classList.remove('funh-suggested'));
-      if('speechSynthesis' in window)window.speechSynthesis.cancel();
+      stopFunhRecordings();
     }
     function funhResetGallery(){
       funhPauseGallery();funhVisited.clear();funhCurrentIndex=null;funhGuideIndex=null;
@@ -3823,8 +3823,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(funhSpeechTimer!==null){clearTimeout(funhSpeechTimer);funhSpeechTimer=null;}
       speakFunhName(FUNH_FRUIT_IMAGES[funhCurrentIndex].name);
     }
-    // Üñü — Murta: grabación original incorporada sin dependencia externa.
-    // Grabación de Michay integrada sin recurso externo.
     // Archivos del kimelfe: nombres exactamente como en audios_frutos.
     // La carpeta debe estar al mismo nivel que index.html en GitHub Pages.
     const FUNH_AUDIO_FILES = {
@@ -3841,7 +3839,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       .map(([name,file])=>[name,'./audios_frutos/'+encodeURIComponent(file)]));
     let funhCurrentRecording=null;
     function stopFunhRecordings(){
-      if(funhCurrentRecording){funhCurrentRecording.pause();funhCurrentRecording.currentTime=0;}
+      if(funhCurrentRecording){funhCurrentRecording.pause();funhCurrentRecording.currentTime=0;funhCurrentRecording=null;}
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
     }
     function speakFunhName(name,withClick=true){
@@ -5762,8 +5760,6 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     ];
     const CV_MAIN=['Piñón','Manzana','Frutilla','Uvas']; // Nivel 3: 4 bloques de 15 s, en este orden
     const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uvas'];
-    const CV_AUDIO=FUNH_AUDIO_PATHS; // grabaciones del kimelfe compartidas con el árbol
-    const CV_VOICE=new Set(); // los veinte audios con grabación tienen prioridad
     const cvIdx=n=>CV_F.findIndex(f=>f[0]===n);
     const CV={level:0,done:[false,false,false],res:[[0,0],[0,0],[0,0]],hk:'',pausedWas:false,active:false,raf:0,last:0,elapsed:0,target:-1,seq:[],cd:0,aud:null,
       correct:0,score:0,fruits:[],particles:[],trail:[],spawn:0,pointer:false,width:320,height:480,dur:45,rotations:0,token:0};
@@ -5797,15 +5793,10 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     }
     function cvSpeak(i){
       try {
-        const n=CV_F[i][1];
-        stopFunhRecordings();
-        if(CV.aud){CV.aud.pause();CV.aud.currentTime=0;CV.aud=null;}
-        if(CV_AUDIO[n]){
-          CV.aud=new Audio(CV_AUDIO[n]);
-          CV.aud.play().catch(error=>console.warn('No se cargó el audio del juego: '+n,CV_AUDIO[n],error));
-        }else if(CV_VOICE.has(n)){
-          speakFunhName(n,false);
-        }
+        const fruit=CV_F[i];
+        if(!fruit)return;
+        // Un único reproductor para árbol y juego: los 20 MP3 aprobados.
+        speakFunhName(fruit[1],false);
       }catch(error){console.warn('Error en pronunciación del juego:',error);}
     }
     function cvOverlay(html){const el=cvEl('cvOv');el.innerHTML=html;el.classList.add('on');}
