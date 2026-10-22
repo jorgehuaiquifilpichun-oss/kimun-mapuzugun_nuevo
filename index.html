@@ -778,6 +778,9 @@
       -webkit-backdrop-filter:blur(8px);
     }
     .player-entry-overlay.open {display:flex;}
+    /* El registro se ubica en la mitad superior del espacio visible, incluido el teclado. */
+    .player-entry-overlay.open {align-items:flex-start; padding-top:clamp(18px, 12dvh, 105px); overflow-y:auto;}
+    .player-entry-overlay.keyboard-visible {padding-top:12px;}
     .player-entry-card {
       width:min(100%,355px); padding:27px 21px 22px;
       border:3px solid #b08a51; border-radius:20px;
@@ -796,6 +799,18 @@
       font:900 1.04rem Arial,sans-serif; cursor:pointer;
     }
     .player-entry-card button:disabled {opacity:.46;cursor:not-allowed;}
+    .player-name-suggestions {display:none; max-height:min(24dvh,152px); overflow-y:auto;
+      margin-top:5px; border:1px solid #a18254; border-radius:11px; background:#fffef8;
+      box-shadow:0 4px 9px #0002; text-align:left; overscroll-behavior:contain;}
+    .player-name-suggestions.visible {display:block;}
+    .player-entry-card .player-suggestion {display:block; width:100%; margin:0; padding:9px 12px;
+      border:0; border-bottom:1px solid #e8dcc9; border-radius:0; background:transparent;
+      font:600 1rem Arial,sans-serif; color:#203b29; text-align:left; cursor:pointer;}
+    .player-entry-card .player-suggestion:last-child {border-bottom:0;}
+    .player-entry-card .player-suggestion:focus-visible {outline:2px solid #26773b; outline-offset:-2px;}
+    @media(max-height:520px){.player-entry-card {padding:14px 16px 12px;}
+      .player-entry-card label {margin-bottom:7px;}.player-entry-card button[type=submit] {margin-top:8px;}}
+
     /* Los nueve valores siguen exactamente los centros de las placas blancas del PNG 781x1536. */
     .level-one-stat {
       position:absolute; z-index:4; width:25.2%; height:4.1%;
@@ -2601,7 +2616,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
   <div id="playerEntry" class="player-entry-overlay" role="dialog" aria-modal="true" aria-labelledby="playerEntryLabel" aria-hidden="true">
     <form class="player-entry-card" id="playerEntryForm" onsubmit="confirmNewGame(event)">
       <label id="playerEntryLabel" for="playerEntryName">Ingresa tu nombre</label>
-      <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="off" required oninput="validatePlayerName()">
+      <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="off" required oninput="validatePlayerName()" aria-controls="playerNameSuggestions" aria-expanded="false">
+      <div id="playerNameSuggestions" class="player-name-suggestions" aria-label="Sugerencias opcionales" role="group"></div>
       <button id="playerEntryStart" type="submit" disabled>Comenzar</button>
     </form>
   </div>
@@ -3052,9 +3068,75 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         if(go)go.disabled=false;
       },1750+ids.length*110+100));
     }
-    function validatePlayerName() {
+    // Sugerencias opcionales: no cambian el texto sin una selección explícita.
+    // Se usa el último término para admitir nombre y apellido en el mismo campo original.
+    const PLAYER_FIRST_NAMES = [
+      'Alejandro','Alexandra','Ana','Andrés','Antonia','Benjamín','Camila','Carolina',
+      'Catalina','Claudia','Cristián','Daniel','Daniela','David','Diego','Eduardo',
+      'Elena','Emilia','Felipe','Fernanda','Francisca','Gabriel','Gabriela','Ignacio',
+      'Isabel','Javiera','Joaquín','Joel','Jorge','José','Josefa','Juan','Julia',
+      'Laura','Leonardo','Lorena','Lucas','Luis','María','Mariana','Martín','Matías',
+      'Miguel','Nicolás','Pablo','Paula','Pedro','Rafael','Ricardo','Rosa','Santiago',
+      'Sebastián','Sofía','Tomás','Valentina','Vicente'];
+    // Variantes de apellido como referencia de escritura, no como corrección obligatoria.
+    const PLAYER_MAPUCHE_SURNAMES = [
+      'Antilef','Antriao','Calfunao','Calfunir','Catrileo','Catrilaf','Cayupán',
+      'Chihuailaf','Chihuaicura','Chillán','Coñuecar','Colipe','Curihuinca',
+      'Curilaf','Curinao','Epuín','Huenchulaf','Huenchumán','Huenul','Huaiquifil',
+      'Huilcamán','Huilipán','Huenchuleo','Lefimil','Lincopán','Llanquileo',
+      'Llancapán','Manquilef','Marileo','Millaleo','Millahual','Millanao',
+      'Nahuel','Nahuelpán','Ñanculef','Ñanco','Painemal','Paillalef','Panguilef',
+      'Pichún','Pocollanca','Quidel','Quilaqueo','Quilapán',
+      'Quiñenao','Reuque','Tripailaf','Tranamil'];
+    const playerSuggestionItems = Array.from(new Set([...PLAYER_FIRST_NAMES,...PLAYER_MAPUCHE_SURNAMES]));
+    function hidePlayerSuggestions(){
+      const list=document.getElementById('playerNameSuggestions');
+      list.replaceChildren(); list.classList.remove('visible');
+      document.getElementById('playerEntryName').setAttribute('aria-expanded','false');
+    }
+    function renderPlayerSuggestions(){
+      const input=document.getElementById('playerEntryName');
+      const text=input.value;
+      const match=text.match(/(?:^|\s)([^\s]*)$/u);
+      const prefix=match ? match[1] : '';
+      const list=document.getElementById('playerNameSuggestions');
+      hidePlayerSuggestions();
+      if(!prefix || document.getElementById('playerEntry').getAttribute('aria-hidden')==='true')return;
+      const key=prefix.toLocaleLowerCase('es');
+      const results=playerSuggestionItems.filter(item=>item.toLocaleLowerCase('es').startsWith(key) && item.toLocaleLowerCase('es')!==key).slice(0,5);
+      if(!results.length)return;
+      results.forEach(item=>{
+        const option=document.createElement('button'); option.type='button';
+        option.className='player-suggestion'; option.textContent=item;
+        option.addEventListener('click',()=>{
+          const before=input.value.replace(/[^\s]*$/u,'');
+          const proposed=before+item;
+          if(proposed.length>input.maxLength)return;
+          input.value=proposed; hidePlayerSuggestions();validatePlayerName(false);
+          input.focus();
+        });
+        list.appendChild(option);
+      });
+      list.classList.add('visible'); input.setAttribute('aria-expanded','true');
+    }
+    function validatePlayerName(showSuggestions=true) {
       const input=document.getElementById('playerEntryName');
       document.getElementById('playerEntryStart').disabled=!input.value.trim();
+      if(showSuggestions)renderPlayerSuggestions();
+    }
+    // visualViewport informa del teclado en navegadores móviles compatibles.
+    function positionPlayerEntry(){
+      const overlay=document.getElementById('playerEntry');
+      if(!overlay.classList.contains('open'))return;
+      const vv=window.visualViewport;
+      if(vv){
+        overlay.style.top=vv.offsetTop+'px'; overlay.style.height=vv.height+'px';
+        overlay.classList.toggle('keyboard-visible',vv.height<window.innerHeight*0.8);
+      }
+    }
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize',positionPlayerEntry);
+      window.visualViewport.addEventListener('scroll',positionPlayerEntry);
     }
     function resetEntireGame() {
       LEVEL_STATS.name='';LEVEL_STATS.correct=0;LEVEL_STATS.wrong=0;
@@ -3122,9 +3204,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Abrir o cancelar el formulario no borra la partida vigente.
       const overlay=document.getElementById('playerEntry');
       const input=document.getElementById('playerEntryName');
-      input.value='';validatePlayerName();
+      input.value='';hidePlayerSuggestions();validatePlayerName(false);
       overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
-      input.focus();
+      positionPlayerEntry();input.focus();
     }
     function confirmNewGame(event) {
       event.preventDefault();
@@ -3135,6 +3217,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       LEVEL_STATS.name=name;
       const overlay=document.getElementById('playerEntry');
       overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
+      overlay.classList.remove('keyboard-visible');overlay.style.top='';overlay.style.height='';
+      hidePlayerSuggestions();document.getElementById('playerEntryName').blur();
       startIntroVideo();
     }
 
