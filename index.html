@@ -89,10 +89,6 @@
       font: inherit;
     }
 
-    /* INTRO TXEGÜL — reproducción automática posterior a Comenzar. */
-    .intro-txegul-screen { width:100%; height:100dvh; min-height:0; overflow:hidden; background:#000; }
-    .intro-txegul-video { display:block; width:100%; height:100%; object-fit:contain; }
-
     /* PANTALLA DE AGRADECIMIENTOS */
     .ack-screen {
       position: relative;
@@ -1420,7 +1416,6 @@
     .sn-coin-hud{position:absolute;top:10px;right:10px;z-index:3;display:flex;gap:7px;align-items:center;padding:6px 10px;border:1px solid rgba(255,255,255,.7);border-radius:999px;background:rgba(25,47,48,.72);color:#f6fbff;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none;}
     .sn-coin-hud span{font:800 12px Arial,sans-serif;}
     .sn-coin-hud strong{font:900 17px Arial,sans-serif;min-width:1.2em;text-align:right;}
-    .sn-final-stats{padding:9px 6px;border-radius:10px;background:rgba(34,91,55,.12);font-size:14px;line-height:1.5;}
     .sn-canvas{flex:1;min-height:0;width:100%;display:block;border-radius:16px;border:2px solid #d9bd79;box-shadow:0 5px 12px rgba(0,0,0,.4);touch-action:none;background:#cfe8ef;}
     .sn-pick{display:flex;gap:10px;margin:8px 0;} .sn-pick button{flex:1;padding:6px;background:linear-gradient(#fbf0d4,#ecd9a6);border:3px solid #6f431e;border-radius:16px;cursor:pointer;box-shadow:0 4px 0 #6f431e;}
     .sn-pick button:active{transform:translateY(2px);} .sn-pick img,.sn-prev{display:block;width:100%;height:auto;max-height:24dvh;object-fit:contain;margin:0 auto;} .sn-prev{width:auto;max-height:15dvh;}
@@ -1484,14 +1479,6 @@
           <a class="home-link" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener" aria-label="Abrir Diccionario Mapuche"><img class="home-button-image" src="./boton_diccionario.png" alt="Diccionario Mapuche"></a>
           <img class="home-button-image" src="./boton_grafemario.png" alt="Grafemario y Sonidos">
         </div>
-      </div>
-    </section>
-
-    <section id="introTxegul" class="screen" aria-label="Introducción de los Txegül">
-      <div class="intro-txegul-screen">
-        <video id="introTxegulVideo" class="intro-txegul-video" preload="auto" playsinline webkit-playsinline onended="finishTxegulIntro()" onerror="finishTxegulIntro()">
-          <source src="./intro_txegul_kimun_mapuzungun.mp4" type="video/mp4">
-        </video>
       </div>
     </section>
 
@@ -2972,6 +2959,28 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       }
       levelAnimationTimers.push(setTimeout(()=>layer.replaceChildren(),3700));
     }
+    // Efecto de puntuación compartido por los dos cierres, sin música ni recursos adicionales.
+    let kimunScoreAudio = null;
+    function kimunScoreTone(step=0, final=false) {
+      try {
+        const AudioCtx=window.AudioContext||window.webkitAudioContext;
+        if (!AudioCtx) return;
+        kimunScoreAudio=kimunScoreAudio||new AudioCtx();
+        if (kimunScoreAudio.state==='suspended') kimunScoreAudio.resume().catch(()=>{});
+        const t=kimunScoreAudio.currentTime;
+        const notes=final?[784,988,1175]:[659+Math.min(step,8)*32];
+        notes.forEach((hz,i)=>{
+          const osc=kimunScoreAudio.createOscillator(),gain=kimunScoreAudio.createGain();
+          const start=t+i*.105;
+          osc.type='sine';osc.frequency.setValueAtTime(hz,start);
+          gain.gain.setValueAtTime(.0001,start);
+          gain.gain.exponentialRampToValueAtTime(.045,start+.012);
+          gain.gain.exponentialRampToValueAtTime(.0001,start+.11);
+          osc.connect(gain);gain.connect(kimunScoreAudio.destination);
+          osc.start(start);osc.stop(start+.12);
+        });
+      } catch (_) { /* El juego continúa aunque el navegador bloquee el sonido. */ }
+    }
     function renderLevelSummary() {
       cancelLevelAnimation();
       const values=[
@@ -3006,12 +3015,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       ids.forEach((id,i)=>levelAnimationTimers.push(setTimeout(()=>{
         if(!isActive()) return;
         const el=document.getElementById(id);
-        if(el){el.textContent=values[i];el.classList.add('stat-ready');}
+        if(el){el.textContent=values[i];el.classList.add('stat-ready');kimunScoreTone(i);}
       },1750+i*110)));
       // El confeti aparece una vez terminado el conteo, no mientras las cifras giran.
       levelAnimationTimers.push(setTimeout(()=>{
         if(!isActive())return;
         launchLevelConfetti();
+        kimunScoreTone(0,true);
         const go=document.getElementById('levelContinue');
         if(go)go.disabled=false;
       },1750+ids.length*110+100));
@@ -3099,27 +3109,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       LEVEL_STATS.name=name;
       const overlay=document.getElementById('playerEntry');
       overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
-      startTxegulIntro();
-    }
-
-    function startTxegulIntro() {
-      stopAcknowledgementsAudio();
-      showScreen('introTxegul');
-      const video = document.getElementById('introTxegulVideo');
-      if (!video) { finishTxegulIntro(); return; }
-      video.currentTime = 0;
-      const playback = video.play();
-      if (playback && typeof playback.catch === 'function') {
-        playback.catch(() => {
-          // Sin reproducción automática no avanzar en silencio: ofrecer inicio manual.
-          if (!document.getElementById('introTxegul').classList.contains('active')) return;
-          video.controls = true;
-        });
-      }
-    }
-    function finishTxegulIntro() {
-      if (!document.getElementById('introTxegul').classList.contains('active')) return;
-      showScreen('filu');
+      openAcknowledgements();
     }
 
     function openAcknowledgements() {
@@ -5475,10 +5465,6 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 
     // Sistema central de navegación de la nueva aplicación.
     function showScreen(screenId) {
-      if (screenId !== 'introTxegul') {
-        const introVideo = document.getElementById('introTxegulVideo');
-        if (introVideo) { introVideo.pause(); introVideo.controls = false; }
-      }
       if (screenId !== 'kimunVoxel') KV.leave();
       if (NEWEN_EXERCISES.has(screenId) && newenLives === 0) {
         beginNewenRecovery(screenId);
@@ -5956,17 +5942,17 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       SN_JUMP_VIDEO.pause();SN_RUN_VIDEO.playbackRate=1;
       SN_RUN_VIDEO.play().catch(()=>{});
     }
-    const SN={st:'idle',ch:'a',done:0,next:1,hit:0,obs:[],dist:0,last:0,raf:0,py:0,vy:0,grace:0,crash:0,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,pops:[],img:{},best:0,w:320,h:400,coins:[],coinCount:0,coinFx:[],jumps:0,falls:0,landFx:0,coinSets:0,elapsed:0};
+    const SN={st:'idle',ch:'a',done:0,next:1,hit:0,obs:[],dist:0,last:0,raf:0,py:0,vy:0,grace:0,crash:0,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,pops:[],img:{},best:0,w:320,h:400,coins:[],coinCount:0,coinFx:[]};
     try{SN.best=+localStorage.getItem('snBest')||0;}catch(e){}
     for(const k in SN_IMG){const i=new Image();i.src=SN_IMG[k];SN.img[k]=i;}
     const snEl=id=>document.getElementById(id);
     snEl('snTileArt').src=SN_IMG.a;
     function snSize(){const c=snEl('snCanvas'),r=c.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
       SN.w=Math.max(200,r.width);SN.h=Math.max(200,r.height);c.width=Math.round(SN.w*d);c.height=Math.round(SN.h*d);c.getContext('2d').setTransform(d,0,0,d,0,0);}
-    function snHud(){snEl('snFill').style.width=(100*SN.done/40)+'%';snEl('snTxt').textContent='Número '+SN.done+' de 40 · Récord '+SN.best;snEl('snCoinMini').textContent=SN.coinCount;}
+    function snHud(){snEl('snFill').style.width=(100*SN.done/40)+'%';snEl('snTxt').textContent='Número '+SN.done+' de 40 · Plata '+SN.coinCount+' · Récord '+SN.best;snEl('snCoinMini').textContent=SN.coinCount;}
     function snCard(inner){const o=snEl('snOv');o.innerHTML='<div class="cv-card"><div class="mp-band"></div>'+inner+'<div class="mp-band"></div></div>';o.hidden=false;}
     function snStop(){SN.st='idle';cancelAnimationFrame(SN.raf);SN.raf=0;snMediaStop();rkStopAudio();}
-    function snPick(){snStop();SN.done=0;SN.next=1;SN.obs=[];SN.pops=[];SN.coins=[];SN.coinFx=[];SN.coinCount=0;SN.jumps=0;SN.falls=0;SN.elapsed=0;SN.coinSets=0;SN.py=0;snHud();
+    function snPick(){snClearResultTimers();snStop();SN.done=0;SN.next=1;SN.obs=[];SN.pops=[];SN.coins=[];SN.coinFx=[];SN.coinCount=0;SN.py=0;snHud();
       snEl('snPanel').innerHTML='<small>Elige a tu personaje para comenzar</small>';
       snCard('<h3>Elige tu personaje</h3><div class="sn-pick"><button type="button" onclick="snChoose(\'a\')" aria-label="Txegül con kultrún"><img src="'+SN_IMG.a+'" alt="Txegül con kultrún"></button>'+
         '<button type="button" onclick="snChoose(\'b\')" aria-label="Txegül con poncho"><img src="'+SN_IMG.b+'" alt="Txegül con poncho"></button></div>');snDraw(0);}
@@ -5974,26 +5960,12 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function snIntro(){snCard('<img class="sn-prev" src="'+SN_IMG[SN.ch]+'" alt=""><h3>¡Salta el número!</h3><p>Toca la pantalla para saltar. Cada número que saltes se dice en mapuzungun. ¡Llega al 40!</p>'+
       '<button class="cv-go" type="button" onclick="snStart()">A JUGAR</button><button class="sn-link" type="button" onclick="snPick()">Cambiar personaje</button>');
       snEl('snPanel').innerHTML='<small>Toca la pantalla para saltar</small>';snDraw(0);}
-    function snStart(){try{playFiluMapClick();}catch(e){}snEl('snOv').hidden=true;snSize();
-      Object.assign(SN,{st:'run',done:0,next:1,obs:[],pops:[],coins:[],coinFx:[],coinCount:0,jumps:0,falls:0,elapsed:0,coinSets:0,landFx:0,py:0,vy:0,dist:0,grace:1.3,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();
+    function snStart(){snClearResultTimers();try{playFiluMapClick();}catch(e){}snEl('snOv').hidden=true;snSize();
+      Object.assign(SN,{st:'run',done:0,next:1,obs:[],pops:[],coins:[],coinFx:[],coinCount:0,py:0,vy:0,dist:0,grace:1.3,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();
       snEl('snPanel').innerHTML='<small>¡Toca para saltar!</small>';snMediaStart();SN.raf=requestAnimationFrame(snLoop);}
-    // Efecto breve de impulso al saltar: no interfiere con el audio de números o plata.
-    function snJumpSound(){
-      try{
-        const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-        cvAudio=cvAudio||new AC();if(cvAudio.state==='suspended')cvAudio.resume().catch(()=>{});
-        const t=cvAudio.currentTime,osc=cvAudio.createOscillator(),gain=cvAudio.createGain();
-        osc.type='triangle';osc.frequency.setValueAtTime(280,t);
-        osc.frequency.exponentialRampToValueAtTime(640,t+.14);
-        gain.gain.setValueAtTime(.0001,t);
-        gain.gain.exponentialRampToValueAtTime(.045,t+.018);
-        gain.gain.exponentialRampToValueAtTime(.0001,t+.19);
-        osc.connect(gain);gain.connect(cvAudio.destination);osc.start(t);osc.stop(t+.2);
-      }catch(e){}
-    }
-    function snJump(){if(SN.st==='run'&&SN.py===0&&SN.vy===0){SN.vy=SN.h*1.75;SN.jumps++;SN.landFx=0;snJumpSound();
+    function snJump(){if(SN.st==='run'&&SN.py===0&&SN.vy===0){SN.vy=SN.h*1.75;
       if(SN.ch==='b'){SN_JUMP_VIDEO.pause();SN_JUMP_VIDEO.currentTime=0;
-        SN_JUMP_VIDEO.playbackRate=2.1;SN_JUMP_VIDEO.play().catch(()=>{});}}}
+        SN_JUMP_VIDEO.playbackRate=4.5;SN_JUMP_VIDEO.play().catch(()=>{});}}}
     // Del 1 al 9: únicamente los números, como en el juego original.
     // Desde el 10: un cubo vacío intermedio, con DISTANCIAS AMPLIAS
     // entre obstáculos y más tiempo para oír el nombre completo.
@@ -6028,15 +6000,15 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       }
     }
     function snSpawnSilverCoins(){
-      // Trayectorias alternas a alturas alcanzables con el salto actual.
+      // Cinco kultrunes en línea descendente: alto al principio, bajo al final.
+      // Mantener la física y la detección de recolección existentes.
       const os=SN.h*.1;
-      const patterns=[[.36,.43,.49,.43,.36],[.39,.47,.51,.44,.38],[.35,.42,.48,.51,.43],[.42,.49,.44,.38,.35]];
-      const heights=patterns[(SN.coinSets++)%patterns.length];
+      const heights=[.50,.46,.42,.38,.34];
       for(let i=0;i<5;i++)SN.coins.push({
-        x:SN.w+20+os*(1.85+i*.85),
+        x:SN.w+20+os*(1.9+i*.72),
         altitude:SN.h*heights[i],
         r:Math.max(15,os*.32),
-        phase:i*.85
+        phase:i*.75
       });
     }
     // Tintineo corto de plata, sintetizado en Web Audio; no requiere archivo externo.
@@ -6060,16 +6032,43 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function snPass(n){SN.done=n;if(n>SN.best){SN.best=n;try{localStorage.setItem('snBest',n);}catch(e){}}snHud();
       SN.pops.push({t:rkName(n),life:1.6,c:RK_C[Math.min(3,Math.floor((n-1)/10))]});
       snEl('snPanel').innerHTML='<div class="rk-big">'+n+'</div><div class="rk-row">'+rkChips(n)+'</div>';rkPlay(n);if(n>=40)snWin();}
-    function snCrash(o){SN.falls++;SN.st='crash';SN.crash=1.2;SN.hit=o.n;rkStopAudio();try{cvSound('bad');}catch(e){}
+    function snCrash(o){SN.st='crash';SN.crash=1.2;SN.hit=o.n;rkStopAudio();try{cvSound('bad');}catch(e){}
       const s=Math.floor((o.n-1)/10)*10+1;snEl('snPanel').innerHTML='<div class="rk-name">¡Ay fotxü! Volvemos al '+s+'</div><small>¡Tú puedes!</small>';}
     function snResume(){const s=Math.floor((SN.hit-1)/10)*10+1;Object.assign(SN,{st:'run',done:s-1,next:s,obs:[],coins:[],coinFx:[],py:0,vy:0,grace:1.2,need:0,spawnIn:0,emptyLeft:0,numberAfter:0,clock:0,last:performance.now()});snHud();snMediaStart();}
-    function snWin(){snStop();try{cvSound('win');}catch(e){}
-      snCard('<img class="rk-celebra" src="./kume_zugun.png" alt="Txegül: Küme zugun" onerror="this.remove()"><div class="cv-lv win">¡Küme zugu!</div><p>¡Llegaste al 40!</p>'+
-        '<p class="sn-final-stats">Plata recogida: <strong>'+SN.coinCount+'</strong> · Saltos: <strong>'+SN.jumps+'</strong><br>Reintentos: <strong>'+SN.falls+'</strong> · Récord: <strong>'+SN.best+'/40</strong></p><button class="cv-go" type="button" onclick="snStart()">JUGAR OTRA VEZ</button><button class="sn-link" type="button" onclick="snPick()">Cambiar personaje</button>');try{cvConfetti(snEl('snRoot'));}catch(e){}}
+    // Progresión limitada a los dos primeros rangos, guardada por jugador en este dispositivo.
+    // Solo se otorga el rango 2 cuando el número 40 se completa realmente.
+    function snAwardRankTwo(){
+      const name=LEVEL_STATS.name.trim();
+      if(!name)return 2;
+      try{
+        const key='kimunPlayerRank:'+name.normalize('NFC').toLocaleLowerCase('es');
+        const previous=Number(localStorage.getItem(key))||1;
+        if(previous<2)localStorage.setItem(key,'2');
+      }catch(e){console.warn('No se pudo guardar el rango del jugador:',e);}
+      return 2;
+    }
+    let snResultTimers=[];
+    function snClearResultTimers(){snResultTimers.forEach(clearTimeout);snResultTimers=[];}
+    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();try{cvSound('win');}catch(e){}
+      const player=document.createElement('span');player.textContent=LEVEL_STATS.name;
+      const safeName=player.innerHTML;
+      snCard('<img class="rk-celebra" src="./kume_zugun.png" alt="Txegül: Küme zugun" onerror="this.remove()"><div class="cv-lv win">¡Küme zugu!</div><p>¡Llegaste al 40!</p>'+ 
+        '<p><strong id="snResultName"></strong> · <span id="snResultRank">Rango 1</span></p>'+ 
+        '<p id="snResultScore" aria-live="polite">Plata: 0</p>'+ 
+        '<button class="cv-go" type="button" onclick="snStart()">JUGAR OTRA VEZ</button><button class="sn-link" type="button" onclick="snPick()">Cambiar personaje</button>');
+      const results=[['snResultName',LEVEL_STATS.name],['snResultRank','Rango 2'],['snResultScore','Plata: '+SN.coinCount]];
+      results.forEach(([id,value],i)=>snResultTimers.push(setTimeout(()=>{
+        if(SN.st!=='idle'||snEl('snOv').hidden)return;
+        const el=snEl(id);if(el){el.textContent=value;kimunScoreTone(i);}
+      },500+i*420)));
+      snResultTimers.push(setTimeout(()=>{
+        if(SN.st==='idle'&&!snEl('snOv').hidden){kimunScoreTone(0,true);try{cvConfetti(snEl('snRoot'));}catch(e){}}
+      },1900));}
+
     function snLoop(now){if(SN.st==='idle')return;const dt=Math.min(.05,(now-SN.last)/1000);SN.last=now;const w=SN.w,h=SN.h,px=w*.16,os=h*.1;
-      if(SN.st==='run'){const sp=w*Math.min(.9,.36+.011*SN.next);SN.dist+=sp*dt;SN.elapsed+=dt;SN.landFx=Math.max(0,SN.landFx-dt);
+      if(SN.st==='run'){const sp=w*Math.min(.9,.36+.011*SN.next);SN.dist+=sp*dt;
         if(SN.ch==='b')SN_RUN_VIDEO.playbackRate=Math.min(1.45,.75+.015*SN.next);
-        if(SN.py>0||SN.vy>0){SN.vy-=h*4*dt;SN.py+=SN.vy*dt;if(SN.py<=0){SN.py=0;SN.vy=0;SN.landFx=.18;}}
+        if(SN.py>0||SN.vy>0){SN.vy-=h*4*dt;SN.py+=SN.vy*dt;if(SN.py<=0){SN.py=0;SN.vy=0;}}
         SN.clock+=dt;
         for(const o of SN.obs)o.x-=sp*dt;
         for(const coin of SN.coins){
@@ -6103,25 +6102,19 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function snRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
     function snDraw(){const c=snEl('snCanvas').getContext('2d'),w=SN.w,h=SN.h,gy=h*.8,d=SN.dist,os=h*.1;
       c.clearRect(0,0,w,h);
-       // El fondo antiguo (cielo, volcán, árboles y camino dibujados) se retiró.
-       // El paisaje se reproduce exclusivamente desde snBgVideo debajo del canvas.
-       // Si aún no ha cargado el MP4, no dibujar encima un paisaje diferente.
-      // Planos ambientales suaves y desplazados a distintas velocidades.
-      c.save();
-      const slow=-(d*.065)%(w*1.5),near=-(d*.17)%(w*.85);
-      c.fillStyle='rgba(19,69,54,.16)';
-      for(let i=-1;i<3;i++){let x=slow+i*w*1.5;c.beginPath();c.ellipse(x+w*.55,gy+h*.015,w*.65,h*.057,0,Math.PI,Math.PI*2);c.fill();}
-      c.fillStyle='rgba(31,75,43,.20)';
-      for(let i=-1;i<4;i++){let x=near+i*w*.85;c.beginPath();c.ellipse(x+w*.4,gy+h*.045,w*.44,h*.028,0,0,Math.PI*2);c.fill();}
-      c.restore();
+      if(SN_BG_VIDEO.readyState<2){
+      let g=c.createLinearGradient(0,0,0,gy);g.addColorStop(0,'#a9d8ea');g.addColorStop(1,'#f6edd2');c.fillStyle=g;c.fillRect(0,0,w,h);
+      c.fillStyle='rgba(255,240,180,.85)';c.beginPath();c.arc(w*.82,h*.14,h*.06,0,7);c.fill();
+      const P=w*1.3,vx=-(d*.06)%P;for(let k=0;k<2;k++){const x=vx+k*P+w*.2;c.fillStyle='#7f9fb3';c.beginPath();c.moveTo(x,gy);c.lineTo(x+w*.36,gy-h*.3);c.lineTo(x+w*.46,gy-h*.3);c.lineTo(x+w*.82,gy);c.fill();
+        c.fillStyle='#f4f8fb';c.beginPath();c.moveTo(x+w*.3,gy-h*.24);c.lineTo(x+w*.36,gy-h*.3);c.lineTo(x+w*.46,gy-h*.3);c.lineTo(x+w*.52,gy-h*.24);c.fill();}
+      const T=w*.55,tx=-(d*.25)%T;for(let k=0;k<3;k++){const x=tx+k*T+w*.1;c.fillStyle='#4a3524';c.fillRect(x-3,gy-h*.18,6,h*.18);c.fillStyle='#2c6a45';
+        c.beginPath();c.ellipse(x,gy-h*.19,w*.075,h*.04,0,0,7);c.fill();c.beginPath();c.ellipse(x,gy-h*.235,w*.045,h*.025,0,0,7);c.fill();}
+      c.fillStyle='#c9a86a';c.fillRect(0,gy,w,h-gy);c.fillStyle='#6f431e';c.fillRect(0,gy,w,3);
+      c.fillStyle='rgba(111,67,30,.45)';const G=46,gx=-(d)%G;for(let x=gx;x<w;x+=G){c.fillRect(x,gy+h*.05+(x*7%11),9,3);c.fillRect(x+22,gy+h*.1+(x*5%9),5,2);}
+      }
       for(const o of SN.obs){const x=o.x,y=gy-os,col=o.n===null?'#74604b':RK_C[Math.min(3,Math.floor((o.n-1)/10))];
         c.fillStyle='rgba(0,0,0,.18)';c.beginPath();c.ellipse(x+os/2,gy+3,os*.6,5,0,0,7);c.fill();
         let q=c.createLinearGradient(0,y,0,gy);q.addColorStop(0,'#fbf0d4');q.addColorStop(1,'#e2c78a');snRR(c,x,y,os,os,os*.18);c.fillStyle=q;c.fill();c.lineWidth=4;c.strokeStyle=col;c.stroke();
-        // Luz de borde superior y sombra lateral para leer el volumen.
-        c.save();c.beginPath();snRR(c,x+3,y+3,os-6,os-6,os*.13);c.clip();
-        c.fillStyle='rgba(255,255,255,.31)';c.fillRect(x+3,y+3,os-6,os*.12);
-        c.fillStyle='rgba(44,31,16,.18)';c.fillRect(x+os*.79,y+3,os*.2,os-6);
-        c.restore();
         if(o.n!==null){c.fillStyle='#3b2412';c.font='900 '+Math.round(os*(o.n>9?.5:.62))+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(o.n,x+os/2,y+os/2+1);}}
       // Kultrún de plata interpretado mediante Canvas; sin archivo de imagen.
       for(const coin of SN.coins){const x=coin.x,y=gy-coin.altitude+Math.sin(coin.phase)*3,r=coin.r;
@@ -6143,10 +6136,6 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       if(im&&im.complete&&im.naturalWidth){const pw=ph*im.naturalWidth/im.naturalHeight,px=w*.16,run=SN.st==='run'&&SN.py===0;
         c.fillStyle='rgba(0,0,0,.2)';c.beginPath();c.ellipse(px,gy+3,pw*.32*(1-Math.min(.5,SN.py/(h*.3))),5,0,0,7);c.fill();
         c.save();c.translate(px,gy-SN.py);
-        // Compresión leve al aterrizar sin alterar coordenadas físicas.
-        const landing=SN.landFx>0?Math.sin((.18-SN.landFx)/.18*Math.PI)*.075:0;
-        c.scale(1+landing,1-landing);
-        if(run&&SN.landFx===0)c.translate(0,Math.abs(Math.sin(d*.07))*1.8);
         if(SN.st==='crash'){c.rotate((1.2-SN.crash)*5);c.globalAlpha=Math.floor(SN.crash*10)%2?.5:.9;}
         else c.rotate(SN.py>0?-.1:(run?Math.sin(d*.06)*.045:0));
         // Para el Txegül macho se muestra la carrera o el salto reales, sin croma.
