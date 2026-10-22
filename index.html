@@ -95,6 +95,20 @@
     .intro-video-action { position:absolute; left:50%; bottom:max(22px,env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:2; padding:12px 23px; border:2px solid #a8d48e; border-radius:999px; background:rgba(24,63,49,.91); color:#fff; font:700 1rem Arial,sans-serif; cursor:pointer; }
     .intro-video-action[hidden] { display:none !important; }
 
+    /* Bienvenida personalizada al finalizar la introducción. */
+    .intro-welcome { position:absolute; inset:0; z-index:4; display:none; align-items:flex-end; justify-content:center; padding:0 5% max(6%,env(safe-area-inset-bottom)); overflow:hidden; }
+    .intro-welcome.visible { display:flex; }
+    .intro-final-image { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#080e0c; z-index:0; }
+    .intro-welcome-card { position:relative; z-index:2; width:100%; max-width:405px; padding:17px 17px 16px; text-align:center; border:4px double #8c632d; border-radius:19px; background:linear-gradient(155deg,rgba(253,242,216,.97),rgba(225,189,133,.97)); color:#392713; box-shadow:0 9px 30px rgba(0,0,0,.55),inset 0 0 0 2px #f8ddaa; animation:welcomeShow .45s ease-out both; }
+    .intro-welcome-card::before,.intro-welcome-card::after {content:'◆ ◇ ◆';display:block;color:#42613d;font-size:14px;letter-spacing:8px;}
+    .intro-welcome-card h2 { margin:7px 0 5px; font-size:clamp(18px,5vw,25px); line-height:1.15; }
+    .intro-welcome-name { display:block; margin:5px auto 8px; color:#1f6337; font-size:clamp(20px,5.5vw,28px); font-weight:900; overflow-wrap:anywhere; line-height:1.14; }
+    .intro-welcome-card p { margin:8px 0 13px; line-height:1.35; font-size:clamp(13px,3.8vw,16px); }
+    .intro-welcome-next {width:80%;max-width:265px;padding:11px;border:2px solid #a7ce82;border-radius:999px;background:linear-gradient(#328747,#195b34);color:white;font:900 17px Arial,sans-serif;cursor:pointer;}
+    @keyframes welcomeShow {from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+    @media(max-height:650px){.intro-welcome{padding-bottom:2%}.intro-welcome-card{padding:9px 12px}.intro-welcome-card p{margin:4px 0 8px}}
+    @media(prefers-reduced-motion:reduce){.intro-welcome-card{animation:none}}
+
     /* PANTALLA DE AGRADECIMIENTOS */
     .ack-screen {
       position: relative;
@@ -778,9 +792,6 @@
       -webkit-backdrop-filter:blur(8px);
     }
     .player-entry-overlay.open {display:flex;}
-    /* El registro se ubica en la mitad superior del espacio visible, incluido el teclado. */
-    .player-entry-overlay.open {align-items:flex-start; padding-top:clamp(18px, 12dvh, 105px); overflow-y:auto;}
-    .player-entry-overlay.keyboard-visible {padding-top:12px;}
     .player-entry-card {
       width:min(100%,355px); padding:27px 21px 22px;
       border:3px solid #b08a51; border-radius:20px;
@@ -799,18 +810,6 @@
       font:900 1.04rem Arial,sans-serif; cursor:pointer;
     }
     .player-entry-card button:disabled {opacity:.46;cursor:not-allowed;}
-    .player-name-suggestions {display:none; max-height:min(24dvh,152px); overflow-y:auto;
-      margin-top:5px; border:1px solid #a18254; border-radius:11px; background:#fffef8;
-      box-shadow:0 4px 9px #0002; text-align:left; overscroll-behavior:contain;}
-    .player-name-suggestions.visible {display:block;}
-    .player-entry-card .player-suggestion {display:block; width:100%; margin:0; padding:9px 12px;
-      border:0; border-bottom:1px solid #e8dcc9; border-radius:0; background:transparent;
-      font:600 1rem Arial,sans-serif; color:#203b29; text-align:left; cursor:pointer;}
-    .player-entry-card .player-suggestion:last-child {border-bottom:0;}
-    .player-entry-card .player-suggestion:focus-visible {outline:2px solid #26773b; outline-offset:-2px;}
-    @media(max-height:520px){.player-entry-card {padding:14px 16px 12px;}
-      .player-entry-card label {margin-bottom:7px;}.player-entry-card button[type=submit] {margin-top:8px;}}
-
     /* Los nueve valores siguen exactamente los centros de las placas blancas del PNG 781x1536. */
     .level-one-stat {
       position:absolute; z-index:4; width:25.2%; height:4.1%;
@@ -1520,6 +1519,15 @@
         <video id="introVideoMedia" class="intro-video-media" src="./intro_txegul_kimun_mapuzungun.mp4" preload="metadata" playsinline webkit-playsinline></video>
         <button id="introVideoAction" class="intro-video-action" type="button" onclick="resumeIntroVideo()" hidden>Reproducir introducción</button>
         <button id="introVideoSkip" class="intro-video-action" type="button" onclick="finishIntroVideo()" hidden>Continuar a Agradecimientos</button>
+        <div id="introWelcome" class="intro-welcome" aria-hidden="true">
+          <img id="introFinalImage" class="intro-final-image" src="./ultimo_fotograma_de_la_introduccion.png" alt="" onerror="this.style.display='none'">
+          <div class="intro-welcome-card" role="group" aria-label="Bienvenida a Kimün Mapuzungun">
+            <h2>¡Bienvenido a Kimün Mapuzungun!</h2>
+            <strong id="introWelcomeName" class="intro-welcome-name"></strong>
+            <p>Aquí comienza tu camino para descubrir y aprender mapuzungun de forma didáctica y entretenida, con juegos y desafíos.</p>
+            <button class="intro-welcome-next" type="button" onclick="continueIntroWelcome()">Seguir</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -2616,8 +2624,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
   <div id="playerEntry" class="player-entry-overlay" role="dialog" aria-modal="true" aria-labelledby="playerEntryLabel" aria-hidden="true">
     <form class="player-entry-card" id="playerEntryForm" onsubmit="confirmNewGame(event)">
       <label id="playerEntryLabel" for="playerEntryName">Ingresa tu nombre</label>
-      <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="off" required oninput="validatePlayerName()" aria-controls="playerNameSuggestions" aria-expanded="false">
-      <div id="playerNameSuggestions" class="player-name-suggestions" aria-label="Sugerencias opcionales" role="group"></div>
+      <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="off" required oninput="validatePlayerName()">
       <button id="playerEntryStart" type="submit" disabled>Comenzar</button>
     </form>
   </div>
@@ -3068,75 +3075,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         if(go)go.disabled=false;
       },1750+ids.length*110+100));
     }
-    // Sugerencias opcionales: no cambian el texto sin una selección explícita.
-    // Se usa el último término para admitir nombre y apellido en el mismo campo original.
-    const PLAYER_FIRST_NAMES = [
-      'Alejandro','Alexandra','Ana','Andrés','Antonia','Benjamín','Camila','Carolina',
-      'Catalina','Claudia','Cristián','Daniel','Daniela','David','Diego','Eduardo',
-      'Elena','Emilia','Felipe','Fernanda','Francisca','Gabriel','Gabriela','Ignacio',
-      'Isabel','Javiera','Joaquín','Joel','Jorge','José','Josefa','Juan','Julia',
-      'Laura','Leonardo','Lorena','Lucas','Luis','María','Mariana','Martín','Matías',
-      'Miguel','Nicolás','Pablo','Paula','Pedro','Rafael','Ricardo','Rosa','Santiago',
-      'Sebastián','Sofía','Tomás','Valentina','Vicente'];
-    // Variantes de apellido como referencia de escritura, no como corrección obligatoria.
-    const PLAYER_MAPUCHE_SURNAMES = [
-      'Antilef','Antriao','Calfunao','Calfunir','Catrileo','Catrilaf','Cayupán',
-      'Chihuailaf','Chihuaicura','Chillán','Coñuecar','Colipe','Curihuinca',
-      'Curilaf','Curinao','Epuín','Huenchulaf','Huenchumán','Huenul','Huaiquifil',
-      'Huilcamán','Huilipán','Huenchuleo','Lefimil','Lincopán','Llanquileo',
-      'Llancapán','Manquilef','Marileo','Millaleo','Millahual','Millanao',
-      'Nahuel','Nahuelpán','Ñanculef','Ñanco','Painemal','Paillalef','Panguilef',
-      'Pichún','Pocollanca','Quidel','Quilaqueo','Quilapán',
-      'Quiñenao','Reuque','Tripailaf','Tranamil'];
-    const playerSuggestionItems = Array.from(new Set([...PLAYER_FIRST_NAMES,...PLAYER_MAPUCHE_SURNAMES]));
-    function hidePlayerSuggestions(){
-      const list=document.getElementById('playerNameSuggestions');
-      list.replaceChildren(); list.classList.remove('visible');
-      document.getElementById('playerEntryName').setAttribute('aria-expanded','false');
-    }
-    function renderPlayerSuggestions(){
-      const input=document.getElementById('playerEntryName');
-      const text=input.value;
-      const match=text.match(/(?:^|\s)([^\s]*)$/u);
-      const prefix=match ? match[1] : '';
-      const list=document.getElementById('playerNameSuggestions');
-      hidePlayerSuggestions();
-      if(!prefix || document.getElementById('playerEntry').getAttribute('aria-hidden')==='true')return;
-      const key=prefix.toLocaleLowerCase('es');
-      const results=playerSuggestionItems.filter(item=>item.toLocaleLowerCase('es').startsWith(key) && item.toLocaleLowerCase('es')!==key).slice(0,5);
-      if(!results.length)return;
-      results.forEach(item=>{
-        const option=document.createElement('button'); option.type='button';
-        option.className='player-suggestion'; option.textContent=item;
-        option.addEventListener('click',()=>{
-          const before=input.value.replace(/[^\s]*$/u,'');
-          const proposed=before+item;
-          if(proposed.length>input.maxLength)return;
-          input.value=proposed; hidePlayerSuggestions();validatePlayerName(false);
-          input.focus();
-        });
-        list.appendChild(option);
-      });
-      list.classList.add('visible'); input.setAttribute('aria-expanded','true');
-    }
-    function validatePlayerName(showSuggestions=true) {
+    function validatePlayerName() {
       const input=document.getElementById('playerEntryName');
       document.getElementById('playerEntryStart').disabled=!input.value.trim();
-      if(showSuggestions)renderPlayerSuggestions();
-    }
-    // visualViewport informa del teclado en navegadores móviles compatibles.
-    function positionPlayerEntry(){
-      const overlay=document.getElementById('playerEntry');
-      if(!overlay.classList.contains('open'))return;
-      const vv=window.visualViewport;
-      if(vv){
-        overlay.style.top=vv.offsetTop+'px'; overlay.style.height=vv.height+'px';
-        overlay.classList.toggle('keyboard-visible',vv.height<window.innerHeight*0.8);
-      }
-    }
-    if(window.visualViewport){
-      window.visualViewport.addEventListener('resize',positionPlayerEntry);
-      window.visualViewport.addEventListener('scroll',positionPlayerEntry);
     }
     function resetEntireGame() {
       LEVEL_STATS.name='';LEVEL_STATS.correct=0;LEVEL_STATS.wrong=0;
@@ -3204,9 +3145,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Abrir o cancelar el formulario no borra la partida vigente.
       const overlay=document.getElementById('playerEntry');
       const input=document.getElementById('playerEntryName');
-      input.value='';hidePlayerSuggestions();validatePlayerName(false);
+      input.value='';validatePlayerName();
       overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
-      positionPlayerEntry();input.focus();
+      input.focus();
     }
     function confirmNewGame(event) {
       event.preventDefault();
@@ -3217,8 +3158,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       LEVEL_STATS.name=name;
       const overlay=document.getElementById('playerEntry');
       overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true');
-      overlay.classList.remove('keyboard-visible');overlay.style.top='';overlay.style.height='';
-      hidePlayerSuggestions();document.getElementById('playerEntryName').blur();
       startIntroVideo();
     }
 
@@ -3226,6 +3165,10 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const video=document.getElementById('introVideoMedia');
       document.getElementById('introVideoAction').hidden=true;
       document.getElementById('introVideoSkip').hidden=true;
+      const welcome=document.getElementById('introWelcome');
+      welcome.classList.remove('visible'); welcome.setAttribute('aria-hidden','true');
+      const finalImage=document.getElementById('introFinalImage');
+      finalImage.style.display='';
       showScreen('introVideoScreen');
       video.currentTime=0;
       const playback=video.play();
@@ -3241,6 +3184,17 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function finishIntroVideo() {
       const video=document.getElementById('introVideoMedia');
       video.pause();
+      // Mantener el fotograma del video como respaldo si el PNG aún no se ha subido.
+      const name=(LEVEL_STATS.name || document.getElementById('playerEntryName').value || '').trim();
+      document.getElementById('introWelcomeName').textContent=name;
+      document.getElementById('introVideoAction').hidden=true;
+      document.getElementById('introVideoSkip').hidden=true;
+      const welcome=document.getElementById('introWelcome');
+      welcome.classList.add('visible');welcome.setAttribute('aria-hidden','false');
+    }
+    function continueIntroWelcome(){
+      const welcome=document.getElementById('introWelcome');
+      welcome.classList.remove('visible');welcome.setAttribute('aria-hidden','true');
       openAcknowledgements();
     }
     document.getElementById('introVideoMedia').addEventListener('ended',finishIntroVideo);
