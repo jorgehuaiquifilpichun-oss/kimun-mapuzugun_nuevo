@@ -3823,8 +3823,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(funhSpeechTimer!==null){clearTimeout(funhSpeechTimer);funhSpeechTimer=null;}
       speakFunhName(FUNH_FRUIT_IMAGES[funhCurrentIndex].name);
     }
-    // Archivos del kimelfe: nombres exactamente como en audios_frutos.
-    // La carpeta debe estar al mismo nivel que index.html en GitHub Pages.
+    // Grabaciones oficiales del kimelfe: MP3 en la misma carpeta que index.html.
     const FUNH_AUDIO_FILES = {
       'Kataña':'01_Kataña.mp3', 'Make':'02_Make.mp3', 'Üñü':'03_Üñü.mp3',
       'Michay':'04_Michay.mp3', 'Chawra':'05_Chawra.mp3', 'Gefüñ':'06_Gefüñ.mp3',
@@ -3836,10 +3835,15 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       'Zamasko':'20_Zamasko.mp3'
     };
     const FUNH_AUDIO_PATHS = Object.fromEntries(Object.entries(FUNH_AUDIO_FILES)
-      .map(([name,file])=>[name,'./audios_frutos/'+encodeURIComponent(file)]));
+      .map(([name,file])=>[name,'./'+encodeURIComponent(file)]));
     let funhCurrentRecording=null;
     function stopFunhRecordings(){
-      if(funhCurrentRecording){funhCurrentRecording.pause();funhCurrentRecording.currentTime=0;funhCurrentRecording=null;}
+      if(funhCurrentRecording){
+        funhCurrentRecording.pause();
+        funhCurrentRecording.removeAttribute('src');
+        funhCurrentRecording.load();
+        funhCurrentRecording=null;
+      }
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
     }
     function speakFunhName(name,withClick=true){
@@ -3848,17 +3852,14 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const path=FUNH_AUDIO_PATHS[name];
       if(path){
         // Solo se usa la grabación del kimelfe para los veinte nombres asignados.
-        funhCurrentRecording=new Audio(path);
-        funhCurrentRecording.play().catch(error=>console.warn('No se cargó el audio de '+name+':',path,error));
+        const recording=new Audio(path);
+        funhCurrentRecording=recording;
+        recording.onerror=()=>console.warn('No se encontró o no se pudo decodificar el MP3 de '+name+': '+path);
+        recording.play().catch(error=>console.warn('No se pudo reproducir el MP3 de '+name+':',path,error));
         return;
       }
-      // Folo, Narangka y Ufaz conservan su voz temporal anterior.
-      if(!name||!('speechSynthesis' in window))return;
-      try{
-        const utterance=new SpeechSynthesisUtterance(name);
-        utterance.lang='es-CL';utterance.rate=.75;
-        window.speechSynthesis.speak(utterance);
-      }catch(error){console.warn('Voz temporal de Fünh-Frutos:',error);}
+      // Folo, Narangka y Ufaz quedan sin pronunciación hasta recibir un MP3 oficial.
+      return;
     }
     document.getElementById('funhCenter')?.addEventListener('click',repeatFunhCenterAudio);
     document.getElementById('funhCenter')?.addEventListener('animationend',e=>{
@@ -5760,6 +5761,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     ];
     const CV_MAIN=['Piñón','Manzana','Frutilla','Uvas']; // Nivel 3: 4 bloques de 15 s, en este orden
     const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uvas'];
+    const CV_AUDIO=FUNH_AUDIO_PATHS; // grabaciones del kimelfe compartidas con el árbol
     const cvIdx=n=>CV_F.findIndex(f=>f[0]===n);
     const CV={level:0,done:[false,false,false],res:[[0,0],[0,0],[0,0]],hk:'',pausedWas:false,active:false,raf:0,last:0,elapsed:0,target:-1,seq:[],cd:0,aud:null,
       correct:0,score:0,fruits:[],particles:[],trail:[],spawn:0,pointer:false,width:320,height:480,dur:45,rotations:0,token:0};
@@ -5793,10 +5795,11 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     }
     function cvSpeak(i){
       try {
-        const fruit=CV_F[i];
-        if(!fruit)return;
-        // Un único reproductor para árbol y juego: los 20 MP3 aprobados.
-        speakFunhName(fruit[1],false);
+        const n=CV_F[i][1];
+        if(CV.aud){CV.aud.pause();CV.aud.currentTime=0;CV.aud=null;}
+        // Árbol y corte usan la misma asociación oficial y un único reproductor.
+        if(CV_AUDIO[n])speakFunhName(n,false);
+        else stopFunhRecordings();
       }catch(error){console.warn('Error en pronunciación del juego:',error);}
     }
     function cvOverlay(html){const el=cvEl('cvOv');el.innerHTML=html;el.classList.add('on');}
@@ -5813,7 +5816,8 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function cvStart(level){cvStop();CV.level=level;cvClear();cvEl('cvTimer').style.width='100%';const t=CV_INFO[level],lv='<div class="cv-lv">Nivel '+(level+1)+'/3</div><h3>'+t[0]+'</h3>';
       cvCard((level===0?'<div class="cv-hdr">'+CV_ART+'<div>'+lv+'</div></div>':lv)+'<p class="cv-obj">'+t[1]+'</p><p>'+t[2]+'</p><button class="cv-go" type="button" onclick="cvGo()">A JUGAR</button>');cvNextState();}
     function cvStop(){CV.active=false;CV.token++;cancelAnimationFrame(CV.raf);CV.raf=0;CV.pointer=false;CV.trail=[];
-      if(CV.aud){CV.aud.pause();CV.aud=null;}}
+      if(CV.aud){CV.aud.pause();CV.aud=null;}
+      stopFunhRecordings();}
     function cvResize(){const area=cvEl('cvArea'),canvas=cvEl('cvCanvas');const rect=area.getBoundingClientRect();
       CV.width=Math.max(200,rect.width);CV.height=Math.max(240,rect.height);
       const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(CV.width*dpr);canvas.height=Math.round(CV.height*dpr);
