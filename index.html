@@ -1317,7 +1317,7 @@
     .cv-target-heading{font-size:clamp(12px,3.6vw,16px);font-weight:800;letter-spacing:.02em;color:#fff5da}
     .cv-target-row{display:flex;justify-content:center;align-items:center;gap:12px;margin:4px auto 0;padding:5px 14px;width:fit-content;max-width:100%;border-radius:15px;border:2px solid #d9bd79;background:rgba(19,56,38,.94);box-shadow:0 3px 12px #071b13a8}
     .cv-target-word{font-size:clamp(23px,7.1vw,35px);font-weight:900;overflow-wrap:anywhere;line-height:1.1;color:#fff4b7}
-    .cv-target-icon{font-size:clamp(33px,10vw,46px);line-height:1;flex-shrink:0}
+    .cv-target-icon{display:block;width:clamp(44px,12vw,62px);height:clamp(44px,12vw,62px);object-fit:contain;flex-shrink:0}
     .cv-target-free{font-size:clamp(15px,4.6vw,22px);font-weight:800;color:#fff5c7}
     .cv-timer{position:absolute;bottom:4px;left:10px;right:10px;height:6px;border:1px solid #e3cc7c;border-radius:5px;background:#153326;z-index:5;overflow:hidden;pointer-events:none}
     .cv-timer span{display:block;height:100%;background:linear-gradient(90deg,#5ccd56,#e8f087);width:100%}
@@ -5741,30 +5741,34 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     buildDynamicActivities();
 
 
-    /* ===== Fünh-Frutos: juego de corte, 3 niveles de 45 s ===== */
+    /* ===== Fünh-Frutos: juego de corte, PNG oficiales para los tres niveles ===== */
     const CV_F=[
-      ['Castaña','Kataña','🌰'],
-      ['Maqui','Make','🫐'],
-      ['Murta o murtilla','Üñü','🫐'],
-      ['Michay','Michay','🍇'],
-      ['Chaura','Chawra','🍒'],
-      ['Avellana chilena','Gefüñ','🌰'],
-      ['Piñón','Gülliw','🌰'],
-      ['Cóguil','Kowüll','🥒'],
-      ['Chupón','Nüyu','🍍'],
-      ['Copihue (fruto)','Kopiw','🌺'],
-      ['Mora','Mura','🍇'],
-      ['Rosa mosqueta (fruto)','Moketa','🍒'],
-      ['Manzana','Mansana','🍎'],
-      ['Pera','Pera','🍐'],
-      ['Ciruela','Siruela','🍑'],
-      ['Cereza','Sereza','🍒'],
-      ['Frutilla','Kelleñ','🍓'],
-      ['Frambuesa','Füramfuesa','🍓'],
-      ['Membrillo','Mempürillu','🍐'],
-      ['Damasco','Zamasko','🍑'],
-      ['Uvas','Ufaz','🍇']
+      ['Castaña', 'Kataña', './frutas_corte/01_Kataña.png'],
+      ['Maqui', 'Make', './frutas_corte/02_Make.png'],
+      ['Murta o murtilla', 'Üñü', './frutas_corte/03_Üñü.png'],
+      ['Michay', 'Michay', './frutas_corte/04_Michay.png'],
+      ['Chaura', 'Chawra', './frutas_corte/05_Chawra.png'],
+      ['Avellana chilena', 'Gefüñ', './frutas_corte/06_Gefüñ.png'],
+      ['Piñón', 'Gülliw', './frutas_corte/07_Gülliw.png'],
+      ['Cóguil', 'Kowüll', './frutas_corte/08_Kowüll.png'],
+      ['Chupón', 'Nüyu', './frutas_corte/09_Nüyu.png'],
+      ['Copihue (fruto)', 'Kopiw', './frutas_corte/10_Kopiw.png'],
+      ['Mora', 'Mura', './frutas_corte/11_Mura.png'],
+      ['Rosa mosqueta (fruto)', 'Moketa', './frutas_corte/12_Moketa.png'],
+      ['Manzana', 'Mansana', './frutas_corte/13_Mansana.png'],
+      ['Pera', 'Pera', './frutas_corte/14_Pera.png'],
+      ['Ciruela', 'Siruela', './frutas_corte/15_Siruela.png'],
+      ['Cereza', 'Sereza', './frutas_corte/16_Sereza.png'],
+      ['Frutilla', 'Kelleñ', './frutas_corte/17_Kelleñ.png'],
+      ['Frambuesa', 'Füramfuesa', './frutas_corte/18_Füramfuesa.png'],
+      ['Membrillo', 'Mempürillu', './frutas_corte/19_Mempürillu.png'],
+      ['Damasco', 'Zamasko', './frutas_corte/20_Zamasko.png'],
+      ['Uvas', 'Ufaz', './frutas_corte/21_Ufaz.png'],
+      ['Boldo (fruto)', 'Folho', './frutas_corte/22_Folho.png'],
+      ['Naranja', 'Naragka', './frutas_corte/23_Naragka.png']
     ];
+    // Imágenes oficiales de corte: precarga única, sin emojis ni audios adicionales.
+    const CV_IMAGES=CV_F.map(([es,mp,path])=>{const image=new Image();image.src=path;return image;});
     const CV_MAIN=['Piñón','Manzana','Frutilla','Uvas']; // Nivel 3: 4 bloques de 15 s, en este orden
     const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uvas'];
     const CV_AUDIO=FUNH_AUDIO_PATHS; // grabaciones del kimelfe compartidas con el árbol
@@ -5833,7 +5837,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       const el=cvEl('cvTarget');el.replaceChildren();
       const heading=document.createElement('div');heading.className='cv-target-heading';heading.textContent='¡Busca y corta esta fruta!';
       const row=document.createElement('div');row.className='cv-target-row';
-      const picture=document.createElement('span');picture.className='cv-target-icon';picture.textContent=CV_F[n][2];picture.setAttribute('role','img');picture.setAttribute('aria-label',CV_F[n][0]);
+      const picture=document.createElement('img');picture.className='cv-target-icon';picture.src=CV_F[n][2];picture.alt=CV_F[n][0];
       const word=document.createElement('span');word.className='cv-target-word';word.textContent=CV_F[n][1].toLocaleUpperCase('es');
       row.append(picture,word);el.append(heading,row);cvSpeak(n);}
     function cvHud(){const L=CV.level,rem=Math.max(0,Math.ceil(CV.dur-CV.elapsed)),k=L+'|'+rem+'|'+CV.score+'|'+CV.correct;
@@ -5884,7 +5888,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         for(let k=0;k<n;k++)cvMake(CV.target,cx-half+k*gap,r,top,vx,rise);
         return;
       }
-      let idx;do{idx=Math.floor(Math.random()*CV_F.length);}while(idx===CV.target||CV_F[idx][2]===CV_F[CV.target][2]);
+      let idx;do{idx=Math.floor(Math.random()*CV_F.length);}while(idx===CV.target);
       cvMake(idx,cvSideX(-side,r),r,top);
     }
     function cvConfetti(a){a=a||cvEl('cvArea');const c=['#ffd23f','#ff6b6b','#4ecdc4','#a9f273','#ff9f43','#b983ff'];
@@ -5907,8 +5911,11 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function cvDraw(){const ctx=cvEl('cvCanvas').getContext('2d'),w=CV.width,h=CV.height;ctx.clearRect(0,0,w,h);
       for(const f of CV.fruits){if(f.cut)continue;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);
         ctx.shadowColor='#081d14';ctx.shadowBlur=9;ctx.shadowOffsetY=5;
-        ctx.font=(f.r*1.85)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(CV_F[f.idx][2],0,1);ctx.restore();}
+        const img=CV_IMAGES[f.idx];if(img&&img.complete&&img.naturalWidth){
+          const box=f.r*2.4,ratio=Math.min(box/img.naturalWidth,box/img.naturalHeight);
+          const iw=img.naturalWidth*ratio,ih=img.naturalHeight*ratio;
+          ctx.drawImage(img,-iw/2,-ih/2,iw,ih);
+        }ctx.restore();}
       for(const p of CV.particles){ctx.beginPath();ctx.fillStyle=p.color;ctx.globalAlpha=Math.max(0,p.life/.55);
         ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
       if(CV.trail.length>1){ctx.beginPath();ctx.lineWidth=5;ctx.lineCap='round';ctx.lineJoin='round';
