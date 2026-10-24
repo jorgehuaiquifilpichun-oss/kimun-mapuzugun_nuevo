@@ -3255,7 +3255,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       let maxH=window.innerHeight;
       function fit(){
         if(!ov.classList.contains('open')){
-          ov.style.top='';ov.style.height='';ov.style.bottom='';ov.classList.remove('kb');return;
+          ov.style.top='';ov.style.height='';ov.style.bottom='';if(ov.classList.contains('kb'))ov.classList.remove('kb');return;
         }
         maxH=Math.max(maxH,window.innerHeight);
         ov.style.top=vv.offsetTop+'px';ov.style.height=vv.height+'px';ov.style.bottom='auto';
