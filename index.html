@@ -810,6 +810,10 @@
       font:900 1.04rem Arial,sans-serif; cursor:pointer;
     }
     .player-entry-card button:disabled {opacity:.46;cursor:not-allowed;}
+    /* Sugerencias de apellidos mapuche bajo el recuadro del nombre. */
+    .pe-suggest {display:flex;flex-wrap:wrap;justify-content:center;gap:7px;margin-top:11px;max-height:128px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+    .pe-suggest:empty {display:none;}
+    .player-entry-card .pe-chip {width:auto;margin:0;padding:8px 13px;border:2px solid #9e7848;border-radius:999px;background:#fff6e4;color:#392311;font:700 .98rem Arial,sans-serif;}
     /* Los nueve valores siguen exactamente los centros de las placas blancas del PNG 781x1536. */
     .level-one-stat {
       position:absolute; z-index:4; width:25.2%; height:4.1%;
@@ -2725,6 +2729,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     <form class="player-entry-card" id="playerEntryForm" onsubmit="confirmNewGame(event)">
       <label id="playerEntryLabel" for="playerEntryName">Ingresa tu nombre</label>
       <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="off" required oninput="validatePlayerName()">
+      <div id="playerEntrySuggest" class="pe-suggest" role="group" aria-label="Apellidos mapuche sugeridos" onmousedown="event.preventDefault()"></div>
       <button id="playerEntryStart" type="submit" disabled>Comenzar</button>
     </form>
   </div>
@@ -3178,7 +3183,45 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function validatePlayerName() {
       const input=document.getElementById('playerEntryName');
       document.getElementById('playerEntryStart').disabled=!input.value.trim();
+      updateSurnameSuggestions();
     }
+    /* Sugerencias de apellidos mapuche: la lista está en apellidos_mapuche.json y se descarga
+       solo al tocar el recuadro del nombre, así que no pesa en el index.html.
+       Se sugiere a partir de la segunda palabra que se escribe (los apellidos). */
+    var SURNAMES=null,surnamesLoading=false;
+    const surnameKey=t=>t.normalize('NFC').toLowerCase().replace(/ñ/g,'\u0001').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\u0001/g,'ñ');
+    function loadSurnames() {
+      if(SURNAMES||surnamesLoading) return;
+      surnamesLoading=true;
+      fetch('./apellidos_mapuche.json').then(r=>r.ok?r.json():[]).then(list=>{
+        SURNAMES=Array.isArray(list)?list.filter(n=>typeof n==='string').map(n=>({n:n,k:surnameKey(n)})):[];
+        surnamesLoading=false;updateSurnameSuggestions();
+      }).catch(()=>{surnamesLoading=false;});
+    }
+    function updateSurnameSuggestions() {
+      const box=document.getElementById('playerEntrySuggest');
+      const input=document.getElementById('playerEntryName');
+      if(!box||!input) return;
+      box.textContent='';
+      if(!SURNAMES||!SURNAMES.length) return;
+      const text=input.value;
+      const m=text.match(/(\S+)$/);
+      if(!m||!text.slice(0,m.index).trim()) return;
+      const key=surnameKey(m[1]);
+      const room=input.maxLength-text.slice(0,m.index).length;
+      const found=SURNAMES.filter(s=>s.k.startsWith(key)&&s.n!==m[1]&&s.n.length<=room);
+      for(const s of found){
+        const b=document.createElement('button');
+        b.type='button';b.className='pe-chip';b.textContent=s.n;
+        b.addEventListener('click',()=>{
+          input.value=text.slice(0,m.index)+s.n;
+          document.getElementById('playerEntryStart').disabled=!input.value.trim();
+          box.textContent='';input.focus();
+        });
+        box.appendChild(b);
+      }
+    }
+    document.getElementById('playerEntryName').addEventListener('focus',loadSurnames);
     function resetEntireGame() {
       LEVEL_STATS.name='';LEVEL_STATS.correct=0;LEVEL_STATS.wrong=0;
       LEVEL_STATS.recoveries=0;LEVEL_STATS.completed.clear();
