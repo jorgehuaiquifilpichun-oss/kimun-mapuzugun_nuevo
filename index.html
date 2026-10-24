@@ -1508,6 +1508,59 @@
     #funhGameIntro .cv-area {background:transparent;border-top:0;border-bottom:0;}
     #funhGameIntro .funh-game-intro-header {display:none;}
 
+
+    /* FÜNH–FRUTOS: distribución aprobada para las tres etapas de corte. */
+    #funhGameIntro .cv-area {
+      top:clamp(64px, 8.5dvh, 82px);
+      bottom:clamp(85px, 11.5dvh, 116px);
+      background:transparent;
+      border:0;
+    }
+    #funhGameIntro .cv-hud {
+      top:0; left:0; right:0;
+      min-height:35px; padding:5px 7px;
+      display:grid;grid-template-columns:1fr 1.15fr 1fr;
+      gap:4px;align-items:center;
+      border-top:1px solid rgba(226,200,135,.75);
+      border-bottom:1px solid rgba(226,200,135,.75);
+      background:rgba(18,59,41,.92);
+      font-size:clamp(11px,3.1vw,14px);
+      line-height:1.12;
+      text-shadow:0 1px 2px #06170d;
+    }
+    #funhGameIntro .cv-hud>span:first-child{text-align:left;}
+    #funhGameIntro .cv-hud>span:last-child{text-align:right;}
+    #funhGameIntro #cvScore{font-size:clamp(11px,3.1vw,14px);}
+    #funhGameIntro .cv-target{
+      top:39px;left:2%;right:2%;
+      font-size:clamp(16px,4.8vw,21px);
+    }
+    #funhGameIntro .cv-target-heading{display:none;}
+    #funhGameIntro .cv-target-row{
+      gap:7px;margin:0 auto;padding:2px 10px;
+      width:max-content;max-width:94%;min-height:51px;
+      border-radius:12px;border-width:2px;
+    }
+    #funhGameIntro .cv-target-icon{
+      width:clamp(44px,12vw,62px);height:clamp(44px,12vw,62px);
+    }
+    #funhGameIntro .cv-target-word{font-size:clamp(21px,6vw,31px);line-height:1;}
+    #funhGameIntro .cv-area canvas{
+      position:absolute;left:0;right:0;top:101px;bottom:0;
+      width:100%;height:calc(100% - 101px);
+    }
+    #funhGameIntro .cv-area.cv-free-level canvas{
+      top:43px;height:calc(100% - 43px);
+    }
+    #funhGameIntro .cv-area.cv-free-level .cv-target{display:none;}
+    #funhGameIntro .cv-timer{bottom:2px;}
+    @media(max-height:650px){
+      #funhGameIntro .cv-area canvas{top:92px;height:calc(100% - 92px);}
+      #funhGameIntro .cv-area.cv-free-level canvas{top:39px;height:calc(100% - 39px);}
+      #funhGameIntro .cv-target{top:36px;}
+      #funhGameIntro .cv-target-row{min-height:46px;}
+    }
+
   </style>
 </head>
 
@@ -5839,29 +5892,29 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     function cvStop(){CV.active=false;CV.token++;cancelAnimationFrame(CV.raf);CV.raf=0;CV.pointer=false;CV.trail=[];
       if(CV.aud){CV.aud.pause();CV.aud=null;}
       stopFunhRecordings();}
-    function cvResize(){const area=cvEl('cvArea'),canvas=cvEl('cvCanvas');const rect=area.getBoundingClientRect();
+    function cvResize(){const canvas=cvEl('cvCanvas');const rect=canvas.getBoundingClientRect();
       CV.width=Math.max(200,rect.width);CV.height=Math.max(240,rect.height);
       const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(CV.width*dpr);canvas.height=Math.round(CV.height*dpr);
       const c=canvas.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);}
     function cvSetTarget(){if(CV.level===0)return;const n=CV.seq[Math.min(CV.rotations,2)];CV.target=n;
       CV.fruits=[];CV.spawn=0;CV.cd=0;cvEl('cvCd').textContent='';
       const el=cvEl('cvTarget');el.replaceChildren();
-      const heading=document.createElement('div');heading.className='cv-target-heading';heading.textContent='¡Busca y corta esta fruta!';
       const row=document.createElement('div');row.className='cv-target-row';
       const picture=document.createElement('img');picture.className='cv-target-icon';picture.src=CV_F[n][2];picture.alt=CV_F[n][0];
       const word=document.createElement('span');word.className='cv-target-word';word.textContent=CV_F[n][1].toLocaleUpperCase('es');
-      row.append(picture,word);el.append(heading,row);cvSpeak(n);}
+      row.append(picture,word);el.append(row);cvSpeak(n);}
     function cvHud(){const L=CV.level,rem=Math.max(0,Math.ceil(CV.dur-CV.elapsed)),k=L+'|'+rem+'|'+CV.score+'|'+CV.correct;
       if(k!==CV.hk){CV.hk=k;
         if(L===0){cvEl('cvLives').textContent='Nivel 1/3';cvEl('cvProg').textContent='⏱ '+rem+' s';cvEl('cvScore').textContent='★ '+CV.score;}
         else{cvEl('cvLives').textContent='Puntos: '+CV.score;cvEl('cvProg').innerHTML='<small>Nivel '+(L+1)+'/3</small><br>Tiempo: '+rem+' s';cvEl('cvScore').textContent='Aciertos: '+CV.correct;}}
       cvEl('cvTimer').style.width=(100*Math.max(0,1-CV.elapsed/CV.dur))+'%';}
-    function cvGo(){try{playFiluMapClick();}catch(e){}cvStop();cvResize();
+    function cvGo(){try{playFiluMapClick();}catch(e){}cvStop();cvEl('cvArea').classList.toggle('cv-free-level',level===0);cvResize();
       Object.assign(CV,{correct:0,score:0,elapsed:0,fruits:[],particles:[],trail:[],target:-1,spawn:0,rotations:0,cd:0,hk:'',dur:CV.level===2?60:45});
       const pool=(CV.level===2?CV_MAIN:CV_L2).map(cvIdx).filter(i=>i>=0);
       CV.seq=CV.level===2?pool:pool.sort(()=>Math.random()-.5).slice(0,3);
       cvEl('cvOv').classList.remove('on');cvEl('cvCd').textContent='';
-      cvEl('cvTarget').innerHTML=CV.level===0?'<span class="cv-target-free">¡Corta todas las frutas!</span>':'';
+      cvEl('cvArea').classList.toggle('cv-free-level', CV.level===0);
+      cvEl('cvTarget').innerHTML='';
       if(CV.level>0)cvSetTarget();CV.active=true;CV.last=performance.now();cvHud();CV.raf=requestAnimationFrame(cvLoop);}
     // x con la mayor distancia a los frutos activos (más separación, menos cruces)
     function cvLane(r,n){let best=r+8,bd=-1;for(let i=0;i<n;i++){const x=cvRand(r+8,CV.width-r-8);let d=1e9;
