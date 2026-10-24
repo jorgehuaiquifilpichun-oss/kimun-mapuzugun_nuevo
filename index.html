@@ -1561,6 +1561,16 @@
       #funhGameIntro .cv-target-row{min-height:46px;}
     }
 
+  
+    /* Pantalla final de Fünh–Frutos, usando la ilustración aprobada. */
+    .cv-results-screen{height:100dvh;min-height:0;overflow:hidden;background:#183f31;display:flex;align-items:center;justify-content:center}
+    .cv-results-stage{position:relative;width:min(100%,calc(100dvh * 941 / 1672));height:min(100dvh,calc(100vw * 1672 / 941));overflow:hidden}
+    .cv-results-image{display:block;width:100%;height:100%;object-fit:fill}
+    .cv-results-value{position:absolute;transform:translate(-50%,-50%);width:25%;height:3.7%;display:flex;justify-content:center;align-items:center;color:#38200c;font:900 clamp(11px,3.8vw,21px)/1.04 Arial,sans-serif;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
+    .cv-results-value.long{font-size:clamp(10px,3.2vw,17px)}
+    .cv-results-return{position:absolute;left:13%;top:77%;width:74%;height:8.4%;background:transparent;border:0;border-radius:60px;z-index:3;cursor:pointer;touch-action:manipulation}
+    .cv-results-return:focus-visible{outline:3px solid #f8efb5;outline-offset:-4px}
+
   </style>
 </head>
 
@@ -1880,6 +1890,23 @@
           </button>
         </div>
       </div>
+    </section>
+
+
+    <section id="funhResults" class="screen" aria-label="Resultados finales de corte de frutas">
+      <div class="cv-results-screen"><div class="cv-results-stage">
+        <img class="cv-results-image" src="./funh_resultados_final.png" alt="Küme zugu. Fünh frutas desbloqueado. Tabla final de puntuación.">
+        <span class="cv-results-value long" id="cvFinalName" style="left:22.7%;top:47.2%"></span>
+        <span class="cv-results-value long" id="cvFinalRank" style="left:50.5%;top:47.2%"></span>
+        <span class="cv-results-value" id="cvFinalPoints" style="left:78.2%;top:47.2%"></span>
+        <span class="cv-results-value" id="cvFinalTime" style="left:22.7%;top:58.7%"></span>
+        <span class="cv-results-value" id="cvFinalHits" style="left:50.5%;top:58.7%"></span>
+        <span class="cv-results-value" id="cvFinalErrors" style="left:78.2%;top:58.7%"></span>
+        <span class="cv-results-value" id="cvFinalPrecision" style="left:22.7%;top:70.4%"></span>
+        <span class="cv-results-value" id="cvFinalRecord" style="left:50.5%;top:70.4%"></span>
+        <span class="cv-results-value" id="cvFinalRetries" style="left:78.2%;top:70.4%"></span>
+        <button class="cv-results-return" type="button" onclick="cvReturnFromResults()" aria-label="Volver atrás al Camino del Sabio"></button>
+      </div></div>
     </section>
 
 <section id="activityOne" class="screen">
@@ -3172,6 +3199,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Una partida nueva también reinicia los resultados del minijuego.
       CV.done=[false,false,false];
       CV.res=[[0,0],[0,0],[0,0]];
+      CV.errors=0;CV.retries=0;CV.totalTime=0;CV.attempted=[false,false,false];
       cvNextState();
       const funhAxe = document.getElementById('funhFloatingAxe');
       if (funhAxe) funhAxe.hidden = true;
@@ -5837,7 +5865,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     const CV_L2=['Manzana','Murta o murtilla','Maqui','Frutilla','Pera','Piñón','Frambuesa','Uvas'];
     const CV_AUDIO=FUNH_AUDIO_PATHS; // grabaciones del kimelfe compartidas con el árbol
     const cvIdx=n=>CV_F.findIndex(f=>f[0]===n);
-    const CV={level:0,done:[false,false,false],res:[[0,0],[0,0],[0,0]],hk:'',pausedWas:false,active:false,raf:0,last:0,elapsed:0,target:-1,seq:[],cd:0,aud:null,
+    const CV={level:0,done:[false,false,false],res:[[0,0],[0,0],[0,0]],hk:'',pausedWas:false,errors:0,retries:0,totalTime:0,attempted:[false,false,false],active:false,raf:0,last:0,elapsed:0,target:-1,seq:[],cd:0,aud:null,
       correct:0,score:0,fruits:[],particles:[],trail:[],spawn:0,pointer:false,width:320,height:480,dur:45,rotations:0,token:0};
     try{const saved=JSON.parse(localStorage.getItem('cvSliceFunh')||'null');if(Array.isArray(saved)&&saved.length===3)CV.done=saved.map(Boolean);}catch(e){}
     const cvEl=id=>document.getElementById(id);
@@ -5884,7 +5912,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       ['Identifica y corta','Objetivo: corta solo el fruto indicado durante 45 segundos','Observa la imagen, escucha el nombre del fruto en mapuzungun y corta solamente el fruto indicado.'],
       ['Desafío avanzado','Objetivo: corta solo el fruto indicado durante 60 segundos','¡Demuestra lo que aprendiste! Encuentra el fruto indicado entre muchos otros y córtalo antes de que cambie.']];
     function cvClear(){['cvTarget','cvLives','cvProg','cvScore','cvCd'].forEach(id=>{cvEl(id).textContent='';});}
-    function cvMenu(){cvStart(0);}
+    function cvMenu(){CV.errors=0;CV.retries=0;CV.totalTime=0;CV.attempted=[false,false,false];CV.res=[[0,0],[0,0],[0,0]];CV.done=[false,false,false];cvStart(0);}
     function cvNextState(){const btn=cvEl('cvNextBtn');if(btn)btn.disabled=!CV.done.every(Boolean);}
     function cvNext(){if(!CV.done.every(Boolean))return;try{playFiluMapClick()}catch(e){}showScreen('activityMap');}
     function cvStart(level){cvStop();CV.level=level;cvClear();cvEl('cvTimer').style.width='100%';const t=CV_INFO[level],lv='<div class="cv-lv">Nivel '+(level+1)+'/3</div><h3>'+t[0]+'</h3>';
@@ -5908,7 +5936,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         if(L===0){cvEl('cvLives').textContent='Nivel 1/3';cvEl('cvProg').textContent='⏱ '+rem+' s';cvEl('cvScore').textContent='★ '+CV.score;}
         else{cvEl('cvLives').textContent='Puntos: '+CV.score;cvEl('cvProg').innerHTML='<small>Nivel '+(L+1)+'/3</small><br>Tiempo: '+rem+' s';cvEl('cvScore').textContent='Aciertos: '+CV.correct;}}
       cvEl('cvTimer').style.width=(100*Math.max(0,1-CV.elapsed/CV.dur))+'%';}
-    function cvGo(){try{playFiluMapClick();}catch(e){}cvStop();cvEl('cvArea').classList.toggle('cv-free-level',CV.level===0);cvResize();
+    function cvGo(){try{playFiluMapClick();}catch(e){}cvStop();CV.attempted[CV.level]=true;cvEl('cvArea').classList.toggle('cv-free-level',CV.level===0);cvResize();
       Object.assign(CV,{correct:0,score:0,elapsed:0,fruits:[],particles:[],trail:[],target:-1,spawn:0,rotations:0,cd:0,hk:'',dur:CV.level===2?60:45});
       const pool=(CV.level===2?CV_MAIN:CV_L2).map(cvIdx).filter(i=>i>=0);
       CV.seq=CV.level===2?pool:pool.sort(()=>Math.random()-.5).slice(0,3);
@@ -5964,14 +5992,32 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       cvSound(valid?'cut':'bad');for(let i=0;i<14;i++){let angle=cvRand(0,Math.PI*2),speed=cvRand(60,180);
         CV.particles.push({x:f.x,y:f.y,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,life:.55,r:cvRand(2,6),color:valid?'#a9f273':'#ff706b'});}
       cvFloat(f.x,f.y,valid?CV_F[f.idx][1].toLocaleUpperCase('es'):'✕ Error',!valid);
-      if(!valid){cvEnd(false,true);return;}
+      if(!valid){CV.errors++;cvEnd(false,true);return;}
       CV.correct++;CV.score+=10;cvHud();}
-    function cvEnd(win,error){cvStop();CV.fruits=[];const L=CV.level;CV.res[L]=[CV.score,CV.correct];cvEl('cvCd').textContent='';
+    function cvEnd(win,error){cvStop();CV.fruits=[];const L=CV.level;if(win){CV.res[L]=[CV.score,CV.correct];CV.totalTime+=Math.min(CV.dur,CV.elapsed);}else{CV.retries++;}cvEl('cvCd').textContent='';
       if(win){CV.done[L]=true;try{localStorage.setItem('cvSliceFunh',JSON.stringify(CV.done));}catch(e){}cvSound(L<2?'win':'cut');}cvNextState();
       const btn=(label,fn)=>'<button class="cv-go" type="button" onclick="'+fn+'">'+label+'</button>',R=CV.res;
-      if(win&&L===2){cvCard('<div class="cv-lv win">¡Küme zugu!</div><h3>¡Felicitaciones!</h3><p>Completaste los tres niveles.</p><p>Nivel 1: '+R[0][0]+' puntos<br>Nivel 2: '+R[1][0]+' puntos · '+R[1][1]+' aciertos<br>Nivel 3: '+R[2][0]+' puntos · '+R[2][1]+' aciertos</p><p class="cv-obj">Pulsa Amulepe para seguir.</p>'+btn('JUGAR OTRA VEZ','cvStart(0)'));return;}
+      if(win&&L===2){cvShowFinalResults();return;}
       if(win){cvCard('<div class="cv-lv win">¡Nivel '+(L+1)+' superado!</div><p>'+(L?'Puntos: '+CV.score+' · Aciertos: '+CV.correct:'Puntos: '+CV.score)+'</p>'+btn('SIGUIENTE NIVEL','cvStart('+(L+1)+')'));cvConfetti();return;}
       cvCard('<div class="cv-lv">'+(error?'Cortaste otra fruta':'Se acabó el tiempo')+'</div><p>Puntos: '+CV.score+' · Aciertos: '+CV.correct+'</p>'+btn('REINTENTAR','cvStart('+L+')'));}
+
+    function cvShowFinalResults(){
+      const score=CV.res.reduce((sum,row)=>sum+row[0],0);
+      const hits=CV.res.reduce((sum,row)=>sum+row[1],0);
+      const errors=CV.errors;
+      const precision=hits+errors?Math.round(100*hits/(hits+errors)):0;
+      let record=score;
+      try{record=Math.max(score,Number(localStorage.getItem('cvFunhRecord')||0));localStorage.setItem('cvFunhRecord',String(record));}catch(e){}
+      const rank=precision>=90?'Experto':precision>=70?'Avanzado':'Explorador';
+      const data={cvFinalName:LEVEL_STATS.name||'Jugador',cvFinalRank:rank,cvFinalPoints:score.toLocaleString('es-CL'),cvFinalTime:Math.round(CV.totalTime)+' s',cvFinalHits:hits,cvFinalErrors:errors,cvFinalPrecision:precision+'%',cvFinalRecord:record.toLocaleString('es-CL'),cvFinalRetries:CV.retries};
+      Object.entries(data).forEach(([id,val])=>{const el=cvEl(id);if(el){el.textContent=val;el.title=String(val);}});
+      showScreen('funhResults');
+    }
+    function cvReturnFromResults(){
+      try{playFiluMapClick();}catch(e){}
+      // El resultado ya se cerró y los niveles permanecen superados.
+      cvNextState();showScreen('activityMap');
+    }
     function cvDraw(){const ctx=cvEl('cvCanvas').getContext('2d'),w=CV.width,h=CV.height;ctx.clearRect(0,0,w,h);
       for(const f of CV.fruits){if(f.cut)continue;ctx.save();ctx.translate(f.x,f.y);ctx.rotate(f.rot);
         ctx.shadowColor='#081d14';ctx.shadowBlur=9;ctx.shadowOffsetY=5;
