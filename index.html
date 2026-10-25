@@ -5262,83 +5262,52 @@ clusters.forEach(cl=>{
   }
 });
 
-/* --- frutas gigantes: reemplazan a los cubos (misma caja de colisión 3x3x3, mismos 3 golpes) --- */
-function cTex(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
-function grad(x,w,h,a,b){const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,w,h);}
-function dots(x,w,h,n,col,r){x.fillStyle=col;for(let i=0;i<n;i++){x.beginPath();x.arc(Math.random()*w,Math.random()*h,r*(.5+Math.random()),0,6.283);x.fill();}}
-const stemM=new THREE.MeshStandardMaterial({color:0x5b3b1e,roughness:.85}),leafM=new THREE.MeshStandardMaterial({color:0x368b3d,roughness:.72,side:THREE.DoubleSide});
-const LEAF_GEO=new THREE.SphereGeometry(.55,10,6);
-function stem(g,y,l){l=l||.5;const s=new THREE.Mesh(new THREE.CylinderGeometry(.07,.11,l,6),stemM);s.position.set(0,y+l/2-.1,0);s.rotation.z=.12;s.castShadow=true;g.add(s);}
-function leaf(g,x,y,k){k=k||1;const m=new THREE.Mesh(LEAF_GEO,leafM);m.scale.set(k,.1,k*.55);m.position.set(x,y,0);m.rotation.z=.35;m.castShadow=true;g.add(m);}
-const FRUITS=[
- {n:'manzana',r:.35,juice:[0xd3202a,0xff6b6b,0xfff3c4],top:1.1,
-  p:[[0,-1.42],[.7,-1.36],[1.2,-1.0],[1.45,-.3],[1.4,.5],[1.0,1.1],[.5,1.3],[.18,1.2],[0,1.1]],
-  tex:(x,w,h)=>{grad(x,w,h,'#e5493c','#9d1620');x.strokeStyle='rgba(255,215,100,.2)';x.lineWidth=2;for(let i=0;i<45;i++){const u=Math.random()*w;x.beginPath();x.moveTo(u,h*.1);x.quadraticCurveTo(u+8,h*.5,u,h*.95);x.stroke();}},
-  extra:g=>{stem(g,1.1,.6);leaf(g,.5,1.55,1);}},
- {n:'naranja',r:.6,juice:[0xff9a1f,0xffc24d,0xfff0b8],top:1.46,
-  p:[[0,-1.45],[.7,-1.3],[1.15,-.95],[1.4,-.4],[1.45,.1],[1.3,.8],[.85,1.28],[.35,1.44],[0,1.46]],
-  tex:(x,w,h)=>{grad(x,w,h,'#ffa326','#e8750a');dots(x,w,h,500,'rgba(150,65,0,.28)',1.6);},
-  extra:g=>{stem(g,1.46,.25);leaf(g,.45,1.62,.9);}},
- {n:'pera',r:.55,juice:[0xc9d94c,0xe7f08a,0xfff6c9],top:1.45,
-  p:[[0,-1.45],[.75,-1.38],[1.3,-.95],[1.45,-.4],[1.25,.2],[.85,.65],[.6,1.1],[.38,1.38],[0,1.45]],
-  tex:(x,w,h)=>{grad(x,w,h,'#d3df57','#9fb633');dots(x,w,h,260,'rgba(110,80,30,.35)',1.4);},
-  extra:g=>{stem(g,1.45,.7);leaf(g,.5,1.9,.9);}},
- {n:'frutilla',r:.4,juice:[0xef2f3f,0xff7a85,0xffe58a],top:1.38,
-  p:[[0,-1.45],[.35,-1.2],[.8,-.6],[1.2,.1],[1.42,.8],[1.3,1.25],[.7,1.4],[0,1.38]],
-  tex:(x,w,h)=>{grad(x,w,h,'#ef2f3f','#c4162b');x.fillStyle='#ffe58a';for(let i=0;i<110;i++){x.beginPath();x.ellipse(Math.random()*w,Math.random()*h,1.7,2.8,0,0,6.283);x.fill();}},
-  extra:g=>{for(let k=0;k<7;k++){const a=k/7*6.283,c=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,5),leafM);c.position.set(Math.cos(a)*.5,1.42,Math.sin(a)*.5);c.rotation.set(Math.sin(a)*1.2,0,-Math.cos(a)*1.2);g.add(c);}stem(g,1.4,.5);}},
- {n:'sandia',r:.3,juice:[0xe63950,0xff7f8f,0x2f8f3f],top:1.35,
-  p:[[0,-1.4],[.85,-1.25],[1.35,-.6],[1.5,0],[1.35,.65],[.85,1.2],[0,1.35]],
-  tex:(x,w,h)=>{x.fillStyle='#37a047';x.fillRect(0,0,w,h);x.fillStyle='#1b5e2a';for(let i=0;i<12;i++){for(let y=0;y<h;y+=4)x.fillRect(i*w/12+Math.sin(y*.06+i)*6,y,w/36,4);}},
-  extra:g=>{stem(g,1.35,.35);}},
- {n:'durazno',r:.8,juice:[0xffc27a,0xf0705a,0xfff0d0],top:1.25,
-  p:[[0,-1.42],[.8,-1.3],[1.3,-.8],[1.47,-.1],[1.35,.6],[.95,1.15],[.5,1.38],[.15,1.3],[0,1.2]],
-  tex:(x,w,h)=>{grad(x,w,h,'#ffc98a','#f0705a');dots(x,w,h,400,'rgba(255,255,255,.1)',1.4);},
-  extra:g=>{stem(g,1.25,.4);leaf(g,.5,1.65,1);}}
+/* --- FRUTAS OFICIALES: reutilizar PNG externos de «Corta la fruta».
+   No se incrustan ni duplican imágenes. Correspondencia 1:1 con OBJECTS. */
+const FRUIT_IMAGE_FILES=[
+ './corte_frutos_02_maqui.png',
+ './corte_frutos_03_murta.png',
+ './corte_frutos_04_michay.png',
+ './corte_frutos_22_boldo.png',
+ './corte_frutos_23_naranja.png',
+ './corte_frutos_21_uvas.png',
+ './corte_frutos_08_coguil.png',
+ './corte_frutos_05_chaura.png',
+ './corte_frutos_09_chupon.png',
+ './corte_frutos_10_copihue.png',
+ './corte_frutos_01_castana.png',
+ './corte_frutos_12_rosa_mosqueta.png',
+ './corte_frutos_06_avellana_chilena.png',
+ './corte_frutos_07_pinon.png',
+ './corte_frutos_18_frambuesa.png',
+ './corte_frutos_20_damasco.png',
+ './corte_frutos_19_membrillo.png',
+ './corte_frutos_17_frutilla.png',
+ './corte_frutos_11_mora.png',
+ './corte_frutos_16_cereza.png',
+ './corte_frutos_15_ciruela.png',
+ './corte_frutos_14_pera.png',
+ './corte_frutos_13_manzana.png'
 ];
-/* Modelos adicionales: 23 representaciones 3D estilizadas a partir de seis formas base.
-   La relación palabra/modelo es 1:1; la geometría se reutiliza para evitar sobrecargar móviles.
-   Los colores distinguen frutos, sin pretender reproducir sus características botánicas exactas. */
-const FRUIT_VARIANTS=[
- [1,'#302a4d','#111328'],   // Make maqui
- [1,'#e77852','#a53240'],   // Üñü murta
- [2,'#efcb36','#b1711b'],   // Michay
- [2,'#718c45','#334f27'],   // Folho boldo
- [1,'#ffa326','#d66b12'],   // Naragka naranja
- [1,'#7554a7','#393070'],   // Ufaz uvas
- [2,'#d7a85a','#83572b'],   // Kowüll cóguil
- [1,'#b13b43','#5d1c38'],   // Chawra chaura
- [2,'#e6ad39','#97602b'],   // Nüyu chupón
- [1,'#cf4c5b','#8d2537'],   // Kopiw copihue
- [2,'#ac704b','#593720'],   // Kataña castaña
- [1,'#e65a30','#aa2820'],   // Moketa rosa mosqueta
- [2,'#bd8d53','#72512c'],   // Gefüñ avellana
- [2,'#876437','#4d3821'],   // Gülliw piñón
- [3,'#da354c','#92213b'],   // Füramfuesa frambuesa
- [5,'#ffa840','#e86a29'],   // Zamasko damasco
- [0,'#e8cb42','#b58a31'],   // Mempürillu membrillo
- [3,'#ef3544','#b31229'],   // Kelleñ frutilla
- [1,'#4a2749','#1a132c'],   // Mura mora
- [1,'#db343f','#8d1721'],   // Sereza cereza
- [5,'#9757ac','#54286d'],   // Siruela ciruela
- [2,'#bcdb59','#7c9837'],   // Pera pera
- [0,'#e64d37','#a61b28']    // Mansana manzana
-];
-if(FRUIT_VARIANTS.length!==OBJECTS.length)throw new Error('Catálogo de frutas incompleto');
-const BASE_FRUITS=FRUITS.slice();
-FRUIT_VARIANTS.forEach(([shape,light,dark],i)=>{
- const base=BASE_FRUITS[shape];
- FRUITS[i]={...base,n:OBJECTS[i].mp,
-   juice:[new THREE.Color(light).getHex(),new THREE.Color(dark).getHex(),0xffe6a6],
-   tex:(ctx,w,h)=>{
-     grad(ctx,w,h,light,dark);
-     dots(ctx,w,h,shape===3?95:150,'rgba(255,255,220,.17)',shape===3?1.8:1.15);
-   }};
-});
-const FRUIT_GEO=[],FRUIT_MAT=[];
-function fruitGeo(t){return FRUIT_GEO[t]||(FRUIT_GEO[t]=new THREE.LatheGeometry(new THREE.SplineCurve(FRUITS[t].p.map(q=>new THREE.Vector2(q[0],q[1]))).getPoints(30).map(v=>new THREE.Vector2(Math.max(0,v.x),v.y)),28));}
-function fruitMat(t){return FRUIT_MAT[t]||(FRUIT_MAT[t]=new THREE.MeshStandardMaterial({map:cTex(128,128,FRUITS[t].tex),roughness:Math.max(.32,FRUITS[t].r),metalness:0,envMapIntensity:0.5}));}
-function buildFruit(t){const g=new THREE.Group(),m=new THREE.Mesh(fruitGeo(t),fruitMat(t));m.castShadow=m.receiveShadow=true;g.add(m);FRUITS[t].extra(g);return g;}
+if(FRUIT_IMAGE_FILES.length!==OBJECTS.length ||
+   OBJECTS.some((o,i)=>o.type!==i))throw new Error('Correspondencia PNG / frutas inválida');
+const FRUITS=OBJECTS.map((o,i)=>({n:o.mp,juice:[0xe9bb55,0xb95d35,0xffe6a6],src:FRUIT_IMAGE_FILES[i]}));
+const fruitLoader=new THREE.TextureLoader();
+const fruitTextureCache=[];
+const FRUIT_PLANE=new THREE.PlaneGeometry(3.1,3.1);
+function fruitMat(t){
+ if(!fruitTextureCache[t]){
+  const tex=fruitLoader.load(FRUITS[t].src,undefined,undefined,()=>console.warn('No se pudo cargar fruta PNG:',FRUITS[t].src));
+  tex.encoding=THREE.sRGBEncoding;
+  tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+  fruitTextureCache[t]=new THREE.MeshBasicMaterial({map:tex,transparent:true,alphaTest:.10,side:THREE.DoubleSide,depthWrite:true});
+ }
+ return fruitTextureCache[t];
+}
+function buildFruit(t){
+ const g=new THREE.Group(),m=new THREE.Mesh(FRUIT_PLANE,fruitMat(t));
+ m.castShadow=false;m.receiveShadow=false;g.add(m);return g;
+}
 const BLOB_GEO=new THREE.CircleGeometry(2.3,20),BLOB_MAT=new THREE.MeshBasicMaterial({map:cTex(64,64,(x,w,h)=>{const g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(0,0,0,.4)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,h);}),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
 function crackTex(level){
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),r=mulberry32(77);
@@ -5358,8 +5327,10 @@ cubes.forEach((c,i)=>{
   const ty=c.word.type;c.fruit=ty;c.juice=FRUITS[ty].juice;c.squash=0;
   c.y=heightAt(c.x,c.z)-.45;
   c.group=new THREE.Group();c.group.position.set(c.x,c.y+CUBE/2,c.z);
-  c.body=buildFruit(ty);c.body.rotation.y=Math.random()*6.28;
-  c.crack=new THREE.Mesh(fruitGeo(ty),crackMats[0]);c.crack.scale.setScalar(1.014);c.crack.rotation.y=c.body.rotation.y;c.crack.visible=false;
+  c.body=buildFruit(ty);
+  // Grietas sobre la imagen, en lugar de geometría 3D que ya no corresponde.
+  c.crack=new THREE.Mesh(FRUIT_PLANE,crackMats[0]);
+  c.crack.position.z=.045;c.crack.scale.setScalar(1.01);c.crack.visible=false;
   const bl=new THREE.Mesh(BLOB_GEO,BLOB_MAT);bl.rotation.x=-Math.PI/2;bl.position.y=-CUBE/2+.52;
   c.group.add(c.body,c.crack,bl);scene.add(c.group);
   // Si esta fruta fue descubierta antes, tampoco reaparece al reabrir el juego.
@@ -5829,6 +5800,8 @@ function loop(t){
   raf=requestAnimationFrame(loop);
   const dt=Math.min(.05,(t-last)/1000||0);last=t;
   if(!paused)update(dt);
+  // Los PNG se orientan hacia la cámara para verse reconocibles desde cualquier dirección.
+  for(const c of cubes){if(c.active){c.body.quaternion.copy(camera.quaternion);c.crack.quaternion.copy(camera.quaternion);}}
   skyDome.position.copy(camera.position);
   if(!qDone&&!paused){qN++;qT+=dt;if(qN>=120){qDone=true;if(qT/qN>.045)sun.castShadow=false;}}
   renderer.render(scene,camera);
@@ -5849,7 +5822,9 @@ function leave(){
 function onVis(){if(!running)return;if(document.hidden){cancelAnimationFrame(raf);}else{last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);}}
 
 // Primer cuadro de fondo para el menú de inicio
-resize();hud();updateCamera(1);renderer.render(scene,camera);
+resize();hud();updateCamera(1);
+for(const c of cubes){if(c.active){c.body.quaternion.copy(camera.quaternion);c.crack.quaternion.copy(camera.quaternion);}}
+renderer.render(scene,camera);
 return {enter,leave};
  }
  function isActive(){const s=$('kimunVoxel');return !!(s&&s.classList.contains('active'));}
