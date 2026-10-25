@@ -1782,7 +1782,7 @@
         <div class="activity-map-tiles" aria-label="Seis actividades desbloqueadas y seis bloqueadas">
           <button class="activity-map-tile-button" type="button" onclick="openFiluFromMap(this)" aria-label="Númeru 1-20, abrir Filú"><img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="openRakiayinFromMap(this)" aria-label="Rakiayiñ 1-40, abrir actividad">          <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false"></button>
-<button class="activity-map-tile-button sn-tile" type="button" onclick="openSaltaFromMap(this)" aria-label="Salta el número, abrir actividad">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Salta el número, desbloqueado" draggable="false"><span class="sn-tile-title">Salta el número</span><img class="sn-tile-art" id="snTileArt" alt="" draggable="false"></button>
+<button id="saltaNumeroTile" class="activity-map-tile-button sn-tile" type="button" onclick="openSaltaFromMap(this)" aria-label="Salta el Número, bloqueado"><img class="activity-map-item" src="./item_salta_numero_bloqueado.png" alt="Salta el Número, bloqueado" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
@@ -1793,6 +1793,7 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
+        <button id="saltaNumeroAxe" class="funh-floating-axe" type="button" hidden onclick="activateSaltaTxegul()" aria-label="TokiKura para desbloquear Salta el Número"><img src="./TokiKura_miniatura.png" alt="TokiKura miniatura" draggable="false"></button>
         <button id="funhCuboxAxe" class="funh-floating-axe" type="button" hidden onclick="activateFunhCuboxTxegul()" aria-label="TokiKura para desbloquear Fünh cubox"><img src="./TokiKura_miniatura.png" alt="TokiKura miniatura" draggable="false"></button>
         <!-- Imagen PNG externa del TokiKura miniatura: debe estar junto a index.html. -->
         <button id="funhFloatingAxe" class="funh-floating-axe" type="button" hidden
@@ -3308,7 +3309,10 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       funhResetGallery();
       funhStage = 'locked';
       cuboxStage = 'locked';
+      saltaStage = 'locked';saltaCompleted=false;
       try {
+        localStorage.removeItem(SALTA_UNLOCK_KEY);
+        localStorage.removeItem(SALTA_COMPLETE_KEY);
         localStorage.removeItem(FUNH_STORAGE_KEY);
         localStorage.removeItem(CUBOX_READY_KEY);
         localStorage.removeItem(CUBOX_UNLOCK_KEY);
@@ -3323,6 +3327,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (funhAxe) funhAxe.hidden = true;
       applyFunhState();
       applyCuboxState();
+      applySaltaState();
       [
         ['activityOne',()=>{activityOneCompleted=false;stopActivityOneAnswerAudio();}],
         ['activityTwo',()=>{activityTwoCompleted=false;stopActivityTwoAnswerAudio();}],
@@ -3524,6 +3529,51 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     // El desbloqueo de Fünh-Frutos se conserva independientemente de las lecciones, Newen y estadísticas.
     // Fünh cubox: progreso independiente. Se habilita al completar realmente
     // los tres niveles del juego de corte, no solo el árbol introductorio.
+    // Secuencia obligatoria: Salta el Número -> Fünh-Frutos -> Fünh cubox.
+    const SALTA_UNLOCK_KEY='kimun_salta_numero_unlocked_v1';
+    const SALTA_COMPLETE_KEY='kimun_salta_numero_completed_v1';
+    const saltaSaved=k=>{try{return localStorage.getItem(k)==='1';}catch(_){return false;}};
+    let saltaStage=saltaSaved(SALTA_UNLOCK_KEY)?'unlocked':'locked';
+    let saltaCompleted=saltaSaved(SALTA_COMPLETE_KEY);
+    function positionSaltaAxe(){
+      const axe=document.getElementById('saltaNumeroAxe'),tile=document.getElementById('saltaNumeroTile'),map=document.getElementById('activityMap');
+      if(!axe||!tile||!map)return;
+      const r=tile.getBoundingClientRect(),m=map.getBoundingClientRect();if(!r.width||!m.width)return;
+      const w=Math.max(58,r.width*.72),h=Math.max(72,r.height*.86);
+      Object.assign(axe.style,{width:w+'px',height:h+'px',left:(r.left-m.left+(r.width-w)/2)+'px',top:(r.top-m.top+(r.height-h)/2)+'px'});
+    }
+    function applySaltaState(){
+      const tile=document.getElementById('saltaNumeroTile'),axe=document.getElementById('saltaNumeroAxe');if(!tile)return;
+      const open=saltaStage==='unlocked',img=tile.querySelector('img.activity-map-item');
+      const src=open?'./item_salta_numero_desbloqueado.png':'./item_salta_numero_bloqueado.png';
+      if(img.getAttribute('src')!==src)img.src=src;
+      img.alt='Salta el Número, '+(open?'desbloqueado':'bloqueado');tile.setAttribute('aria-label',img.alt);
+      tile.classList.toggle('funh-guide',saltaStage==='locked');
+      if(axe){axe.hidden=saltaStage!=='axe';axe.classList.toggle('funh-guide',saltaStage==='axe');if(saltaStage==='axe')requestAnimationFrame(positionSaltaAxe);}
+    }
+    function activateSaltaTxegul(){
+      if(saltaStage!=='axe')return;
+      const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulEntryLeft');if(!tile||!video)return;
+      stopActivityMapTxegul();saltaStage='playing';applySaltaState();
+      const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
+      const dx=r.left+r.width*.5-(v.left+v.width*.42)-m.width*.10;
+      const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
+      video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
+      video.classList.add('playing','funh-striking');let finished=false;
+      function finish(){if(finished||saltaStage!=='playing')return;finished=true;
+        video.pause();video.ontimeupdate=null;video.onended=null;video.onerror=null;
+        video.classList.remove('playing','funh-striking','funh-travelling','funh-exiting');
+        saltaStage='unlocked';try{localStorage.setItem(SALTA_UNLOCK_KEY,'1');}catch(e){console.warn('Salta progreso:',e);}
+        applySaltaState();playFiluMapClick();animateActivityMapTile(tile,true);
+      }
+      video.ontimeupdate=()=>{if(video.currentTime>=4.45)finish();};video.onended=finish;
+      const restore=()=>{if(saltaStage==='playing'){saltaStage='axe';stopActivityMapTxegul();applySaltaState();}};
+      video.onerror=restore;try{video.currentTime=0;}catch(_){};
+      const promise=video.play();if(promise&&promise.catch)promise.catch(restore);
+    }
+    function resetSaltaOnExit(){if(saltaStage==='axe'||saltaStage==='playing')saltaStage='locked';applySaltaState();}
+    window.addEventListener('resize',positionSaltaAxe);
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applySaltaState);else applySaltaState();
     const CUBOX_READY_KEY='kimun_funh_cubox_ready_v1';
     const CUBOX_UNLOCK_KEY='kimun_funh_cubox_unlocked_v1';
     function cuboxStored(key){try{return localStorage.getItem(key)==='1';}catch(_){return false;}}
@@ -3541,7 +3591,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const available=cuboxStage!=='locked';
       const img=tile.querySelector('img');
       // Verde: invitación a tocar o actividad ya abierta. Rojo: aún no habilitada.
-      const image=available?'./item_funh_cubox_desbloqueado.png':'./item_funh_cubox_bloqueado.png';
+      const image=cuboxStage==='unlocked'?'./item_funh_cubox_desbloqueado.png':'./item_funh_cubox_bloqueado.png';
       if(img.getAttribute('src')!==image)img.setAttribute('src',image);
       tile.classList.toggle('cubox-available',cuboxStage==='ready');
       tile.classList.toggle('cubox-opened',cuboxStage==='unlocked');
@@ -3636,7 +3686,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         tile.setAttribute('aria-label','Fünh-Frutos, bloqueado');
       }
       const axe=document.getElementById('funhFloatingAxe');
-      tile.classList.toggle('funh-guide',funhStage==='locked');
+      tile.classList.toggle('funh-guide',funhStage==='locked'&&saltaCompleted);
       tile.classList.toggle('funh-ready',unlocked);
       if(axe) {
         axe.hidden=funhStage!=='axe';
@@ -4161,6 +4211,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     buildFunhGallery();
 
     function handleFunhFrutosTap(button) {
+      if(!saltaCompleted && funhStage!=='unlocked'){playActivityMapLockedSound();animateActivityMapTile(button,false);return;}
       applyFunhState();
       if(funhStage==='unlocked'){playActivityMapTileSound(button);showScreen('funhWelcome');return;}
       if(funhStage==='playing'||funhStage==='axe')return;
@@ -5975,7 +6026,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         beginNewenRecovery(screenId);
         return;
       }
-      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); resetCuboxOnExit(); }
+      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); resetCuboxOnExit(); resetSaltaOnExit(); }
       if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
       if(screenId !== 'funhGallery')funhPauseGallery();
       if (screenId !== 'newenRecovery') {
@@ -6002,7 +6053,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       if (target) target.classList.add("active");
       if (screenId === 'funhGallery')requestAnimationFrame(funhResumeGallery);
       // Los Txegül solo se activarán mediante un disparador explícito posterior.
-      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); applyCuboxState(); }
+      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); applyCuboxState(); applySaltaState(); }
       const filuMapBack = document.getElementById('filuMapBack');
       if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
@@ -6508,7 +6559,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     try{SN.best=+localStorage.getItem('snBest')||0;}catch(e){}
     for(const k in SN_IMG){const i=new Image();i.src=SN_IMG[k];SN.img[k]=i;}
     const snEl=id=>document.getElementById(id);
-    snEl('snTileArt').src=SN_IMG.a;
+    // La miniatura del mapa usa los PNG oficiales de Salta el Número.
     function snSize(){const c=snEl('snCanvas'),r=c.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
       SN.w=Math.max(200,r.width);SN.h=Math.max(200,r.height);c.width=Math.round(SN.w*d);c.height=Math.round(SN.h*d);c.getContext('2d').setTransform(d,0,0,d,0,0);}
     function snHud(){snEl('snFill').style.width=(100*SN.done/40)+'%';snEl('snTxt').textContent='Número '+SN.done+' de 40 · Plata '+SN.coinCount+' · Récord '+SN.best;snEl('snCoinMini').textContent=SN.coinCount;}
@@ -6611,7 +6662,8 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     }
     let snResultTimers=[];
     function snClearResultTimers(){snResultTimers.forEach(clearTimeout);snResultTimers=[];}
-    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();try{cvSound('win');}catch(e){}
+    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();
+      saltaCompleted=true;try{localStorage.setItem(SALTA_COMPLETE_KEY,'1');}catch(e){console.warn('Progreso Salta:',e);}applyFunhState();try{cvSound('win');}catch(e){}
       const ov=snEl('snOv');ov.classList.add('sn-result-mode');ov.hidden=false;
       ov.innerHTML='<div class="sn-result-sheet"><img src="./resultado_salta_numero.png" alt="¡Küme zugu! Salta el número completado. Resumen de nueve estadísticas">'+
         ['Name','Rank','Silver','Jumps','Correct','Errors','Accuracy','Record','Retries'].map((key,i)=>
@@ -6709,7 +6761,10 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       for(const q of SN.pops){c.globalAlpha=Math.min(1,q.life*2);c.font='900 '+Math.round(h*.07)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.fillStyle=q.c;c.fillText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.globalAlpha=1;}
       if(SN.st==='crash'){c.font='900 '+Math.round(h*.08)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText('¡Ay fotxü!',w*.5,h*.4);c.fillStyle='#c4622d';c.fillText('¡Ay fotxü!',w*.5,h*.4);}}
     function snExit(){try{playFiluMapClick();}catch(e){}snStop();showScreen('activityMap');}
-    function openSaltaFromMap(button){if(button&&button.dataset.opening==='1')return;
+    function openSaltaFromMap(button){
+      if(saltaStage==='locked'){animateActivityMapTile(button,false);playFunhBell();saltaStage='axe';applySaltaState();return;}
+      if(saltaStage!=='unlocked')return;
+      if(button&&button.dataset.opening==='1')return;
       if(button){button.dataset.opening='1';animateActivityMapTile(button,true);}playFiluMapClick();
       setTimeout(()=>{if(button)delete button.dataset.opening;showScreen('saltaNum');requestAnimationFrame(()=>{snSize();snPick();});},450);}
     (function(){const c=snEl('snCanvas');c.addEventListener('pointerdown',e=>{e.preventDefault();snJump();});
