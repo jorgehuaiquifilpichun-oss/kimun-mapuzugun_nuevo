@@ -5133,11 +5133,24 @@ const OBJECTS=[
 ];
 const COLORS={fruta:'#dbac4c'};
 
-/* ================= AUDIO DE PRONUNCIACIÓN (preparado, vacío a propósito) =================
-   Cuando existan los audios del kimelfe: colocar los archivos en ./audio/ y registrarlos, p. ej.
-   AUDIO.map['kelü']='kelu.mp3'. No se usan voces sintéticas. */
-const AUDIO={base:'audio/',map:{}};
-function playWord(mp){const f=AUDIO.map[mp];if(!f)return false;try{new Audio(AUDIO.base+f).play();return true;}catch(e){return false;}}
+/* Reutilizar exclusivamente las rutas MP3 ya aprobadas para Fünh–Frutos / Corta la fruta.
+   No duplicar archivos ni precargar todas las grabaciones. */
+const AUDIO={map:FUNH_AUDIO_PATHS};
+let voxelRecording=null;
+function stopVoxelRecording(){
+ if(voxelRecording){voxelRecording.pause();voxelRecording.removeAttribute('src');voxelRecording.load();voxelRecording=null;}
+}
+function playWord(mp){
+ const path=AUDIO.map[mp];if(!path)return false;
+ try{
+  stopVoxelRecording();
+  const rec=new Audio(path);rec.volume=1;voxelRecording=rec;
+  rec.onended=()=>{if(voxelRecording===rec)voxelRecording=null;};
+  rec.onerror=()=>{console.warn('MP3 de fruta no disponible:',mp,path);if(voxelRecording===rec)voxelRecording=null;};
+  const playing=rec.play();if(playing&&typeof playing.catch==='function')playing.catch(e=>console.warn('No se pudo reproducir MP3:',mp,e));
+  return true;
+ }catch(e){console.warn('Error de audio de fruta',mp,e);return false;}
+}
 
 /* ================= PROGRESO (clave propia, no toca otras actividades) ================= */
 const SAVE_KEY='kvx3d_progress_frutas_v1';
@@ -5175,7 +5188,7 @@ const canvas=$('kvxCanvas');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:(window.devicePixelRatio||1)<2,powerPreference:'high-performance'});
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.24;
+renderer.toneMappingExposure=0.92;
 const scene=new THREE.Scene();
 const SKY=0x617eb9,HORIZ=0xe6b4a0;
 scene.background=new THREE.Color(SKY);
@@ -5185,10 +5198,10 @@ const skyDome=(function(){const g=new THREE.SphereGeometry(400,24,14),p=g.attrib
   g.setAttribute('color',new THREE.BufferAttribute(col,3));
   const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));m.renderOrder=-1;scene.add(m);return m;})();
 const camera=new THREE.PerspectiveCamera(60,1,.3,500);
-scene.add(new THREE.HemisphereLight(0xc2d5ff,0x577047,1.15));
-const sun=new THREE.DirectionalLight(0xffc990,1.65);sun.position.set(-55,58,-40);scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xacc5ec,0x405a39,0.82));
+const sun=new THREE.DirectionalLight(0xffc18e,1.16);sun.position.set(-55,58,-40);scene.add(sun);
 // Luz de relleno fría: contrastes de videojuego sin postprocesado costoso.
-const fill=new THREE.DirectionalLight(0x9bb5ff,.32);fill.position.set(35,30,55);scene.add(fill);
+const fill=new THREE.DirectionalLight(0x96b0e6,.20);fill.position.set(35,30,55);scene.add(fill);
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
 {const sc=sun.shadow.camera;sc.left=-32;sc.right=32;sc.top=32;sc.bottom=-32;sc.near=10;sc.far=180;}
@@ -5368,21 +5381,21 @@ function place(count,tries,r,fn,minPath,reserve){
     fn(x,z,heightAt(x,z));if(reserve)occupied.push({x,z,r});placed++;
   }
 }
-place(46,900,4.5,(x,z,h)=>{
+place(30,900,4.5,(x,z,h)=>{
   const s=.85+rnd()*.5,v=rnd()*.08;
   addBox(x,h+4.3*s,z,.7*s,9*s,.7*s,0,0x5b4636);
   addBox(x,h+7.4*s,z,3.6*s,.5*s,3.6*s,rnd(),0x3d6b38);
   addBox(x,h+8.9*s,z,5.4*s,.7*s,5.4*s,rnd(),0x3f6e3a);
   addBox(x,h+9.7*s,z,3.7*s,.6*s,3.7*s,rnd(),0x4a7d42);
   circles.push({x,z,r:.45*s,h:9*s});
-},4.5,true);
-place(120,1400,3.2,(x,z,h)=>{
+},6,true);
+place(76,1400,3.2,(x,z,h)=>{
   const s=.8+rnd()*.6,g=[0x2f6b3a,0x3b7a3e,0x285c33,0x477f3a][Math.floor(rnd()*4)];
   addBox(x,h+1.6*s,z,.8*s,3.2*s,.8*s,0,0x6b4a32);
   addBox(x,h+4.3*s,z,3.4*s,2.6*s,3.4*s,rnd(),g);
   addBox(x,h+6.1*s,z,2.1*s,1.7*s,2.1*s,rnd(),g);
   circles.push({x,z,r:.5*s,h:3.5*s});
-},3.5,true);
+},4.8,true);
 place(70,900,2,(x,z,h)=>{
   const w=1+rnd()*1.4,hh=.8+rnd()*1.2,d=1+rnd()*1.4,gr=[0x8c8c86,0x7c7c76,0x9a9a92][Math.floor(rnd()*3)];
   addBox(x,h+hh*.4,z,w,hh,d,rnd()*3,gr);
@@ -5628,6 +5641,7 @@ function doHit(){
 }
 const EARTH=[0x86694a,0x6e5438,0x9a7a56];
 function hitCube(c){
+  playWord(c.word.mp); // Primera, segunda y tercera pronunciación de la misma fruta.
   c.hp--;
   const wx=c.x,wy=c.y+CUBE/2,wz=c.z,dx=c.x-px,dz=c.z-pz,dl=Math.hypot(dx,dz)||1;
   if(c.hp===2){
@@ -5813,6 +5827,7 @@ function enter(){
   running=true;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
 function leave(){
+  stopVoxelRecording();
   running=false;cancelAnimationFrame(raf);raf=0;releaseInputs();Object.keys(keys).forEach(k=>keys[k]=false);
   window.removeEventListener('resize',resize);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);document.removeEventListener('visibilitychange',onVis);
   clearTimeout(cardTimer);clearTimeout(toastTimer);$('kvxCard').classList.remove('show');$('kvxToast').classList.remove('show');
