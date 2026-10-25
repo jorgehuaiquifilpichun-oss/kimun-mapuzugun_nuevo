@@ -5187,11 +5187,19 @@ const renderer=new THREE.WebGLRenderer({canvas,antialias:(window.devicePixelRati
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=0.95;
+/* DIAGNÓSTICO (temporal): abre index.html#kvxdiag=viejo | rojo | sinluz | (nada = corregido) */
+const DIAG=((location.hash||'').match(/kvxdiag=(\w+)/)||[])[1]||'';
+/* Three r128 no convierte los hex a lineal; con outputEncoding=sRGB hay que hacerlo a mano para el paisaje.
+   Las frutas (PNG con encoding sRGB) ya estaban bien y no pasan por aquí. */
+const fixC=c=>DIAG==='viejo'?c:c.convertSRGBToLinear();
+{const vl=document.createElement('div');vl.textContent='color v2 · '+(DIAG||'corregido');
+ vl.style.cssText='position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);transform:translateX(-50%);font:600 10px system-ui,sans-serif;color:#fff;opacity:.8;pointer-events:none;z-index:30;text-shadow:0 1px 2px #000';
+ $('kimunVoxel').appendChild(vl);}
 const scene=new THREE.Scene();
 const SKY=0x4b9fe5,HORIZ=0x8fc5ec;
-scene.background=new THREE.Color(SKY);
-scene.fog=new THREE.Fog(0x608d85,235,410);
-const skyDome=(function(){const g=new THREE.SphereGeometry(400,24,14),p=g.attributes.position,col=new Float32Array(p.count*3),a=new THREE.Color(HORIZ),b=new THREE.Color(0x287ad2),c=new THREE.Color();
+scene.background=fixC(new THREE.Color(SKY));
+scene.fog=new THREE.Fog(fixC(new THREE.Color(0x608d85)),235,410);
+const skyDome=(function(){const g=new THREE.SphereGeometry(400,24,14),p=g.attributes.position,col=new Float32Array(p.count*3),a=fixC(new THREE.Color(HORIZ)),b=fixC(new THREE.Color(0x287ad2)),c=new THREE.Color();
   for(let i=0;i<p.count;i++){const t=clamp(p.getY(i)/400,0,1);c.copy(a).lerp(b,Math.pow(t,.75));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
   g.setAttribute('color',new THREE.BufferAttribute(col,3));
   const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));m.renderOrder=-1;scene.add(m);return m;})();
@@ -5234,17 +5242,17 @@ function heightAt(x,z){
     if(slope>1.5||y>11)c.lerp(c2.setHex(0x5b7453),.65);
     if(y>16)c.setHex(0xd6dce0);
     if(pd<3)c.lerp(c2.setHex(0xb66a24),1-ss(1.6,3,pd)).multiplyScalar(.93+t*.07);
-    col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+    fixC(c2.copy(c));col[i*3]=c2.r;col[i*3+1]=c2.g;col[i*3+2]=c2.b;
   }
   g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();
-  {const tm=new THREE.Mesh(g,new THREE.MeshLambertMaterial({vertexColors:true,flatShading:false}));tm.receiveShadow=true;scene.add(tm);}
+  {const tm=new THREE.Mesh(g,DIAG==='rojo'?new THREE.MeshBasicMaterial({color:0xff0000}):DIAG==='sinluz'?new THREE.MeshBasicMaterial({vertexColors:true}):new THREE.MeshLambertMaterial({vertexColors:true,flatShading:false}));tm.receiveShadow=true;scene.add(tm);}
   // suelo de respaldo bajo el terreno
-  const base=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshBasicMaterial({color:0x247c2b}));
+  const base=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshBasicMaterial({color:fixC(new THREE.Color(0x247c2b))}));
   base.rotation.x=-Math.PI/2;base.position.y=-4;scene.add(base);
   // volcán lejano (cono de 4 caras, estilo voxel) + nieve
-  const vm=new THREE.Mesh(new THREE.ConeGeometry(70,80,4),new THREE.MeshLambertMaterial({color:0x6d7a8a,flatShading:true}));
+  const vm=new THREE.Mesh(new THREE.ConeGeometry(70,80,4),new THREE.MeshLambertMaterial({color:fixC(new THREE.Color(0x6d7a8a)),flatShading:true}));
   vm.position.set(-20,32,-170);vm.rotation.y=Math.PI/4;scene.add(vm);
-  const vs=new THREE.Mesh(new THREE.ConeGeometry(24,27,4),new THREE.MeshLambertMaterial({color:0xf2f6f8,flatShading:true}));
+  const vs=new THREE.Mesh(new THREE.ConeGeometry(24,27,4),new THREE.MeshLambertMaterial({color:fixC(new THREE.Color(0xf2f6f8)),flatShading:true}));
   vs.position.set(-20,58,-170);vs.rotation.y=Math.PI/4;scene.add(vs);
 })();
 
@@ -5405,7 +5413,7 @@ place(170,500,.6,(x,z,h)=>{addBox(x,h+.22,z,.07,.45,.07,0,0x29662c);addBox(x,h+.
 (function flush(){
   const m=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),W.length);
   const d=new THREE.Object3D(),col=new THREE.Color();
-  W.forEach((it,i)=>{d.position.set(it.x,it.y,it.z);d.rotation.set(0,it.ry||0,0);d.scale.set(it.sx,it.sy,it.sz);d.updateMatrix();m.setMatrixAt(i,d.matrix);col.set(it.c);m.setColorAt(i,col);});
+  W.forEach((it,i)=>{d.position.set(it.x,it.y,it.z);d.rotation.set(0,it.ry||0,0);d.scale.set(it.sx,it.sy,it.sz);d.updateMatrix();m.setMatrixAt(i,d.matrix);col.set(it.c);fixC(col);m.setColorAt(i,col);});
   m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;m.frustumCulled=false;m.castShadow=true;m.receiveShadow=true;scene.add(m);
 })();
 
