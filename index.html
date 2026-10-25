@@ -1032,6 +1032,13 @@
     }
 
 
+
+    /* Fünh cubox: señal verde solo tras superar los tres niveles de frutas. */
+    #funhCuboxTile.cubox-available { animation:funhGuidePulse 1.45s ease-in-out infinite; border-radius:12px; }
+    #funhCuboxTile.cubox-opened { animation:none; }
+    #funhCuboxAxe.funh-guide { animation:funhGuidePulse 1.45s ease-in-out infinite; }
+    @media(prefers-reduced-motion:reduce){#funhCuboxTile.cubox-available,#funhCuboxAxe.funh-guide{animation:none;filter:drop-shadow(0 0 9px #57fb63);}}
+
     /* Ceremonia de Fünh-Frutos: capa independiente, sobre los mosaicos.
        La miniatura del TokiKura se posiciona dinámicamente sobre el recuadro
        de Frutos para que no invada las demás actividades. */
@@ -1780,12 +1787,13 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="handleFunhFrutosTap(this)" aria-label="Fünh-Frutos, bloqueado">          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false"></button>
+<button id="funhCuboxTile" class="activity-map-tile-button" type="button" onclick="handleFunhCuboxTap(this)" aria-label="Fünh cubox, bloqueado"><img class="activity-map-item" src="./item_funh_cubox_bloqueado.png" alt="Fünh cubox, bloqueado" draggable="false"></button>
 <button class="activity-map-tile-button kv-map-tile" type="button" onclick="openKimunVoxel(this)" aria-label="Kimün Voxel, abrir actividad"><img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Kimün Voxel — ítem en preparación" draggable="false"><span class="kv-map-title">Kimün Voxel</span></button>
-<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
+        <button id="funhCuboxAxe" class="funh-floating-axe" type="button" hidden onclick="activateFunhCuboxTxegul()" aria-label="TokiKura para desbloquear Fünh cubox"><img src="./TokiKura_miniatura.png" alt="TokiKura miniatura" draggable="false"></button>
         <!-- Imagen PNG externa del TokiKura miniatura: debe estar junto a index.html. -->
         <button id="funhFloatingAxe" class="funh-floating-axe" type="button" hidden
                 onclick="activateFunhTxegul()" aria-label="Tocar TokiKura miniatura para desbloquear Fünh-Frutos">
@@ -3299,8 +3307,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       stopActivityMapTxegul();
       funhResetGallery();
       funhStage = 'locked';
+      cuboxStage = 'locked';
       try {
         localStorage.removeItem(FUNH_STORAGE_KEY);
+        localStorage.removeItem(CUBOX_READY_KEY);
+        localStorage.removeItem(CUBOX_UNLOCK_KEY);
         localStorage.removeItem('cvSliceFunh');
       } catch (error) { console.warn('No se pudo reiniciar Fünh-Frutos:', error); }
       // Una partida nueva también reinicia los resultados del minijuego.
@@ -3311,6 +3322,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const funhAxe = document.getElementById('funhFloatingAxe');
       if (funhAxe) funhAxe.hidden = true;
       applyFunhState();
+      applyCuboxState();
       [
         ['activityOne',()=>{activityOneCompleted=false;stopActivityOneAnswerAudio();}],
         ['activityTwo',()=>{activityTwoCompleted=false;stopActivityTwoAnswerAudio();}],
@@ -3510,6 +3522,81 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
 
     // Estados de la ceremonia: bloqueado -> TokiKura visible al primer toque -> video -> desbloqueado.
     // El desbloqueo de Fünh-Frutos se conserva independientemente de las lecciones, Newen y estadísticas.
+    // Fünh cubox: progreso independiente. Se habilita al completar realmente
+    // los tres niveles del juego de corte, no solo el árbol introductorio.
+    const CUBOX_READY_KEY='kimun_funh_cubox_ready_v1';
+    const CUBOX_UNLOCK_KEY='kimun_funh_cubox_unlocked_v1';
+    function cuboxStored(key){try{return localStorage.getItem(key)==='1';}catch(_){return false;}}
+    let cuboxStage=cuboxStored(CUBOX_UNLOCK_KEY)?'unlocked':(cuboxStored(CUBOX_READY_KEY)?'ready':'locked');
+    function positionCuboxAxe(){
+      const axe=document.getElementById('funhCuboxAxe'),tile=document.getElementById('funhCuboxTile'),map=document.getElementById('activityMap');
+      if(!axe||!tile||!map)return;
+      const r=tile.getBoundingClientRect(),m=map.getBoundingClientRect();
+      if(!r.width||!r.height||!m.width)return;
+      const w=Math.max(58,r.width*.72),h=Math.max(72,r.height*.86);
+      Object.assign(axe.style,{width:w+'px',height:h+'px',left:(r.left-m.left+(r.width-w)/2)+'px',top:(r.top-m.top+(r.height-h)/2)+'px'});
+    }
+    function applyCuboxState(){
+      const tile=document.getElementById('funhCuboxTile'),axe=document.getElementById('funhCuboxAxe');if(!tile)return;
+      const available=cuboxStage!=='locked';
+      const img=tile.querySelector('img');
+      // Verde: invitación a tocar o actividad ya abierta. Rojo: aún no habilitada.
+      const image=available?'./item_funh_cubox_desbloqueado.png':'./item_funh_cubox_bloqueado.png';
+      if(img.getAttribute('src')!==image)img.setAttribute('src',image);
+      tile.classList.toggle('cubox-available',cuboxStage==='ready');
+      tile.classList.toggle('cubox-opened',cuboxStage==='unlocked');
+      const status=cuboxStage==='unlocked'?'desbloqueado':available?'listo para desbloquear':'bloqueado';
+      tile.setAttribute('aria-label','Fünh cubox, '+status);img.alt='Fünh cubox, '+status;
+      if(axe){axe.hidden=cuboxStage!=='axe';axe.classList.toggle('funh-guide',cuboxStage==='axe');if(cuboxStage==='axe')requestAnimationFrame(positionCuboxAxe);}
+    }
+    function enableCuboxFromFruitResults(){
+      if(cuboxStage!=='locked')return;
+      cuboxStage='ready';try{localStorage.setItem(CUBOX_READY_KEY,'1');}catch(e){console.warn('No se pudo guardar Fünh cubox:',e);}
+      applyCuboxState();
+    }
+    function handleFunhCuboxTap(tile){
+      if(cuboxStage==='locked'){animateActivityMapTile(tile,false);return;}
+      if(cuboxStage==='ready'){
+        playFunhBell();cuboxStage='axe';applyCuboxState();animateActivityMapTile(tile,true);return;
+      }
+      if(cuboxStage==='unlocked'){
+        // El destino reutiliza el juego 3D existente y evita crear otra lógica de juego.
+        openKimunVoxel(tile);
+      }
+    }
+    function activateFunhCuboxTxegul(){
+      if(cuboxStage!=='axe')return;
+      const tile=document.getElementById('funhCuboxTile'),video=document.getElementById('txegulEntryRight');
+      if(!tile||!video)return;
+      stopActivityMapTxegul();
+      cuboxStage='playing';applyCuboxState();
+      const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
+      const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
+      const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
+      video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
+      video.classList.add('playing','funh-striking');
+      let finished=false;
+      function finish(){
+        if(finished||cuboxStage!=='playing')return;finished=true;
+        video.pause();video.ontimeupdate=null;video.onended=null;video.onerror=null;
+        video.classList.remove('playing','funh-striking','funh-travelling','funh-exiting');
+        cuboxStage='unlocked';
+        try{localStorage.setItem(CUBOX_UNLOCK_KEY,'1');}catch(e){console.warn('No se pudo guardar desbloqueo Cubox:',e);}
+        applyCuboxState();playFiluMapClick();animateActivityMapTile(tile,true);
+      }
+      // Mismo instante del tercer golpe usado en Fünh-Frutos.
+      const check=()=>{if(video.currentTime>=4.45)finish();};
+      video.ontimeupdate=check;video.onended=finish;
+      video.onerror=()=>{if(cuboxStage==='playing'){cuboxStage='axe';stopActivityMapTxegul();applyCuboxState();}};
+      try{video.currentTime=0;}catch(_){}
+      const playback=video.play();if(playback?.catch)playback.catch(()=>{if(cuboxStage==='playing'){cuboxStage='axe';stopActivityMapTxegul();applyCuboxState();}});
+    }
+    function resetCuboxOnExit(){
+      if(cuboxStage==='playing'||cuboxStage==='axe')cuboxStage='ready';
+      applyCuboxState();
+    }
+    window.addEventListener('resize',positionCuboxAxe);
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyCuboxState);else applyCuboxState();
     const FUNH_STORAGE_KEY = 'kimun_funh_frutos_unlocked_v1';
     function readFunhUnlocked() {
       try { return localStorage.getItem(FUNH_STORAGE_KEY) === '1'; }
@@ -5888,7 +5975,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         beginNewenRecovery(screenId);
         return;
       }
-      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); }
+      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); resetCuboxOnExit(); }
       if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
       if(screenId !== 'funhGallery')funhPauseGallery();
       if (screenId !== 'newenRecovery') {
@@ -5915,7 +6002,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       if (target) target.classList.add("active");
       if (screenId === 'funhGallery')requestAnimationFrame(funhResumeGallery);
       // Los Txegül solo se activarán mediante un disparador explícito posterior.
-      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); }
+      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); applyCuboxState(); }
       const filuMapBack = document.getElementById('filuMapBack');
       if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
@@ -6234,6 +6321,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       cvCard('<div class="cv-lv">'+(error?'Cortaste otra fruta':'Se acabó el tiempo')+'</div><p>Puntos: '+CV.score+' · Aciertos: '+CV.correct+'</p>'+btn('REINTENTAR','cvStart('+L+')'));}
 
     function cvShowFinalResults(){
+      enableCuboxFromFruitResults();
       const score=CV.res.reduce((sum,row)=>sum+row[0],0);
       const hits=CV.res.reduce((sum,row)=>sum+row[1],0);
       const errors=CV.errors;
