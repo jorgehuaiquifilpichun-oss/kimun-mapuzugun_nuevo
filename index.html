@@ -1098,6 +1098,8 @@
     }
     .activity-map-txegul.playing { display: block; }
     .activity-map-txegul.from-left { left: 0; }
+    /* Salta el Número: tamaño y posición se calculan en JS (activateSaltaTxegul) para que el golpe caiga sobre el candado. */
+    .activity-map-txegul.salta-left { top: 0; width: 100%; height: auto; aspect-ratio: 720 / 786; }
     .activity-map-txegul.from-right { right: 0; }
     /* Fünh-Frutos: personaje inmóvil frente al candado; el movimiento es del video. */
     .activity-map-txegul.from-right.funh-striking {
@@ -1808,6 +1810,10 @@
         <video id="txegulEntryRight" class="activity-map-txegul from-right"
                src="./txegul_entrada_derecha_vp9_alpha.webm" preload="auto" playsinline
                aria-hidden="true" data-objetivo="izquierda"></video>
+        <!-- Salta el Número: Txegül que entra por la IZQUIERDA y golpea hacia la derecha (WebM VP9 con alfa + audio de los golpes). -->
+        <video id="txegulSaltaLeft" class="activity-map-txegul from-left salta-left"
+               src="./txegul_salta_entrada_izquierda_alpha.webm" preload="metadata" playsinline
+               aria-hidden="true"></video>
         <button class="activity-map-back" type="button" onclick="playFiluMapClick(); showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
           <img src="./boton_volver_atras.png" alt="Volver atrás">
         </button>
@@ -3066,7 +3072,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
        No se altera el sonido, la imagen ni la velocidad de los MP4. */
     function stopActivityMapTxegul() {
       if(typeof clearFunhStrikeTimeout==='function')clearFunhStrikeTimeout();
-      ['txegulEntryLeft', 'txegulEntryRight'].forEach(id => {
+      ['txegulEntryLeft', 'txegulEntryRight', 'txegulSaltaLeft'].forEach(id => {
         const video = document.getElementById(id);
         if (!video) return;
         video.pause();
@@ -3549,9 +3555,10 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(img.getAttribute('src')!==src)img.src=src;
       img.alt='Salta el Número, '+(open?'desbloqueado':'bloqueado');tile.setAttribute('aria-label',img.alt);
       tile.classList.toggle('funh-guide',saltaStage==='locked');
+      if(saltaStage==='axe'){const sv=document.getElementById('txegulSaltaLeft');if(sv&&sv.preload!=='auto'){sv.preload='auto';try{sv.load();}catch(_){}}}
       if(axe){axe.hidden=saltaStage!=='axe';axe.classList.toggle('funh-guide',saltaStage==='axe');if(saltaStage==='axe')requestAnimationFrame(positionSaltaAxe);}
     }
-    function activateSaltaTxegul(){
+    function activateSaltaTxegulRight(){   // RESPALDO: ceremonia con el video derecho si el nuevo no carga
       if(saltaStage!=='axe')return;
       const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulEntryRight');if(!tile||!video)return;
       stopActivityMapTxegul();saltaStage='playing';applySaltaState();
@@ -3575,6 +3582,41 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const restore=()=>{if(saltaStage==='playing'){saltaStage='axe';stopActivityMapTxegul();applySaltaState();}};
       video.onerror=restore;try{video.currentTime=0;}catch(_){};
       const promise=video.play();if(promise&&promise.catch)promise.catch(restore);
+    }
+    /* Salta el Número: el Txegül entra por la izquierda y da tres golpes hacia la derecha.
+       Punto de impacto del TokiKura dentro del video (fracción del ancho/alto): X=.78, Y=.75.
+       Tercer impacto a los 4.04 s (el sonido sale a ~4.1 s): el candado se abre justo después. */
+    const SALTA_HIT_X=.78,SALTA_HIT_Y=.75,SALTA_VIDEO_RATIO=786/720,SALTA_THIRD_HIT=4.12;
+    function activateSaltaTxegul(){
+      if(saltaStage!=='axe')return;
+      const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulSaltaLeft');
+      if(!tile||!video)return activateSaltaTxegulRight();
+      stopActivityMapTxegul();saltaStage='playing';applySaltaState();
+      video.classList.add('playing');   // mostrar ANTES de medir (en display:none todo mide 0)
+      const r=tile.getBoundingClientRect(),m=(video.offsetParent||document.getElementById('activityMap')).getBoundingClientRect();
+      // Ancho tal que el punto de impacto caiga sobre el candado y el video nazca en el borde izquierdo de la pantalla.
+      const w=Math.max(120,(r.left+r.width*.5-m.left)/SALTA_HIT_X),h=w*SALTA_VIDEO_RATIO,lockY=r.top-m.top+r.height*.78;
+      Object.assign(video.style,{left:'0px',width:w+'px',height:h+'px',top:(lockY-SALTA_HIT_Y*h)+'px'});
+      let done=false,failed=false;
+      function finish(){
+        if(done||failed||saltaStage!=='playing')return;done=true;
+        saltaStage='unlocked';try{localStorage.setItem(SALTA_UNLOCK_KEY,'1');}catch(e){console.warn('Salta progreso:',e);}
+        applySaltaState();playFiluMapClick();animateActivityMapTile(tile,true);
+      }
+      function fallback(why){
+        if(done||failed)return;failed=true;console.warn('Txegül izquierdo no disponible; se usa el respaldo:',why);
+        if(saltaStage==='playing'){stopActivityMapTxegul();saltaStage='axe';applySaltaState();activateSaltaTxegulRight();}
+      }
+      const tick=t=>{if(t>=SALTA_THIRD_HIT)finish();};
+      video.ontimeupdate=()=>tick(video.currentTime);
+      if(typeof video.requestVideoFrameCallback==='function'){
+        const cb=(_n,meta)=>{if(done||failed||saltaStage==='locked')return;tick(meta&&Number.isFinite(meta.mediaTime)?meta.mediaTime:video.currentTime);if(!done)video.requestVideoFrameCallback(cb);};
+        video.requestVideoFrameCallback(cb);
+      }
+      video.onended=()=>{finish();video.ontimeupdate=null;video.classList.remove('playing');};
+      video.onerror=()=>fallback(video.src);
+      try{video.currentTime=0;}catch(_){}
+      const pr=video.play();if(pr&&pr.catch)pr.catch(fallback);
     }
     function resetSaltaOnExit(){if(saltaStage==='axe'||saltaStage==='playing')saltaStage='locked';applySaltaState();}
     window.addEventListener('resize',positionSaltaAxe);
