@@ -3553,10 +3553,10 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
     function activateSaltaTxegul(){
       if(saltaStage!=='axe')return;
-      const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulEntryLeft');if(!tile||!video)return;
+      const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulEntryRight');if(!tile||!video)return;
       stopActivityMapTxegul();saltaStage='playing';applySaltaState();
       const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
-      const dx=r.left+r.width*.5-(v.left+v.width*.42)-m.width*.10;
+      const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
       const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
       video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
       video.classList.add('playing','funh-striking');let finished=false;
