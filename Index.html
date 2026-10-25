@@ -1032,6 +1032,13 @@
     }
 
 
+
+    /* Fünh cubox: señal verde solo tras superar los tres niveles de frutas. */
+    #funhCuboxTile.cubox-available { animation:funhGuidePulse 1.45s ease-in-out infinite; border-radius:12px; }
+    #funhCuboxTile.cubox-opened { animation:none; }
+    #funhCuboxAxe.funh-guide { animation:funhGuidePulse 1.45s ease-in-out infinite; }
+    @media(prefers-reduced-motion:reduce){#funhCuboxTile.cubox-available,#funhCuboxAxe.funh-guide{animation:none;filter:drop-shadow(0 0 9px #57fb63);}}
+
     /* Ceremonia de Fünh-Frutos: capa independiente, sobre los mosaicos.
        La miniatura del TokiKura se posiciona dinámicamente sobre el recuadro
        de Frutos para que no invada las demás actividades. */
@@ -1780,12 +1787,13 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="handleFunhFrutosTap(this)" aria-label="Fünh-Frutos, bloqueado">          <img class="activity-map-item" src="./item_funh_frutos_bloqueado.png" alt="Fünh-Frutos, bloqueado" draggable="false"></button>
+<button id="funhCuboxTile" class="activity-map-tile-button" type="button" onclick="handleFunhCuboxTap(this)" aria-label="Fünh cubox, bloqueado"><img class="activity-map-item" src="./item_funh_cubox_bloqueado.png" alt="Fünh cubox, bloqueado" draggable="false"></button>
 <button class="activity-map-tile-button kv-map-tile" type="button" onclick="openKimunVoxel(this)" aria-label="Kimün Voxel, abrir actividad"><img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Kimün Voxel — ítem en preparación" draggable="false"><span class="kv-map-title">Kimün Voxel</span></button>
-<button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
+        <button id="funhCuboxAxe" class="funh-floating-axe" type="button" hidden onclick="activateFunhCuboxTxegul()" aria-label="TokiKura para desbloquear Fünh cubox"><img src="./TokiKura_miniatura.png" alt="TokiKura miniatura" draggable="false"></button>
         <!-- Imagen PNG externa del TokiKura miniatura: debe estar junto a index.html. -->
         <button id="funhFloatingAxe" class="funh-floating-axe" type="button" hidden
                 onclick="activateFunhTxegul()" aria-label="Tocar TokiKura miniatura para desbloquear Fünh-Frutos">
@@ -3299,8 +3307,11 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       stopActivityMapTxegul();
       funhResetGallery();
       funhStage = 'locked';
+      cuboxStage = 'locked';
       try {
         localStorage.removeItem(FUNH_STORAGE_KEY);
+        localStorage.removeItem(CUBOX_READY_KEY);
+        localStorage.removeItem(CUBOX_UNLOCK_KEY);
         localStorage.removeItem('cvSliceFunh');
       } catch (error) { console.warn('No se pudo reiniciar Fünh-Frutos:', error); }
       // Una partida nueva también reinicia los resultados del minijuego.
@@ -3311,6 +3322,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const funhAxe = document.getElementById('funhFloatingAxe');
       if (funhAxe) funhAxe.hidden = true;
       applyFunhState();
+      applyCuboxState();
       [
         ['activityOne',()=>{activityOneCompleted=false;stopActivityOneAnswerAudio();}],
         ['activityTwo',()=>{activityTwoCompleted=false;stopActivityTwoAnswerAudio();}],
@@ -3510,6 +3522,81 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
 
     // Estados de la ceremonia: bloqueado -> TokiKura visible al primer toque -> video -> desbloqueado.
     // El desbloqueo de Fünh-Frutos se conserva independientemente de las lecciones, Newen y estadísticas.
+    // Fünh cubox: progreso independiente. Se habilita al completar realmente
+    // los tres niveles del juego de corte, no solo el árbol introductorio.
+    const CUBOX_READY_KEY='kimun_funh_cubox_ready_v1';
+    const CUBOX_UNLOCK_KEY='kimun_funh_cubox_unlocked_v1';
+    function cuboxStored(key){try{return localStorage.getItem(key)==='1';}catch(_){return false;}}
+    let cuboxStage=cuboxStored(CUBOX_UNLOCK_KEY)?'unlocked':(cuboxStored(CUBOX_READY_KEY)?'ready':'locked');
+    function positionCuboxAxe(){
+      const axe=document.getElementById('funhCuboxAxe'),tile=document.getElementById('funhCuboxTile'),map=document.getElementById('activityMap');
+      if(!axe||!tile||!map)return;
+      const r=tile.getBoundingClientRect(),m=map.getBoundingClientRect();
+      if(!r.width||!r.height||!m.width)return;
+      const w=Math.max(58,r.width*.72),h=Math.max(72,r.height*.86);
+      Object.assign(axe.style,{width:w+'px',height:h+'px',left:(r.left-m.left+(r.width-w)/2)+'px',top:(r.top-m.top+(r.height-h)/2)+'px'});
+    }
+    function applyCuboxState(){
+      const tile=document.getElementById('funhCuboxTile'),axe=document.getElementById('funhCuboxAxe');if(!tile)return;
+      const available=cuboxStage!=='locked';
+      const img=tile.querySelector('img');
+      // Verde: invitación a tocar o actividad ya abierta. Rojo: aún no habilitada.
+      const image=available?'./item_funh_cubox_desbloqueado.png':'./item_funh_cubox_bloqueado.png';
+      if(img.getAttribute('src')!==image)img.setAttribute('src',image);
+      tile.classList.toggle('cubox-available',cuboxStage==='ready');
+      tile.classList.toggle('cubox-opened',cuboxStage==='unlocked');
+      const status=cuboxStage==='unlocked'?'desbloqueado':available?'listo para desbloquear':'bloqueado';
+      tile.setAttribute('aria-label','Fünh cubox, '+status);img.alt='Fünh cubox, '+status;
+      if(axe){axe.hidden=cuboxStage!=='axe';axe.classList.toggle('funh-guide',cuboxStage==='axe');if(cuboxStage==='axe')requestAnimationFrame(positionCuboxAxe);}
+    }
+    function enableCuboxFromFruitResults(){
+      if(cuboxStage!=='locked')return;
+      cuboxStage='ready';try{localStorage.setItem(CUBOX_READY_KEY,'1');}catch(e){console.warn('No se pudo guardar Fünh cubox:',e);}
+      applyCuboxState();
+    }
+    function handleFunhCuboxTap(tile){
+      if(cuboxStage==='locked'){animateActivityMapTile(tile,false);return;}
+      if(cuboxStage==='ready'){
+        playFunhBell();cuboxStage='axe';applyCuboxState();animateActivityMapTile(tile,true);return;
+      }
+      if(cuboxStage==='unlocked'){
+        // El destino reutiliza el juego 3D existente y evita crear otra lógica de juego.
+        openKimunVoxel(tile);
+      }
+    }
+    function activateFunhCuboxTxegul(){
+      if(cuboxStage!=='axe')return;
+      const tile=document.getElementById('funhCuboxTile'),video=document.getElementById('txegulEntryRight');
+      if(!tile||!video)return;
+      stopActivityMapTxegul();
+      cuboxStage='playing';applyCuboxState();
+      const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
+      const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
+      const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
+      video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
+      video.classList.add('playing','funh-striking');
+      let finished=false;
+      function finish(){
+        if(finished||cuboxStage!=='playing')return;finished=true;
+        video.pause();video.ontimeupdate=null;video.onended=null;video.onerror=null;
+        video.classList.remove('playing','funh-striking','funh-travelling','funh-exiting');
+        cuboxStage='unlocked';
+        try{localStorage.setItem(CUBOX_UNLOCK_KEY,'1');}catch(e){console.warn('No se pudo guardar desbloqueo Cubox:',e);}
+        applyCuboxState();playFiluMapClick();animateActivityMapTile(tile,true);
+      }
+      // Mismo instante del tercer golpe usado en Fünh-Frutos.
+      const check=()=>{if(video.currentTime>=4.45)finish();};
+      video.ontimeupdate=check;video.onended=finish;
+      video.onerror=()=>{if(cuboxStage==='playing'){cuboxStage='axe';stopActivityMapTxegul();applyCuboxState();}};
+      try{video.currentTime=0;}catch(_){}
+      const playback=video.play();if(playback?.catch)playback.catch(()=>{if(cuboxStage==='playing'){cuboxStage='axe';stopActivityMapTxegul();applyCuboxState();}});
+    }
+    function resetCuboxOnExit(){
+      if(cuboxStage==='playing'||cuboxStage==='axe')cuboxStage='ready';
+      applyCuboxState();
+    }
+    window.addEventListener('resize',positionCuboxAxe);
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyCuboxState);else applyCuboxState();
     const FUNH_STORAGE_KEY = 'kimun_funh_frutos_unlocked_v1';
     function readFunhUnlocked() {
       try { return localStorage.getItem(FUNH_STORAGE_KEY) === '1'; }
@@ -5133,19 +5220,30 @@ const OBJECTS=[
 ];
 const COLORS={fruta:'#dbac4c'};
 
-/* ================= AUDIO DE PRONUNCIACIÓN (preparado, vacío a propósito) =================
-   Cuando existan los audios del kimelfe: colocar los archivos en ./audio/ y registrarlos, p. ej.
-   AUDIO.map['kelü']='kelu.mp3'. No se usan voces sintéticas. */
-const AUDIO={base:'audio/',map:{}};
-function playWord(mp){const f=AUDIO.map[mp];if(!f)return false;try{new Audio(AUDIO.base+f).play();return true;}catch(e){return false;}}
+/* Reutilizar exclusivamente las rutas MP3 ya aprobadas para Fünh–Frutos / Corta la fruta.
+   No duplicar archivos ni precargar todas las grabaciones. */
+const AUDIO={map:FUNH_AUDIO_PATHS};
+let voxelRecording=null;
+function stopVoxelRecording(){
+ if(voxelRecording){voxelRecording.pause();voxelRecording.removeAttribute('src');voxelRecording.load();voxelRecording=null;}
+}
+function playWord(mp){
+ const path=AUDIO.map[mp];if(!path)return false;
+ try{
+  stopVoxelRecording();
+  const rec=new Audio(path);rec.volume=1;voxelRecording=rec;
+  rec.onended=()=>{if(voxelRecording===rec)voxelRecording=null;};
+  rec.onerror=()=>{console.warn('MP3 de fruta no disponible:',mp,path);if(voxelRecording===rec)voxelRecording=null;};
+  const playing=rec.play();if(playing&&typeof playing.catch==='function')playing.catch(e=>console.warn('No se pudo reproducir MP3:',mp,e));
+  return true;
+ }catch(e){console.warn('Error de audio de fruta',mp,e);return false;}
+}
 
 /* ================= PROGRESO (clave propia, no toca otras actividades) ================= */
-const SAVE_KEY='kvx3d_progress_frutas_v1';
+// El progreso de este minijuego es por visita; otros juegos conservan su almacenamiento.
 let inv=Object.create(null);OBJECTS.forEach(o=>inv[o.es]=false);
 let score=0;
-function loadProgress(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&s.inv){OBJECTS.forEach(o=>{if(s.inv[o.es])inv[o.es]=true;});score=+s.score||0;}}catch(e){}}
-function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({inv,score}));}catch(e){}}
-loadProgress();
+function saveProgress(){ /* Sin persistencia: cada entrada inicia una partida nueva. */ }
 
 /* ================= UTILIDADES ================= */
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -5175,20 +5273,28 @@ const canvas=$('kvxCanvas');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:(window.devicePixelRatio||1)<2,powerPreference:'high-performance'});
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.24;
+renderer.toneMappingExposure=0.95;
+/* DIAGNÓSTICO (temporal): abre index.html#kvxdiag=viejo | rojo | sinluz | (nada = corregido) */
+const DIAG=((location.hash||'').match(/kvxdiag=(\w+)/)||[])[1]||'';
+/* Three r128 no convierte los hex a lineal; con outputEncoding=sRGB hay que hacerlo a mano para el paisaje.
+   Las frutas (PNG con encoding sRGB) ya estaban bien y no pasan por aquí. */
+const fixC=c=>DIAG==='viejo'?c:c.convertSRGBToLinear();
+{const vl=document.createElement('div');vl.textContent='color v2 · '+(DIAG||'corregido');
+ vl.style.cssText='position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 4px);transform:translateX(-50%);font:600 10px system-ui,sans-serif;color:#fff;opacity:.8;pointer-events:none;z-index:30;text-shadow:0 1px 2px #000';
+ $('kimunVoxel').appendChild(vl);}
 const scene=new THREE.Scene();
-const SKY=0x617eb9,HORIZ=0xe6b4a0;
-scene.background=new THREE.Color(SKY);
-scene.fog=new THREE.Fog(HORIZ,80,245);
-const skyDome=(function(){const g=new THREE.SphereGeometry(400,24,14),p=g.attributes.position,col=new Float32Array(p.count*3),a=new THREE.Color(HORIZ),b=new THREE.Color(0x344c91),c=new THREE.Color();
+const SKY=0x4b9fe5,HORIZ=0x8fc5ec;
+scene.background=fixC(new THREE.Color(SKY));
+scene.fog=new THREE.Fog(fixC(new THREE.Color(0x608d85)),235,410);
+const skyDome=(function(){const g=new THREE.SphereGeometry(400,24,14),p=g.attributes.position,col=new Float32Array(p.count*3),a=fixC(new THREE.Color(HORIZ)),b=fixC(new THREE.Color(0x287ad2)),c=new THREE.Color();
   for(let i=0;i<p.count;i++){const t=clamp(p.getY(i)/400,0,1);c.copy(a).lerp(b,Math.pow(t,.75));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
   g.setAttribute('color',new THREE.BufferAttribute(col,3));
   const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));m.renderOrder=-1;scene.add(m);return m;})();
 const camera=new THREE.PerspectiveCamera(60,1,.3,500);
-scene.add(new THREE.HemisphereLight(0xc2d5ff,0x577047,1.15));
-const sun=new THREE.DirectionalLight(0xffc990,1.65);sun.position.set(-55,58,-40);scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xa9c9e4,0x1c2916,.45));
+const sun=new THREE.DirectionalLight(0xffd6a4,1.02);sun.position.set(-55,58,-40);scene.add(sun);
 // Luz de relleno fría: contrastes de videojuego sin postprocesado costoso.
-const fill=new THREE.DirectionalLight(0x9bb5ff,.32);fill.position.set(35,30,55);scene.add(fill);
+const fill=new THREE.DirectionalLight(0x7495cd,.04);fill.position.set(35,30,55);scene.add(fill);
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
 {const sc=sun.shadow.camera;sc.left=-32;sc.right=32;sc.top=32;sc.bottom=-32;sc.near=10;sc.far=180;}
@@ -5218,22 +5324,22 @@ function heightAt(x,z){
   for(let i=0;i<p.count;i++){
     const x=p.getX(i),z=p.getZ(i),y=heightAt(x,z);p.setY(i,y);
     const slope=Math.abs(heightAt(x+1,z)-y)+Math.abs(heightAt(x,z+1)-y),pd=pathDist(x,z),t=rnd();
-    c.setHex(0x306a35).lerp(c2.setHex(0x78b95b),t);
-    if(y>5)c.lerp(c2.setHex(0x9bb36a),ss(5,10,y));
-    if(slope>1.5||y>11)c.lerp(c2.setHex(0x8a8a82),.85);
-    if(y>16)c.setHex(0xeef3f5);
-    if(pd<3)c.lerp(c2.setHex(0xbba278),1-ss(1.6,3,pd)).multiplyScalar(.94+t*.1);
-    col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+    c.setHex(0x16852a).lerp(c2.setHex(0x63c72d),t);
+    if(y>5)c.lerp(c2.setHex(0x3f9c2f),ss(5,10,y));
+    if(slope>1.5||y>11)c.lerp(c2.setHex(0x5b7453),.65);
+    if(y>16)c.setHex(0xd6dce0);
+    if(pd<3)c.lerp(c2.setHex(0xb66a24),1-ss(1.6,3,pd)).multiplyScalar(.93+t*.07);
+    fixC(c2.copy(c));col[i*3]=c2.r;col[i*3+1]=c2.g;col[i*3+2]=c2.b;
   }
   g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();
-  {const tm=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.96,metalness:0,flatShading:false}));tm.receiveShadow=true;scene.add(tm);}
+  {const tm=new THREE.Mesh(g,DIAG==='rojo'?new THREE.MeshBasicMaterial({color:0xff0000}):DIAG==='sinluz'?new THREE.MeshBasicMaterial({vertexColors:true}):new THREE.MeshLambertMaterial({vertexColors:true,flatShading:false}));tm.receiveShadow=true;scene.add(tm);}
   // suelo de respaldo bajo el terreno
-  const base=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshBasicMaterial({color:0x2f5a34}));
+  const base=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshBasicMaterial({color:fixC(new THREE.Color(0x247c2b))}));
   base.rotation.x=-Math.PI/2;base.position.y=-4;scene.add(base);
   // volcán lejano (cono de 4 caras, estilo voxel) + nieve
-  const vm=new THREE.Mesh(new THREE.ConeGeometry(70,80,4),new THREE.MeshLambertMaterial({color:0x6d7a8a,flatShading:true}));
+  const vm=new THREE.Mesh(new THREE.ConeGeometry(70,80,4),new THREE.MeshLambertMaterial({color:fixC(new THREE.Color(0x6d7a8a)),flatShading:true}));
   vm.position.set(-20,32,-170);vm.rotation.y=Math.PI/4;scene.add(vm);
-  const vs=new THREE.Mesh(new THREE.ConeGeometry(24,27,4),new THREE.MeshLambertMaterial({color:0xf2f6f8,flatShading:true}));
+  const vs=new THREE.Mesh(new THREE.ConeGeometry(24,27,4),new THREE.MeshLambertMaterial({color:fixC(new THREE.Color(0xf2f6f8)),flatShading:true}));
   vs.position.set(-20,58,-170);vs.rotation.y=Math.PI/4;scene.add(vs);
 })();
 
@@ -5247,8 +5353,10 @@ function addBox(x,y,z,sx,sy,sz,ry,hex){W.push({x,y,z,sx,sy,sz,ry,c:hex});}
 
 /* --- cubos grandes en 5 zonas especiales --- */
 const CUBE=3;
-const clusters=[{x:16,z:-16,n:6,off:.3},{x:-32,z:-8,n:6,off:1.1},{x:34,z:24,n:6,off:.7},{x:-20,z:-40,n:5,off:.2},{x:8,z:44,n:5,off:.9}];
-const pool=OBJECTS.slice().sort(()=>rnd()-.5);
+const clusters=[{x:16,z:-16,n:5,off:.3},{x:-32,z:-8,n:5,off:1.1},{x:34,z:24,n:5,off:.7},{x:-20,z:-40,n:4,off:.2},{x:8,z:44,n:4,off:.9}];
+// Las 23 frutas aparecen exactamente una vez por partida.
+const pool=OBJECTS.slice();
+for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
 const cubes=[];
 let wi=0;
 clusters.forEach(cl=>{
@@ -5256,88 +5364,57 @@ clusters.forEach(cl=>{
   for(let k=0;k<cl.n;k++){
     const a=cl.off+k/cl.n*Math.PI*2,x=cl.x+Math.cos(a)*10,z=cl.z+Math.sin(a)*10;
     occupied.push({x,z,r:4.5});
-    cubes.push({x,z,word:pool[wi++%pool.length]});
+    cubes.push({x,z,word:pool[wi++]});
   }
 });
 
-/* --- frutas gigantes: reemplazan a los cubos (misma caja de colisión 3x3x3, mismos 3 golpes) --- */
-function cTex(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
-function grad(x,w,h,a,b){const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,a);g.addColorStop(1,b);x.fillStyle=g;x.fillRect(0,0,w,h);}
-function dots(x,w,h,n,col,r){x.fillStyle=col;for(let i=0;i<n;i++){x.beginPath();x.arc(Math.random()*w,Math.random()*h,r*(.5+Math.random()),0,6.283);x.fill();}}
-const stemM=new THREE.MeshStandardMaterial({color:0x5b3b1e,roughness:.85}),leafM=new THREE.MeshStandardMaterial({color:0x368b3d,roughness:.72,side:THREE.DoubleSide});
-const LEAF_GEO=new THREE.SphereGeometry(.55,10,6);
-function stem(g,y,l){l=l||.5;const s=new THREE.Mesh(new THREE.CylinderGeometry(.07,.11,l,6),stemM);s.position.set(0,y+l/2-.1,0);s.rotation.z=.12;s.castShadow=true;g.add(s);}
-function leaf(g,x,y,k){k=k||1;const m=new THREE.Mesh(LEAF_GEO,leafM);m.scale.set(k,.1,k*.55);m.position.set(x,y,0);m.rotation.z=.35;m.castShadow=true;g.add(m);}
-const FRUITS=[
- {n:'manzana',r:.35,juice:[0xd3202a,0xff6b6b,0xfff3c4],top:1.1,
-  p:[[0,-1.42],[.7,-1.36],[1.2,-1.0],[1.45,-.3],[1.4,.5],[1.0,1.1],[.5,1.3],[.18,1.2],[0,1.1]],
-  tex:(x,w,h)=>{grad(x,w,h,'#e5493c','#9d1620');x.strokeStyle='rgba(255,215,100,.2)';x.lineWidth=2;for(let i=0;i<45;i++){const u=Math.random()*w;x.beginPath();x.moveTo(u,h*.1);x.quadraticCurveTo(u+8,h*.5,u,h*.95);x.stroke();}},
-  extra:g=>{stem(g,1.1,.6);leaf(g,.5,1.55,1);}},
- {n:'naranja',r:.6,juice:[0xff9a1f,0xffc24d,0xfff0b8],top:1.46,
-  p:[[0,-1.45],[.7,-1.3],[1.15,-.95],[1.4,-.4],[1.45,.1],[1.3,.8],[.85,1.28],[.35,1.44],[0,1.46]],
-  tex:(x,w,h)=>{grad(x,w,h,'#ffa326','#e8750a');dots(x,w,h,500,'rgba(150,65,0,.28)',1.6);},
-  extra:g=>{stem(g,1.46,.25);leaf(g,.45,1.62,.9);}},
- {n:'pera',r:.55,juice:[0xc9d94c,0xe7f08a,0xfff6c9],top:1.45,
-  p:[[0,-1.45],[.75,-1.38],[1.3,-.95],[1.45,-.4],[1.25,.2],[.85,.65],[.6,1.1],[.38,1.38],[0,1.45]],
-  tex:(x,w,h)=>{grad(x,w,h,'#d3df57','#9fb633');dots(x,w,h,260,'rgba(110,80,30,.35)',1.4);},
-  extra:g=>{stem(g,1.45,.7);leaf(g,.5,1.9,.9);}},
- {n:'frutilla',r:.4,juice:[0xef2f3f,0xff7a85,0xffe58a],top:1.38,
-  p:[[0,-1.45],[.35,-1.2],[.8,-.6],[1.2,.1],[1.42,.8],[1.3,1.25],[.7,1.4],[0,1.38]],
-  tex:(x,w,h)=>{grad(x,w,h,'#ef2f3f','#c4162b');x.fillStyle='#ffe58a';for(let i=0;i<110;i++){x.beginPath();x.ellipse(Math.random()*w,Math.random()*h,1.7,2.8,0,0,6.283);x.fill();}},
-  extra:g=>{for(let k=0;k<7;k++){const a=k/7*6.283,c=new THREE.Mesh(new THREE.ConeGeometry(.2,.8,5),leafM);c.position.set(Math.cos(a)*.5,1.42,Math.sin(a)*.5);c.rotation.set(Math.sin(a)*1.2,0,-Math.cos(a)*1.2);g.add(c);}stem(g,1.4,.5);}},
- {n:'sandia',r:.3,juice:[0xe63950,0xff7f8f,0x2f8f3f],top:1.35,
-  p:[[0,-1.4],[.85,-1.25],[1.35,-.6],[1.5,0],[1.35,.65],[.85,1.2],[0,1.35]],
-  tex:(x,w,h)=>{x.fillStyle='#37a047';x.fillRect(0,0,w,h);x.fillStyle='#1b5e2a';for(let i=0;i<12;i++){for(let y=0;y<h;y+=4)x.fillRect(i*w/12+Math.sin(y*.06+i)*6,y,w/36,4);}},
-  extra:g=>{stem(g,1.35,.35);}},
- {n:'durazno',r:.8,juice:[0xffc27a,0xf0705a,0xfff0d0],top:1.25,
-  p:[[0,-1.42],[.8,-1.3],[1.3,-.8],[1.47,-.1],[1.35,.6],[.95,1.15],[.5,1.38],[.15,1.3],[0,1.2]],
-  tex:(x,w,h)=>{grad(x,w,h,'#ffc98a','#f0705a');dots(x,w,h,400,'rgba(255,255,255,.1)',1.4);},
-  extra:g=>{stem(g,1.25,.4);leaf(g,.5,1.65,1);}}
+/* --- FRUTAS OFICIALES: reutilizar PNG externos de «Corta la fruta».
+   No se incrustan ni duplican imágenes. Correspondencia 1:1 con OBJECTS. */
+const FRUIT_IMAGE_FILES=[
+ './corte_frutos_02_maqui.png',
+ './corte_frutos_03_murta.png',
+ './corte_frutos_04_michay.png',
+ './corte_frutos_22_boldo.png',
+ './corte_frutos_23_naranja.png',
+ './corte_frutos_21_uvas.png',
+ './corte_frutos_08_coguil.png',
+ './corte_frutos_05_chaura.png',
+ './corte_frutos_09_chupon.png',
+ './corte_frutos_10_copihue.png',
+ './corte_frutos_01_castana.png',
+ './corte_frutos_12_rosa_mosqueta.png',
+ './corte_frutos_06_avellana_chilena.png',
+ './corte_frutos_07_pinon.png',
+ './corte_frutos_18_frambuesa.png',
+ './corte_frutos_20_damasco.png',
+ './corte_frutos_19_membrillo.png',
+ './corte_frutos_17_frutilla.png',
+ './corte_frutos_11_mora.png',
+ './corte_frutos_16_cereza.png',
+ './corte_frutos_15_ciruela.png',
+ './corte_frutos_14_pera.png',
+ './corte_frutos_13_manzana.png'
 ];
-/* Modelos adicionales: 23 representaciones 3D estilizadas a partir de seis formas base.
-   La relación palabra/modelo es 1:1; la geometría se reutiliza para evitar sobrecargar móviles.
-   Los colores distinguen frutos, sin pretender reproducir sus características botánicas exactas. */
-const FRUIT_VARIANTS=[
- [1,'#302a4d','#111328'],   // Make maqui
- [1,'#e77852','#a53240'],   // Üñü murta
- [2,'#efcb36','#b1711b'],   // Michay
- [2,'#718c45','#334f27'],   // Folho boldo
- [1,'#ffa326','#d66b12'],   // Naragka naranja
- [1,'#7554a7','#393070'],   // Ufaz uvas
- [2,'#d7a85a','#83572b'],   // Kowüll cóguil
- [1,'#b13b43','#5d1c38'],   // Chawra chaura
- [2,'#e6ad39','#97602b'],   // Nüyu chupón
- [1,'#cf4c5b','#8d2537'],   // Kopiw copihue
- [2,'#ac704b','#593720'],   // Kataña castaña
- [1,'#e65a30','#aa2820'],   // Moketa rosa mosqueta
- [2,'#bd8d53','#72512c'],   // Gefüñ avellana
- [2,'#876437','#4d3821'],   // Gülliw piñón
- [3,'#da354c','#92213b'],   // Füramfuesa frambuesa
- [5,'#ffa840','#e86a29'],   // Zamasko damasco
- [0,'#e8cb42','#b58a31'],   // Mempürillu membrillo
- [3,'#ef3544','#b31229'],   // Kelleñ frutilla
- [1,'#4a2749','#1a132c'],   // Mura mora
- [1,'#db343f','#8d1721'],   // Sereza cereza
- [5,'#9757ac','#54286d'],   // Siruela ciruela
- [2,'#bcdb59','#7c9837'],   // Pera pera
- [0,'#e64d37','#a61b28']    // Mansana manzana
-];
-if(FRUIT_VARIANTS.length!==OBJECTS.length)throw new Error('Catálogo de frutas incompleto');
-const BASE_FRUITS=FRUITS.slice();
-FRUIT_VARIANTS.forEach(([shape,light,dark],i)=>{
- const base=BASE_FRUITS[shape];
- FRUITS[i]={...base,n:OBJECTS[i].mp,
-   juice:[new THREE.Color(light).getHex(),new THREE.Color(dark).getHex(),0xffe6a6],
-   tex:(ctx,w,h)=>{
-     grad(ctx,w,h,light,dark);
-     dots(ctx,w,h,shape===3?95:150,'rgba(255,255,220,.17)',shape===3?1.8:1.15);
-   }};
-});
-const FRUIT_GEO=[],FRUIT_MAT=[];
-function fruitGeo(t){return FRUIT_GEO[t]||(FRUIT_GEO[t]=new THREE.LatheGeometry(new THREE.SplineCurve(FRUITS[t].p.map(q=>new THREE.Vector2(q[0],q[1]))).getPoints(30).map(v=>new THREE.Vector2(Math.max(0,v.x),v.y)),28));}
-function fruitMat(t){return FRUIT_MAT[t]||(FRUIT_MAT[t]=new THREE.MeshStandardMaterial({map:cTex(128,128,FRUITS[t].tex),roughness:Math.max(.32,FRUITS[t].r),metalness:0,envMapIntensity:0.5}));}
-function buildFruit(t){const g=new THREE.Group(),m=new THREE.Mesh(fruitGeo(t),fruitMat(t));m.castShadow=m.receiveShadow=true;g.add(m);FRUITS[t].extra(g);return g;}
-const BLOB_GEO=new THREE.CircleGeometry(2.3,20),BLOB_MAT=new THREE.MeshBasicMaterial({map:cTex(64,64,(x,w,h)=>{const g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(0,0,0,.4)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,h);}),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
+if(FRUIT_IMAGE_FILES.length!==OBJECTS.length ||
+   OBJECTS.some((o,i)=>o.type!==i))throw new Error('Correspondencia PNG / frutas inválida');
+const FRUITS=OBJECTS.map((o,i)=>({n:o.mp,juice:[0xe9bb55,0xb95d35,0xffe6a6],src:FRUIT_IMAGE_FILES[i]}));
+const fruitLoader=new THREE.TextureLoader();
+const fruitTextureCache=[];
+const FRUIT_PLANE=new THREE.PlaneGeometry(3.1,3.1);
+function fruitMat(t){
+ if(!fruitTextureCache[t]){
+  const tex=fruitLoader.load(FRUITS[t].src,undefined,undefined,()=>console.warn('No se pudo cargar fruta PNG:',FRUITS[t].src));
+  tex.encoding=THREE.sRGBEncoding;
+  tex.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+  fruitTextureCache[t]=new THREE.MeshBasicMaterial({map:tex,transparent:true,alphaTest:.10,side:THREE.DoubleSide,depthWrite:true});
+ }
+ return fruitTextureCache[t];
+}
+function buildFruit(t){
+ const g=new THREE.Group(),m=new THREE.Mesh(FRUIT_PLANE,fruitMat(t));
+ m.castShadow=false;m.receiveShadow=false;g.add(m);return g;
+}
+const BLOB_GEO=new THREE.CircleGeometry(2.3,20),BLOB_MAT=new THREE.MeshBasicMaterial({map:canvasTex(64,64,(x,w,h)=>{const g=x.createRadialGradient(32,32,2,32,32,32);g.addColorStop(0,'rgba(0,0,0,.4)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,h);}),transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
 function crackTex(level){
   const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),r=mulberry32(77);
   x.strokeStyle='#1b120a';x.lineCap='square';x.lineJoin='miter';x.lineWidth=level===1?3:5;
@@ -5356,12 +5433,17 @@ cubes.forEach((c,i)=>{
   const ty=c.word.type;c.fruit=ty;c.juice=FRUITS[ty].juice;c.squash=0;
   c.y=heightAt(c.x,c.z)-.45;
   c.group=new THREE.Group();c.group.position.set(c.x,c.y+CUBE/2,c.z);
-  c.body=buildFruit(ty);c.body.rotation.y=Math.random()*6.28;
-  c.crack=new THREE.Mesh(fruitGeo(ty),crackMats[0]);c.crack.scale.setScalar(1.014);c.crack.rotation.y=c.body.rotation.y;c.crack.visible=false;
+  c.body=buildFruit(ty);
+  // Grietas sobre la imagen, en lugar de geometría 3D que ya no corresponde.
+  c.crack=new THREE.Mesh(FRUIT_PLANE,crackMats[0]);
+  c.crack.position.z=.045;c.crack.scale.setScalar(1.01);c.crack.visible=false;
   const bl=new THREE.Mesh(BLOB_GEO,BLOB_MAT);bl.rotation.x=-Math.PI/2;bl.position.y=-CUBE/2+.52;
   c.group.add(c.body,c.crack,bl);scene.add(c.group);
-  c.hp=3;c.active=true;c.shake=0;c.ox=0;c.oz=0;c.tilt=0;c.grow=1;c.respawnAt=0;
-  c.box={x:c.x,z:c.z,hx:CUBE/2,hz:CUBE/2,h:CUBE,active:true};boxes.push(c.box);
+  // Si esta fruta fue descubierta antes, tampoco reaparece al reabrir el juego.
+  const pending=!inv[c.word.es];
+  c.hp=3;c.active=pending;c.shake=0;c.ox=0;c.oz=0;c.tilt=0;c.grow=1;
+  c.group.visible=pending;
+  c.box={x:c.x,z:c.z,hx:CUBE/2,hz:CUBE/2,h:CUBE,active:pending};boxes.push(c.box);
 });
 
 /* --- lugares especiales: rewe y círculos de piedras --- */
@@ -5392,33 +5474,33 @@ function place(count,tries,r,fn,minPath,reserve){
     fn(x,z,heightAt(x,z));if(reserve)occupied.push({x,z,r});placed++;
   }
 }
-place(46,900,4.5,(x,z,h)=>{
+place(30,900,4.5,(x,z,h)=>{
   const s=.85+rnd()*.5,v=rnd()*.08;
-  addBox(x,h+4.3*s,z,.7*s,9*s,.7*s,0,0x5b4636);
-  addBox(x,h+7.4*s,z,3.6*s,.5*s,3.6*s,rnd(),0x3d6b38);
-  addBox(x,h+8.9*s,z,5.4*s,.7*s,5.4*s,rnd(),0x3f6e3a);
-  addBox(x,h+9.7*s,z,3.7*s,.6*s,3.7*s,rnd(),0x4a7d42);
+  addBox(x,h+4.3*s,z,.7*s,9*s,.7*s,0,0x653313);
+  addBox(x,h+7.4*s,z,3.6*s,.5*s,3.6*s,rnd(),0x116f2a);
+  addBox(x,h+8.9*s,z,5.4*s,.7*s,5.4*s,rnd(),0x239d38);
+  addBox(x,h+9.7*s,z,3.7*s,.6*s,3.7*s,rnd(),0x48ba35);
   circles.push({x,z,r:.45*s,h:9*s});
-},4.5,true);
-place(120,1400,3.2,(x,z,h)=>{
-  const s=.8+rnd()*.6,g=[0x2f6b3a,0x3b7a3e,0x285c33,0x477f3a][Math.floor(rnd()*4)];
-  addBox(x,h+1.6*s,z,.8*s,3.2*s,.8*s,0,0x6b4a32);
+},6,true);
+place(76,1400,3.2,(x,z,h)=>{
+  const s=.8+rnd()*.6,g=[0x167d2d,0x279e35,0x0b6229,0x4bb637][Math.floor(rnd()*4)];
+  addBox(x,h+1.6*s,z,.8*s,3.2*s,.8*s,0,0x653813);
   addBox(x,h+4.3*s,z,3.4*s,2.6*s,3.4*s,rnd(),g);
   addBox(x,h+6.1*s,z,2.1*s,1.7*s,2.1*s,rnd(),g);
   circles.push({x,z,r:.5*s,h:3.5*s});
-},3.5,true);
+},4.8,true);
 place(70,900,2,(x,z,h)=>{
   const w=1+rnd()*1.4,hh=.8+rnd()*1.2,d=1+rnd()*1.4,gr=[0x8c8c86,0x7c7c76,0x9a9a92][Math.floor(rnd()*3)];
   addBox(x,h+hh*.4,z,w,hh,d,rnd()*3,gr);
   circles.push({x,z,r:Math.max(w,d)*.55,h:hh});
 },2.5,true);
-place(150,500,1,(x,z,h)=>{const s=.7+rnd()*.7;addBox(x,h+.35*s,z,1.3*s,.8*s,1.3*s,rnd(),[0x3f7d3a,0x4f8f44,0x356b31][Math.floor(rnd()*3)]);},2.2,false);
-place(170,500,.6,(x,z,h)=>{addBox(x,h+.22,z,.07,.45,.07,0,0x3a7a35);addBox(x,h+.52,z,.24,.24,.24,rnd(),[0xd3202a,0xd3202a,0xf2c94c,0xffffff][Math.floor(rnd()*4)]);},2.5,false);
+place(150,500,1,(x,z,h)=>{const s=.7+rnd()*.7;addBox(x,h+.35*s,z,1.3*s,.8*s,1.3*s,rnd(),[0x239f30,0x58c52d,0x197c2e][Math.floor(rnd()*3)]);},2.2,false);
+place(170,500,.6,(x,z,h)=>{addBox(x,h+.22,z,.07,.45,.07,0,0x29662c);addBox(x,h+.52,z,.24,.24,.24,rnd(),[0xd3202a,0xd3202a,0xf2c94c,0xffffff][Math.floor(rnd()*4)]);},2.5,false);
 
 (function flush(){
   const m=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xffffff}),W.length);
   const d=new THREE.Object3D(),col=new THREE.Color();
-  W.forEach((it,i)=>{d.position.set(it.x,it.y,it.z);d.rotation.set(0,it.ry||0,0);d.scale.set(it.sx,it.sy,it.sz);d.updateMatrix();m.setMatrixAt(i,d.matrix);col.set(it.c);m.setColorAt(i,col);});
+  W.forEach((it,i)=>{d.position.set(it.x,it.y,it.z);d.rotation.set(0,it.ry||0,0);d.scale.set(it.sx,it.sy,it.sz);d.updateMatrix();m.setMatrixAt(i,d.matrix);col.set(it.c);fixC(col);m.setColorAt(i,col);});
   m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;m.frustumCulled=false;m.castShadow=true;m.receiveShadow=true;scene.add(m);
 })();
 
@@ -5652,6 +5734,7 @@ function doHit(){
 }
 const EARTH=[0x86694a,0x6e5438,0x9a7a56];
 function hitCube(c){
+  playWord(c.word.mp); // Primera, segunda y tercera pronunciación de la misma fruta.
   c.hp--;
   const wx=c.x,wy=c.y+CUBE/2,wz=c.z,dx=c.x-px,dz=c.z-pz,dl=Math.hypot(dx,dz)||1;
   if(c.hp===2){
@@ -5661,32 +5744,24 @@ function hitCube(c){
     c.crack.material=crackMats[1];c.shake=.45;c.ox=dx/dl*.14;c.oz=dz/dl*.14;c.tilt=(Math.random()-.5)*.1;c.squash=1;sfx.hit2();
     burst(wx,wy+.5,wz,18,4,.15,.38,c.juice,5);
   }else{
-    c.active=false;c.box.active=false;c.group.visible=false;c.respawnAt=clock+30;sfx.brk();
+    c.active=false;c.box.active=false;c.group.visible=false;sfx.brk();
     burst(wx,wy,wz,34,6,.25,.6,c.juice,7);
     for(let i=0;i<22;i++)spawnP(wx+(Math.random()-.5)*1.5,wy+Math.random()*1.5,wz+(Math.random()-.5)*1.5,(Math.random()-.5)*1.4,2+Math.random()*2.5,(Math.random()-.5)*1.4,.16+Math.random()*.12,0xffd166,1.5,-2);
     discover(c.word);
-  }
-}
-function respawnCubes(){
-  for(const c of cubes){
-    if(c.active||clock<c.respawnAt)continue;
-    if(Math.hypot(px-c.x,pz-c.z)<5){c.respawnAt=clock+3;continue;}
-    c.word=OBJECTS.find(o=>o.type===c.fruit);
-    c.hp=3;c.crack.visible=false;c.ox=c.oz=c.tilt=0;c.shake=0;
-    c.active=true;c.box.active=true;c.group.visible=true;c.grow=.02;
   }
 }
 
 /* ----- descubrimiento y progreso ----- */
 let cardTimer=0,toastTimer=0;
 function discover(w){
-  const repeat=inv[w.es];inv[w.es]=true;score+=repeat?2:10;saveProgress();hud();
+  if(inv[w.es])return; // Cada fruta solamente se descubre una vez.
+  inv[w.es]=true;score+=10;saveProgress();hud();
   $('kvxCardEs').textContent=w.es;$('kvxCardMp').textContent=w.mp;
-  $('kvxCardPts').textContent=repeat?'+2 puntos, palabra repetida':'+10 puntos, palabra nueva';
+  $('kvxCardPts').textContent='+10 puntos, fruta descubierta';
   $('kvxSpeak').style.display=AUDIO.map[w.mp]?'inline-block':'none';$('kvxSpeak').onclick=()=>playWord(w.mp);
   $('kvxCard').classList.add('show');clearTimeout(cardTimer);cardTimer=setTimeout(()=>$('kvxCard').classList.remove('show'),2600);
-  (repeat?sfx.again:sfx.found)();
-  queue.push('discover');if(!repeat)queue.push('celebrate');
+  sfx.found();
+  queue.push('discover');queue.push('celebrate');
 }
 function toast(msg){const t=$('kvxToast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600);}
 function hud(){
@@ -5749,7 +5824,7 @@ function update(dt){
     if(c.shake>0){c.shake-=dt;const a=c.shake*.5;c.group.position.set(c.x+c.ox+(Math.random()-.5)*a,c.y+CUBE/2,c.z+c.oz+(Math.random()-.5)*a);c.group.rotation.z=c.tilt;}
     if(c.grow<1){c.grow=Math.min(1,c.grow+dt*2.2);c.group.scale.setScalar(c.grow);}
   }
-  respawnCubes();updateParticles(dt);
+  updateParticles(dt);
   clouds.position.x=(clouds.position.x+dt*1.4)%140;
 
   // brújula hacia el cubo más cercano
@@ -5813,7 +5888,9 @@ $('kvxInv').addEventListener('pointerdown',e=>{e.preventDefault();if(started)sho
 $('kvxInvClose').addEventListener('click',closeInventory);
 $('kvxReset').addEventListener('click',()=>{
   if(!confirm('¿Reiniciar todo el progreso de Kimün Voxel 3D?'))return;
-  OBJECTS.forEach(o=>inv[o.es]=false);score=0;saveProgress();hud();showInventory();
+  OBJECTS.forEach(o=>inv[o.es]=false);score=0;
+  for(const c of cubes){c.hp=3;c.active=true;c.box.active=true;c.group.visible=true;c.group.scale.setScalar(1);c.body.scale.set(1,1,1);c.crack.visible=false;c.shake=c.ox=c.oz=c.tilt=c.squash=0;c.group.position.set(c.x,c.y+CUBE/2,c.z);c.group.rotation.set(0,0,0);}
+  saveProgress();hud();showInventory();
 });
 
 function releaseInputs(){joyReset();lookPtrs.clear();}
@@ -5830,17 +5907,34 @@ function loop(t){
   raf=requestAnimationFrame(loop);
   const dt=Math.min(.05,(t-last)/1000||0);last=t;
   if(!paused)update(dt);
+  // Los PNG se orientan hacia la cámara para verse reconocibles desde cualquier dirección.
+  for(const c of cubes){if(c.active){c.body.quaternion.copy(camera.quaternion);c.crack.quaternion.copy(camera.quaternion);}}
   skyDome.position.copy(camera.position);
   if(!qDone&&!paused){qN++;qT+=dt;if(qN>=120){qDone=true;if(qT/qN>.045)sun.castShadow=false;}}
   renderer.render(scene,camera);
 }
+function resetVisit(){
+  OBJECTS.forEach(o=>{inv[o.es]=false;});
+  score=0;
+  for(const c of cubes){
+    c.hp=3;c.active=true;c.box.active=true;c.group.visible=true;
+    c.group.scale.setScalar(1);c.body.scale.set(1,1,1);c.crack.visible=false;
+    c.shake=c.ox=c.oz=c.tilt=c.squash=0;
+    c.group.position.set(c.x,c.y+CUBE/2,c.z);c.group.rotation.set(0,0,0);
+  }
+  queue.length=0;state='idle';stateT=0;paused=false;
+  $('kvxPanel').classList.remove('open');
+  $('kvxCard').classList.remove('show');
+  hud();
+}
 function enter(){
-  audio();resize();hud();
+  resetVisit();audio();resize();hud();
   if(!started){started=true;toast('Acércate a una fruta gigante y pulsa TokiKura');}
   window.addEventListener('resize',resize);window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',onKeyUp);document.addEventListener('visibilitychange',onVis);
   running=true;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
 function leave(){
+  stopVoxelRecording();
   running=false;cancelAnimationFrame(raf);raf=0;releaseInputs();Object.keys(keys).forEach(k=>keys[k]=false);
   window.removeEventListener('resize',resize);window.removeEventListener('keydown',onKeyDown);window.removeEventListener('keyup',onKeyUp);document.removeEventListener('visibilitychange',onVis);
   clearTimeout(cardTimer);clearTimeout(toastTimer);$('kvxCard').classList.remove('show');$('kvxToast').classList.remove('show');
@@ -5850,7 +5944,9 @@ function leave(){
 function onVis(){if(!running)return;if(document.hidden){cancelAnimationFrame(raf);}else{last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);}}
 
 // Primer cuadro de fondo para el menú de inicio
-resize();hud();updateCamera(1);renderer.render(scene,camera);
+resize();hud();updateCamera(1);
+for(const c of cubes){if(c.active){c.body.quaternion.copy(camera.quaternion);c.crack.quaternion.copy(camera.quaternion);}}
+renderer.render(scene,camera);
 return {enter,leave};
  }
  function isActive(){const s=$('kimunVoxel');return !!(s&&s.classList.contains('active'));}
@@ -5879,7 +5975,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         beginNewenRecovery(screenId);
         return;
       }
-      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); }
+      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); resetCuboxOnExit(); }
       if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
       if(screenId !== 'funhGallery')funhPauseGallery();
       if (screenId !== 'newenRecovery') {
@@ -5906,7 +6002,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       if (target) target.classList.add("active");
       if (screenId === 'funhGallery')requestAnimationFrame(funhResumeGallery);
       // Los Txegül solo se activarán mediante un disparador explícito posterior.
-      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); }
+      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); applyCuboxState(); }
       const filuMapBack = document.getElementById('filuMapBack');
       if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
@@ -6225,6 +6321,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       cvCard('<div class="cv-lv">'+(error?'Cortaste otra fruta':'Se acabó el tiempo')+'</div><p>Puntos: '+CV.score+' · Aciertos: '+CV.correct+'</p>'+btn('REINTENTAR','cvStart('+L+')'));}
 
     function cvShowFinalResults(){
+      enableCuboxFromFruitResults();
       const score=CV.res.reduce((sum,row)=>sum+row[0],0);
       const hits=CV.res.reduce((sum,row)=>sum+row[1],0);
       const errors=CV.errors;
