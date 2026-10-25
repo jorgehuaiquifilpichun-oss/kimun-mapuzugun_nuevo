@@ -5153,12 +5153,10 @@ function playWord(mp){
 }
 
 /* ================= PROGRESO (clave propia, no toca otras actividades) ================= */
-const SAVE_KEY='kvx3d_progress_frutas_v1';
+// El progreso de este minijuego es por visita; otros juegos conservan su almacenamiento.
 let inv=Object.create(null);OBJECTS.forEach(o=>inv[o.es]=false);
 let score=0;
-function loadProgress(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&s.inv){OBJECTS.forEach(o=>{if(s.inv[o.es])inv[o.es]=true;});score=+s.score||0;}}catch(e){}}
-function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({inv,score}));}catch(e){}}
-loadProgress();
+function saveProgress(){ /* Sin persistencia: cada entrada inicia una partida nueva. */ }
 
 /* ================= UTILIDADES ================= */
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -5188,18 +5186,18 @@ const canvas=$('kvxCanvas');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:(window.devicePixelRatio||1)<2,powerPreference:'high-performance'});
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=0.92;
+renderer.toneMappingExposure=1.20;
 const scene=new THREE.Scene();
 const SKY=0x617eb9,HORIZ=0xe6b4a0;
 scene.background=new THREE.Color(SKY);
-scene.fog=new THREE.Fog(HORIZ,80,245);
+scene.fog=new THREE.Fog(HORIZ,110,270);
 const skyDome=(function(){const g=new THREE.SphereGeometry(400,24,14),p=g.attributes.position,col=new Float32Array(p.count*3),a=new THREE.Color(HORIZ),b=new THREE.Color(0x344c91),c=new THREE.Color();
   for(let i=0;i<p.count;i++){const t=clamp(p.getY(i)/400,0,1);c.copy(a).lerp(b,Math.pow(t,.75));col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
   g.setAttribute('color',new THREE.BufferAttribute(col,3));
   const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide,fog:false,depthWrite:false}));m.renderOrder=-1;scene.add(m);return m;})();
 const camera=new THREE.PerspectiveCamera(60,1,.3,500);
-scene.add(new THREE.HemisphereLight(0xacc5ec,0x405a39,0.82));
-const sun=new THREE.DirectionalLight(0xffc18e,1.16);sun.position.set(-55,58,-40);scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xb9d0f2,0x506c44,1.02));
+const sun=new THREE.DirectionalLight(0xffd1a2,1.40);sun.position.set(-55,58,-40);scene.add(sun);
 // Luz de relleno fría: contrastes de videojuego sin postprocesado costoso.
 const fill=new THREE.DirectionalLight(0x96b0e6,.20);fill.position.set(35,30,55);scene.add(fill);
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -5820,8 +5818,22 @@ function loop(t){
   if(!qDone&&!paused){qN++;qT+=dt;if(qN>=120){qDone=true;if(qT/qN>.045)sun.castShadow=false;}}
   renderer.render(scene,camera);
 }
+function resetVisit(){
+  OBJECTS.forEach(o=>{inv[o.es]=false;});
+  score=0;
+  for(const c of cubes){
+    c.hp=3;c.active=true;c.box.active=true;c.group.visible=true;
+    c.group.scale.setScalar(1);c.body.scale.set(1,1,1);c.crack.visible=false;
+    c.shake=c.ox=c.oz=c.tilt=c.squash=0;
+    c.group.position.set(c.x,c.y+CUBE/2,c.z);c.group.rotation.set(0,0,0);
+  }
+  queue.length=0;state='idle';stateT=0;paused=false;
+  $('kvxPanel').classList.remove('open');
+  $('kvxCard').classList.remove('show');
+  hud();
+}
 function enter(){
-  audio();resize();hud();
+  resetVisit();audio();resize();hud();
   if(!started){started=true;toast('Acércate a una fruta gigante y pulsa TokiKura');}
   window.addEventListener('resize',resize);window.addEventListener('keydown',onKeyDown);window.addEventListener('keyup',onKeyUp);document.addEventListener('visibilitychange',onVis);
   running=true;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
