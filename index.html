@@ -3555,10 +3555,15 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(saltaStage!=='axe')return;
       const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulEntryRight');if(!tile||!video)return;
       stopActivityMapTxegul();saltaStage='playing';applySaltaState();
+      /* CAUSA RAÍZ: el video está en display:none hasta tener la clase 'playing'; medirlo antes daba un rect de 0x0
+         y el desplazamiento lo sacaba de la pantalla (se reproducía fuera de vista). Se muestra ANTES de medir. */
+      video.classList.add('playing');
       const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
       const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
       const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
-      video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
+      /* Mantener el video dentro del mapa: sin esto, en la columna derecha el Txegül quedaba fuera de pantalla. */
+      const dxC=Math.min(dx,m.right-v.right),dyC=Math.max(m.top-v.top,Math.min(dy,m.bottom-v.bottom));
+      video.style.setProperty('--funh-travel-x',dxC+'px');video.style.setProperty('--funh-travel-y',dyC+'px');
       video.classList.add('playing','funh-striking');let finished=false;
       function finish(){if(finished||saltaStage!=='playing')return;finished=true;
         video.pause();video.ontimeupdate=null;video.onended=null;video.onerror=null;
@@ -3600,7 +3605,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(axe){axe.hidden=cuboxStage!=='axe';axe.classList.toggle('funh-guide',cuboxStage==='axe');if(cuboxStage==='axe')requestAnimationFrame(positionCuboxAxe);}
     }
     function enableCuboxFromFruitResults(){
-      if(cuboxStage!=='locked')return;
+      if(cuboxStage!=='locked'||funhStage!=='unlocked')return;   // orden: Salta -> Frutos -> Cubox
       cuboxStage='ready';try{localStorage.setItem(CUBOX_READY_KEY,'1');}catch(e){console.warn('No se pudo guardar Fünh cubox:',e);}
       applyCuboxState();
     }
@@ -3620,10 +3625,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(!tile||!video)return;
       stopActivityMapTxegul();
       cuboxStage='playing';applyCuboxState();
+      video.classList.add('playing');   // mostrar ANTES de medir (ver causa raíz en Salta el Número)
       const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
       const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
       const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
-      video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
+      /* Mantener el video dentro del mapa: sin esto, en la columna derecha el Txegül quedaba fuera de pantalla. */
+      const dxC=Math.min(dx,m.right-v.right),dyC=Math.max(m.top-v.top,Math.min(dy,m.bottom-v.bottom));
+      video.style.setProperty('--funh-travel-x',dxC+'px');video.style.setProperty('--funh-travel-y',dyC+'px');
       video.classList.add('playing','funh-striking');
       let finished=false;
       function finish(){
