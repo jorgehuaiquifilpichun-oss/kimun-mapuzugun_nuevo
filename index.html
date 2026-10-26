@@ -3598,7 +3598,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const r=tile.getBoundingClientRect(),m=(video.offsetParent||document.getElementById('activityMap')).getBoundingClientRect();
       // Tamaño parecido al de los demás Txegül; el punto de impacto del TokiKura cae justo sobre el candado de la ficha.
       const w=r.width*SALTA_VIDEO_TILE_W,h=w*SALTA_VIDEO_RATIO;
-      const lockX=r.left-m.left+r.width*SALTA_LOCK_X,lockY=r.top-m.top+r.height*SALTA_LOCK_Y;
+      // Ajuste visual solicitado: acercar el TokiKura al candado de Salta el Número,
+      // sin desplazar el mosaico ni alterar los videos de Fünh-Frutos o Cubox.
+      const lockX=r.left-m.left+r.width*(SALTA_LOCK_X+.12),lockY=r.top-m.top+r.height*(SALTA_LOCK_Y-.18);
       Object.assign(video.style,{left:(lockX-SALTA_HIT_X*w)+'px',width:w+'px',height:h+'px',top:(lockY-SALTA_HIT_Y*h)+'px'});
       let done=false,failed=false;
       function finish(){
