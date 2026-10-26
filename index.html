@@ -3599,7 +3599,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Tamaño parecido al de los demás Txegül; el punto de impacto del TokiKura cae justo sobre el candado de la ficha.
       const w=r.width*SALTA_VIDEO_TILE_W,h=w*SALTA_VIDEO_RATIO;
       const lockX=r.left-m.left+r.width*SALTA_LOCK_X,lockY=r.top-m.top+r.height*SALTA_LOCK_Y;
-      Object.assign(video.style,{left:(lockX-SALTA_HIT_X*w)+'px',width:w+'px',height:h+'px',top:(lockY-SALTA_HIT_Y*h)+'px'});
+      // Ajuste solicitado: desplazar el Txegül un 20% del ancho de la ficha a la izquierda y un 40% de su altura hacia arriba.
+      Object.assign(video.style,{left:(lockX-SALTA_HIT_X*w-r.width*.20)+'px',width:w+'px',height:h+'px',top:(lockY-SALTA_HIT_Y*h-r.height*.40)+'px'});
       let done=false,failed=false;
       function finish(){
         if(done||failed||saltaStage!=='playing')return;done=true;
