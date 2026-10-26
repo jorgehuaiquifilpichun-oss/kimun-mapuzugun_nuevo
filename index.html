@@ -1089,7 +1089,7 @@
     .activity-map-txegul {
       position: absolute;
       z-index: 4;
-      top: 31%;
+      top: 21%;
       width: 48%;
       height: 38%;
       display: none;
@@ -1097,9 +1097,7 @@
       pointer-events: none;
     }
     .activity-map-txegul.playing { display: block; }
-    .activity-map-txegul.from-left { left: 0; }
-    /* Salta el Número: tamaño y posición se calculan en JS (activateSaltaTxegul) para que el golpe caiga sobre el candado. */
-    .activity-map-txegul.salta-left { top: 0; width: 100%; height: auto; aspect-ratio: 720 / 786; }
+    .activity-map-txegul.from-left { left: 0; top: 11%; }
     .activity-map-txegul.from-right { right: 0; }
     /* Fünh-Frutos: personaje inmóvil frente al candado; el movimiento es del video. */
     .activity-map-txegul.from-right.funh-striking {
@@ -1620,6 +1618,32 @@
     @keyframes cvResultSparks{from{opacity:1;transform:translateY(0) rotate(0)}to{opacity:0;transform:translateY(88dvh) rotate(700deg)}}
     @media(prefers-reduced-motion:reduce){.cv-results-stage.cv-results-enter,.cv-results-spark{animation:none}.cv-results-value{transition:none}}
 
+    /* ===== Fünh-Frutos: "Selecciona los pares" (después del árbol, antes del corte) ===== */
+    .fp-screen{height:100dvh;min-height:0;overflow:hidden;background:#183f31;display:flex;align-items:center;justify-content:center}
+    .fp-stage{position:relative;width:min(100%,calc(100dvh * 941 / 1672));height:min(100dvh,calc(100vw * 1672 / 941));overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+    .fp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+    .fp-cell{position:absolute;background:transparent;border:0;padding:0;margin:0;border-radius:6% / 14%;cursor:pointer;touch-action:manipulation;z-index:2;transition:box-shadow .15s,background .15s}
+    .fp-cell:focus-visible{outline:3px solid #f8efb5;outline-offset:2px}
+    .fp-cell.fp-sel{box-shadow:0 0 0 .7vmin #fff7c2,0 0 3.2vmin 1vmin rgba(255,226,110,.95);background:rgba(255,246,190,.16)}
+    .fp-cell.fp-hint{animation:fpHint .5s ease-in-out 2}
+    .fp-cell.fp-locked{cursor:default;box-shadow:0 0 0 .6vmin rgba(46,190,96,.95),0 0 2.6vmin .6vmin rgba(46,190,96,.7);background:rgba(46,190,96,.20)}
+    .fp-cell.fp-wrong{box-shadow:0 0 0 .6vmin rgba(224,52,52,.95),0 0 2.6vmin .6vmin rgba(224,52,52,.7);background:rgba(224,52,52,.18);animation:fpShake .42s ease}
+    .fp-mark{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:flex-end;padding:0 1% 0 0;pointer-events:none}
+    .fp-mark i{display:flex;align-items:center;justify-content:center;height:40%;aspect-ratio:1;margin-top:-7%;border-radius:50%;border:.45vmin solid #fff;box-shadow:0 .6vmin 1.6vmin rgba(0,0,0,.45);animation:fpPop .32s cubic-bezier(.2,1.5,.4,1) both}
+    .fp-mark.ok i{background:#1fa653}.fp-mark.bad i{background:#d63030}
+    .fp-mark svg{width:62%;height:62%;fill:none;stroke:#fff;stroke-width:4.2;stroke-linecap:round;stroke-linejoin:round}
+    .fp-pill{position:absolute;left:50%;top:18.1%;transform:translateX(-50%);z-index:3;padding:.5vmin 2.4vmin;border-radius:99px;background:rgba(36,20,8,.72);color:#fff3cf;font:700 clamp(11px,2.6vmin,15px)/1.2 system-ui,sans-serif;white-space:nowrap;pointer-events:none}
+    .fp-nav{position:absolute;bottom:max(1.2%,env(safe-area-inset-bottom));z-index:4;width:34%;border:0;padding:0;background:transparent;cursor:pointer;touch-action:manipulation}
+    .fp-nav img{display:block;width:100%;height:auto}
+    .fp-back{left:2.5%}.fp-next{right:2.5%}
+    .fp-next:disabled{opacity:.35;filter:grayscale(.7);cursor:default}
+    .fp-next.fp-ready{animation:fpPulse 1s ease-in-out infinite}
+    @keyframes fpPop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+    @keyframes fpShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-1.4%)}40%{transform:translateX(1.4%)}60%{transform:translateX(-1%)}80%{transform:translateX(1%)}}
+    @keyframes fpHint{0%,100%{box-shadow:0 0 0 0 rgba(255,247,194,0)}50%{box-shadow:0 0 0 .7vmin #fff7c2}}
+    @keyframes fpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+    @media(prefers-reduced-motion:reduce){.fp-cell.fp-wrong,.fp-cell.fp-hint,.fp-mark i,.fp-next.fp-ready{animation:none}}
+
   </style>
 </head>
 
@@ -1784,7 +1808,7 @@
         <div class="activity-map-tiles" aria-label="Seis actividades desbloqueadas y seis bloqueadas">
           <button class="activity-map-tile-button" type="button" onclick="openFiluFromMap(this)" aria-label="Númeru 1-20, abrir Filú"><img class="activity-map-item" src="./item_numeru_1_20_desbloqueado.png" alt="Númeru 1-20, desbloqueado" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="openRakiayinFromMap(this)" aria-label="Rakiayiñ 1-40, abrir actividad">          <img class="activity-map-item" src="./item_rakiayin_1_40_desbloqueado.png" alt="Rakiayiñ 1-40, desbloqueado" draggable="false"></button>
-<button id="saltaNumeroTile" class="activity-map-tile-button sn-tile" type="button" onclick="openSaltaFromMap(this)" aria-label="Salta el Número, bloqueado"><img class="activity-map-item" src="./item_salta_numero_bloqueado.png" alt="Salta el Número, bloqueado" draggable="false"></button>
+<button class="activity-map-tile-button sn-tile" type="button" onclick="openSaltaFromMap(this)" aria-label="Salta el número, abrir actividad">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Salta el número, desbloqueado" draggable="false"><span class="sn-tile-title">Salta el número</span><img class="sn-tile-art" id="snTileArt" alt="" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 2">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 2" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 3">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 3" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad desbloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_desbloqueado_vacio.png" alt="Actividad desbloqueada, espacio vacío 4" draggable="false"></button>
@@ -1795,7 +1819,6 @@
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 4">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 4" draggable="false"></button>
 <button class="activity-map-tile-button" type="button" onclick="playActivityMapTileSound(this)" aria-label="Actividad bloqueada, espacio vacío 5">          <img class="activity-map-item" src="./item_bloqueado_vacio.png" alt="Actividad bloqueada, espacio vacío 5" draggable="false"></button>
         </div>
-        <button id="saltaNumeroAxe" class="funh-floating-axe" type="button" hidden onclick="activateSaltaTxegul()" aria-label="TokiKura para desbloquear Salta el Número"><img src="./TokiKura_miniatura.png" alt="TokiKura miniatura" draggable="false"></button>
         <button id="funhCuboxAxe" class="funh-floating-axe" type="button" hidden onclick="activateFunhCuboxTxegul()" aria-label="TokiKura para desbloquear Fünh cubox"><img src="./TokiKura_miniatura.png" alt="TokiKura miniatura" draggable="false"></button>
         <!-- Imagen PNG externa del TokiKura miniatura: debe estar junto a index.html. -->
         <button id="funhFloatingAxe" class="funh-floating-axe" type="button" hidden
@@ -1810,10 +1833,6 @@
         <video id="txegulEntryRight" class="activity-map-txegul from-right"
                src="./txegul_entrada_derecha_vp9_alpha.webm" preload="auto" playsinline
                aria-hidden="true" data-objetivo="izquierda"></video>
-        <!-- Salta el Número: Txegül que entra por la IZQUIERDA y golpea hacia la derecha (WebM VP9 con alfa + audio de los golpes). -->
-        <video id="txegulSaltaLeft" class="activity-map-txegul from-left salta-left"
-               src="./txegul_salta_entrada_izquierda_alpha.webm" preload="metadata" playsinline
-               aria-hidden="true"></video>
         <button class="activity-map-back" type="button" onclick="playFiluMapClick(); showScreen('levelOneComplete')" aria-label="Volver a los resultados del primer nivel">
           <img src="./boton_volver_atras.png" alt="Volver atrás">
         </button>
@@ -1947,6 +1966,15 @@
       </div>
     </section>
 
+
+    <section id="funhPairs" class="screen" aria-label="Fünh-Frutos — Selecciona los pares">
+      <div class="fp-screen"><div class="fp-stage" id="fpStage">
+        <img class="fp-bg" id="fpBg" src="./funh_pares_1.jpg" alt="Selecciona los pares. Une cada fruta en mapuzungun con su imagen.">
+        <div class="fp-pill" id="fpPill" aria-live="polite"></div>
+        <button class="fp-nav fp-back" type="button" onclick="fpBack()" aria-label="Wiñotxekage, volver al árbol de frutos"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
+        <button class="fp-nav fp-next" id="fpNext" type="button" disabled onclick="fpNext()" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe — Seguir"></button>
+      </div></div>
+    </section>
 
     <section id="funhResults" class="screen" aria-label="Resultados finales de corte de frutas">
       <div class="cv-results-screen"><div class="cv-results-stage">
@@ -3072,7 +3100,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
        No se altera el sonido, la imagen ni la velocidad de los MP4. */
     function stopActivityMapTxegul() {
       if(typeof clearFunhStrikeTimeout==='function')clearFunhStrikeTimeout();
-      ['txegulEntryLeft', 'txegulEntryRight', 'txegulSaltaLeft'].forEach(id => {
+      ['txegulEntryLeft', 'txegulEntryRight'].forEach(id => {
         const video = document.getElementById(id);
         if (!video) return;
         video.pause();
@@ -3313,12 +3341,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Volver entre pantallas durante la misma partida conserva su estado.
       stopActivityMapTxegul();
       funhResetGallery();
-      funhStage = 'locked';
+      funhStage = FUNH_TEST_UNLOCK ? 'unlocked' : 'locked';
       cuboxStage = 'locked';
-      saltaStage = 'locked';saltaCompleted=false;
       try {
-        localStorage.removeItem(SALTA_UNLOCK_KEY);
-        localStorage.removeItem(SALTA_COMPLETE_KEY);
         localStorage.removeItem(FUNH_STORAGE_KEY);
         localStorage.removeItem(CUBOX_READY_KEY);
         localStorage.removeItem(CUBOX_UNLOCK_KEY);
@@ -3333,7 +3358,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (funhAxe) funhAxe.hidden = true;
       applyFunhState();
       applyCuboxState();
-      applySaltaState();
       [
         ['activityOne',()=>{activityOneCompleted=false;stopActivityOneAnswerAudio();}],
         ['activityTwo',()=>{activityTwoCompleted=false;stopActivityTwoAnswerAudio();}],
@@ -3535,96 +3559,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     // El desbloqueo de Fünh-Frutos se conserva independientemente de las lecciones, Newen y estadísticas.
     // Fünh cubox: progreso independiente. Se habilita al completar realmente
     // los tres niveles del juego de corte, no solo el árbol introductorio.
-    // Secuencia obligatoria: Salta el Número -> Fünh-Frutos -> Fünh cubox.
-    const SALTA_UNLOCK_KEY='kimun_salta_numero_unlocked_v1';
-    const SALTA_COMPLETE_KEY='kimun_salta_numero_completed_v1';
-    const saltaSaved=k=>{try{return localStorage.getItem(k)==='1';}catch(_){return false;}};
-    let saltaStage=saltaSaved(SALTA_UNLOCK_KEY)?'unlocked':'locked';
-    let saltaCompleted=saltaSaved(SALTA_COMPLETE_KEY);
-    function positionSaltaAxe(){
-      const axe=document.getElementById('saltaNumeroAxe'),tile=document.getElementById('saltaNumeroTile'),map=document.getElementById('activityMap');
-      if(!axe||!tile||!map)return;
-      const r=tile.getBoundingClientRect(),m=map.getBoundingClientRect();if(!r.width||!m.width)return;
-      const w=Math.max(58,r.width*.72),h=Math.max(72,r.height*.86);
-      Object.assign(axe.style,{width:w+'px',height:h+'px',left:(r.left-m.left+(r.width-w)/2)+'px',top:(r.top-m.top+(r.height-h)/2)+'px'});
-    }
-    function applySaltaState(){
-      const tile=document.getElementById('saltaNumeroTile'),axe=document.getElementById('saltaNumeroAxe');if(!tile)return;
-      const open=saltaStage==='unlocked',img=tile.querySelector('img.activity-map-item');
-      const src=open?'./item_salta_numero_desbloqueado.png':'./item_salta_numero_bloqueado.png';
-      if(img.getAttribute('src')!==src)img.src=src;
-      img.alt='Salta el Número, '+(open?'desbloqueado':'bloqueado');tile.setAttribute('aria-label',img.alt);
-      tile.classList.toggle('funh-guide',saltaStage==='locked');
-      if(saltaStage==='axe'){const sv=document.getElementById('txegulSaltaLeft');if(sv&&sv.preload!=='auto'){sv.preload='auto';try{sv.load();}catch(_){}}}
-      if(axe){axe.hidden=saltaStage!=='axe';axe.classList.toggle('funh-guide',saltaStage==='axe');if(saltaStage==='axe')requestAnimationFrame(positionSaltaAxe);}
-    }
-    function activateSaltaTxegulRight(){   // RESPALDO: ceremonia con el video derecho si el nuevo no carga
-      if(saltaStage!=='axe')return;
-      const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulEntryRight');if(!tile||!video)return;
-      stopActivityMapTxegul();saltaStage='playing';applySaltaState();
-      /* CAUSA RAÍZ: el video está en display:none hasta tener la clase 'playing'; medirlo antes daba un rect de 0x0
-         y el desplazamiento lo sacaba de la pantalla (se reproducía fuera de vista). Se muestra ANTES de medir. */
-      video.classList.add('playing');
-      const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
-      const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
-      const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
-      /* Mantener el video dentro del mapa: sin esto, en la columna derecha el Txegül quedaba fuera de pantalla. */
-      const dxC=Math.min(dx,m.right-v.right),dyC=Math.max(m.top-v.top,Math.min(dy,m.bottom-v.bottom));
-      video.style.setProperty('--funh-travel-x',dxC+'px');video.style.setProperty('--funh-travel-y',dyC+'px');
-      video.classList.add('playing','funh-striking');let finished=false;
-      function finish(){if(finished||saltaStage!=='playing')return;finished=true;
-        video.pause();video.ontimeupdate=null;video.onended=null;video.onerror=null;
-        video.classList.remove('playing','funh-striking','funh-travelling','funh-exiting');
-        saltaStage='unlocked';try{localStorage.setItem(SALTA_UNLOCK_KEY,'1');}catch(e){console.warn('Salta progreso:',e);}
-        applySaltaState();playFiluMapClick();animateActivityMapTile(tile,true);
-      }
-      video.ontimeupdate=()=>{if(video.currentTime>=4.45)finish();};video.onended=finish;
-      const restore=()=>{if(saltaStage==='playing'){saltaStage='axe';stopActivityMapTxegul();applySaltaState();}};
-      video.onerror=restore;try{video.currentTime=0;}catch(_){};
-      const promise=video.play();if(promise&&promise.catch)promise.catch(restore);
-    }
-    /* Salta el Número: el Txegül entra por la izquierda y da tres golpes hacia la derecha.
-       Punto de impacto del TokiKura dentro del video (fracción del ancho/alto): X=.78, Y=.75.
-       Tercer impacto a los 4.04 s (el sonido sale a ~4.1 s): el candado se abre justo después. */
-    /* Tamaño: el video mide SALTA_VIDEO_TILE_W veces el ancho de la ficha (antes ocupaba casi todo el ancho del mapa y se veía ~2x más grande
-       que los Txegül de Fünh-Frutos y Cubox). SALTA_LOCK_Y = altura del candado dentro de la ficha (el candado rojo queda en ~86 %). */
-    const SALTA_HIT_X=.69,SALTA_HIT_Y=.58,SALTA_VIDEO_RATIO=786/720,SALTA_THIRD_HIT=4.12,SALTA_VIDEO_TILE_W=1.3,SALTA_LOCK_X=.49,SALTA_LOCK_Y=.86;
-    function activateSaltaTxegul(){
-      if(saltaStage!=='axe')return;
-      const tile=document.getElementById('saltaNumeroTile'),video=document.getElementById('txegulSaltaLeft');
-      if(!tile||!video)return activateSaltaTxegulRight();
-      stopActivityMapTxegul();saltaStage='playing';applySaltaState();
-      video.classList.add('playing');   // mostrar ANTES de medir (en display:none todo mide 0)
-      const r=tile.getBoundingClientRect(),m=(video.offsetParent||document.getElementById('activityMap')).getBoundingClientRect();
-      // Tamaño parecido al de los demás Txegül; el punto de impacto del TokiKura cae justo sobre el candado de la ficha.
-      const w=r.width*SALTA_VIDEO_TILE_W,h=w*SALTA_VIDEO_RATIO;
-      const lockX=r.left-m.left+r.width*SALTA_LOCK_X,lockY=r.top-m.top+r.height*SALTA_LOCK_Y;
-      // Ajuste solicitado: desplazar el Txegül un 20% del ancho de la ficha a la izquierda y un 40% de su altura hacia arriba.
-      Object.assign(video.style,{left:(lockX-SALTA_HIT_X*w-r.width*.20)+'px',width:w+'px',height:h+'px',top:(lockY-SALTA_HIT_Y*h-r.height*.40)+'px'});
-      let done=false,failed=false;
-      function finish(){
-        if(done||failed||saltaStage!=='playing')return;done=true;
-        saltaStage='unlocked';try{localStorage.setItem(SALTA_UNLOCK_KEY,'1');}catch(e){console.warn('Salta progreso:',e);}
-        applySaltaState();playFiluMapClick();animateActivityMapTile(tile,true);
-      }
-      function fallback(why){
-        if(done||failed)return;failed=true;console.warn('Txegül izquierdo no disponible; se usa el respaldo:',why);
-        if(saltaStage==='playing'){stopActivityMapTxegul();saltaStage='axe';applySaltaState();activateSaltaTxegulRight();}
-      }
-      const tick=t=>{if(t>=SALTA_THIRD_HIT)finish();};
-      video.ontimeupdate=()=>tick(video.currentTime);
-      if(typeof video.requestVideoFrameCallback==='function'){
-        const cb=(_n,meta)=>{if(done||failed||saltaStage==='locked')return;tick(meta&&Number.isFinite(meta.mediaTime)?meta.mediaTime:video.currentTime);if(!done)video.requestVideoFrameCallback(cb);};
-        video.requestVideoFrameCallback(cb);
-      }
-      video.onended=()=>{finish();video.ontimeupdate=null;video.classList.remove('playing');};
-      video.onerror=()=>fallback(video.src);
-      try{video.currentTime=0;}catch(_){}
-      const pr=video.play();if(pr&&pr.catch)pr.catch(fallback);
-    }
-    function resetSaltaOnExit(){if(saltaStage==='axe'||saltaStage==='playing')saltaStage='locked';applySaltaState();}
-    window.addEventListener('resize',positionSaltaAxe);
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applySaltaState);else applySaltaState();
     const CUBOX_READY_KEY='kimun_funh_cubox_ready_v1';
     const CUBOX_UNLOCK_KEY='kimun_funh_cubox_unlocked_v1';
     function cuboxStored(key){try{return localStorage.getItem(key)==='1';}catch(_){return false;}}
@@ -3642,7 +3576,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const available=cuboxStage!=='locked';
       const img=tile.querySelector('img');
       // Verde: invitación a tocar o actividad ya abierta. Rojo: aún no habilitada.
-      const image=cuboxStage==='unlocked'?'./item_funh_cubox_desbloqueado.png':'./item_funh_cubox_bloqueado.png';
+      const image=available?'./item_funh_cubox_desbloqueado.png':'./item_funh_cubox_bloqueado.png';
       if(img.getAttribute('src')!==image)img.setAttribute('src',image);
       tile.classList.toggle('cubox-available',cuboxStage==='ready');
       tile.classList.toggle('cubox-opened',cuboxStage==='unlocked');
@@ -3651,7 +3585,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(axe){axe.hidden=cuboxStage!=='axe';axe.classList.toggle('funh-guide',cuboxStage==='axe');if(cuboxStage==='axe')requestAnimationFrame(positionCuboxAxe);}
     }
     function enableCuboxFromFruitResults(){
-      if(cuboxStage!=='locked'||funhStage!=='unlocked')return;   // orden: Salta -> Frutos -> Cubox
+      if(cuboxStage!=='locked')return;
       cuboxStage='ready';try{localStorage.setItem(CUBOX_READY_KEY,'1');}catch(e){console.warn('No se pudo guardar Fünh cubox:',e);}
       applyCuboxState();
     }
@@ -3671,13 +3605,10 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if(!tile||!video)return;
       stopActivityMapTxegul();
       cuboxStage='playing';applyCuboxState();
-      video.classList.add('playing');   // mostrar ANTES de medir (ver causa raíz en Salta el Número)
       const r=tile.getBoundingClientRect(),v=video.getBoundingClientRect(),m=document.getElementById('activityMap').getBoundingClientRect();
       const dx=r.left+r.width*.5-(v.left+v.width*.58)+Math.min(24,r.width*.18)+m.width*.10;
       const dy=r.top+r.height*.78-(v.top+v.height*.64)-m.height*.05;
-      /* Mantener el video dentro del mapa: sin esto, en la columna derecha el Txegül quedaba fuera de pantalla. */
-      const dxC=Math.min(dx,m.right-v.right),dyC=Math.max(m.top-v.top,Math.min(dy,m.bottom-v.bottom));
-      video.style.setProperty('--funh-travel-x',dxC+'px');video.style.setProperty('--funh-travel-y',dyC+'px');
+      video.style.setProperty('--funh-travel-x',dx+'px');video.style.setProperty('--funh-travel-y',dy+'px');
       video.classList.add('playing','funh-striking');
       let finished=false;
       function finish(){
@@ -3702,11 +3633,13 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     window.addEventListener('resize',positionCuboxAxe);
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyCuboxState);else applyCuboxState();
     const FUNH_STORAGE_KEY = 'kimun_funh_frutos_unlocked_v1';
+    /* MODO REVISIÓN: true = Fünh-Frutos siempre desbloqueado. Para volver a la secuencia normal, cambiar a false. */
+    const FUNH_TEST_UNLOCK = true;
     function readFunhUnlocked() {
       try { return localStorage.getItem(FUNH_STORAGE_KEY) === '1'; }
       catch (_) { return false; }
     }
-    let funhStage = readFunhUnlocked() ? 'unlocked' : 'locked';
+    let funhStage = (FUNH_TEST_UNLOCK || readFunhUnlocked()) ? 'unlocked' : 'locked';
     function funhTile() { return document.querySelector('#activityMap button[aria-label^="Fünh-Frutos"]'); }
     function isFunhUnlocked() { return funhStage==='unlocked'; }
     function positionFunhAxe() {
@@ -3740,7 +3673,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         tile.setAttribute('aria-label','Fünh-Frutos, bloqueado');
       }
       const axe=document.getElementById('funhFloatingAxe');
-      tile.classList.toggle('funh-guide',funhStage==='locked'&&saltaCompleted);
+      tile.classList.toggle('funh-guide',funhStage==='locked');
       tile.classList.toggle('funh-ready',unlocked);
       if(axe) {
         axe.hidden=funhStage!=='axe';
@@ -4094,7 +4027,96 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     function openFunhGameIntro(){
       if(funhVisited.size!==FUNH_FRUIT_IMAGES.length)return;
       playFiluMapClick();
-      showScreen('funhGameIntro');
+      fpStart();
+      showScreen('funhPairs');
+    }
+    /* ===== Fünh-Frutos: "Selecciona los pares" =====
+       Cada pantalla es una imagen 941x1672 con 5 rótulos (izquierda) y 5 imágenes (derecha).
+       key[i] = fila (0-4) de la imagen que corresponde al rótulo de la fila i. EDITAR AQUÍ si una respuesta cambia. */
+    const FP_PAGES=[
+      {img:'./funh_pares_1.jpg',lay:'A',names:['Kopiw','Ufaz','Zamasko','Make','Nüyu'],key:[3,0,4,1,2]},
+      {img:'./funh_pares_2.jpg',lay:'A',names:['Moketa','Michay','Gülliw','Kelleñ','Mansana'],key:[1,2,3,4,0]},
+      {img:'./funh_pares_3.jpg',lay:'B',names:['Folho','Kowüll','Mura','Chawra','Kataña'],key:[1,3,2,0,4]},
+      {img:'./funh_pares_4.jpg',lay:'A',names:['Naragka','Pera','Mempürillu','Siruela','Füramfuesa'],key:[3,0,4,1,2]},
+      {img:'./funh_pares_5.jpg',lay:'A',names:['Kopiw','Gefüñ','Mura','Nüyu','Uñu'],key:[0,1,3,4,2]},
+    ];
+    // Posiciones en píxeles de la imagen original (941x1672).
+    const FP_LAYOUT={
+      A:{L:[75,525],R:[540,890],rows:[[365,565],[595,795],[825,1025],[1055,1255],[1290,1490]]},
+      B:{L:[70,505],R:[515,890],rows:[[340,530],[560,755],[785,990],[1020,1215],[1250,1445]]}
+    };
+    const FP={page:0,sel:null,done:new Set(),busy:false,errors:0,timers:[]};
+    const FP_OK_SVG='<i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.8l4.6 4.6L19 7.4"/></svg></i>';
+    const FP_BAD_SVG='<i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></i>';
+    function fpTimer(fn,ms){const t=setTimeout(()=>{FP.timers=FP.timers.filter(x=>x!==t);fn();},ms);FP.timers.push(t);}
+    function fpClearTimers(){FP.timers.forEach(clearTimeout);FP.timers=[];}
+    function fpTone(hz,toHz,dur,peak,type){try{const ctx=funhGetFxContext();if(!ctx)return;funhFxTone(ctx,hz,ctx.currentTime+.008,dur,peak,type||'sine',toHz||hz);}catch(e){}}
+    function fpSound(kind){
+      if(kind==='ok'){fpTone(660,880,.16,.07);fpTone(990,1180,.2,.05);}
+      else if(kind==='bad'){fpTone(230,150,.26,.07,'triangle');}
+      else if(kind==='tap'){fpTone(520,600,.07,.04);}
+      else if(kind==='done'){try{funhPlayFx('reveal');}catch(e){}}
+    }
+    function fpPill(){const p=document.getElementById('fpPill');if(p)p.textContent=`Pantalla ${FP.page+1}/${FP_PAGES.length} · ${FP.done.size}/5 pares`;}
+    function fpLoad(n){
+      fpClearTimers();FP.page=n;FP.sel=null;FP.done=new Set();FP.busy=false;
+      const pg=FP_PAGES[n],L=FP_LAYOUT[pg.lay],stage=document.getElementById('fpStage');
+      stage.querySelectorAll('.fp-cell').forEach(b=>b.remove());
+      document.getElementById('fpBg').src=pg.img;
+      const W=941,H=1672,pct=(v,t)=>(v/t*100).toFixed(3)+'%';
+      pg.names.forEach((name,r)=>{
+        const [y0,y1]=L.rows[r];
+        [['L',L.L,`Rótulo ${name}`],['R',L.R,`Imagen de fruta ${r+1}`]].forEach(([side,[x0,x1],label])=>{
+          const b=document.createElement('button');b.type='button';b.className='fp-cell';
+          b.dataset.side=side;b.dataset.row=r;b.setAttribute('aria-label',label);
+          b.style.cssText=`left:${pct(x0,W)};top:${pct(y0,H)};width:${pct(x1-x0,W)};height:${pct(y1-y0,H)}`;
+          b.addEventListener('click',()=>fpTap(b));
+          stage.insertBefore(b,document.getElementById('fpPill'));
+        });
+      });
+      const nx=document.getElementById('fpNext');nx.disabled=true;nx.classList.remove('fp-ready');
+      fpPill();
+    }
+    function fpCell(side,row){return document.querySelector(`#fpStage .fp-cell[data-side="${side}"][data-row="${row}"]`);}
+    function fpMark(cell,ok){const m=document.createElement('span');m.className='fp-mark '+(ok?'ok':'bad');m.innerHTML=ok?FP_OK_SVG:FP_BAD_SVG;cell.append(m);return m;}
+    function fpTap(cell){
+      if(FP.busy||cell.classList.contains('fp-locked'))return;
+      const row=+cell.dataset.row;
+      if(cell.dataset.side==='L'){
+        document.querySelectorAll('#fpStage .fp-sel').forEach(c=>c.classList.remove('fp-sel'));
+        FP.sel=row;cell.classList.add('fp-sel');fpSound('tap');return;
+      }
+      if(FP.sel===null){ // Sin rótulo elegido: guía suave hacia la columna izquierda.
+        document.querySelectorAll('#fpStage .fp-cell[data-side="L"]:not(.fp-locked)').forEach(c=>{c.classList.remove('fp-hint');void c.offsetWidth;c.classList.add('fp-hint');});
+        fpTimer(()=>document.querySelectorAll('#fpStage .fp-hint').forEach(c=>c.classList.remove('fp-hint')),1100);
+        fpSound('tap');return;
+      }
+      const left=fpCell('L',FP.sel),pg=FP_PAGES[FP.page];
+      left.classList.remove('fp-sel');
+      if(pg.key[FP.sel]===row){
+        [left,cell].forEach(c=>{c.classList.add('fp-locked');fpMark(c,true);});
+        FP.done.add(FP.sel);FP.sel=null;fpSound('ok');fpPill();
+        if(FP.done.size===pg.names.length)fpTimer(fpPageDone,450);
+      }else{
+        FP.errors++;FP.busy=true;FP.sel=null;fpSound('bad');
+        const marks=[left,cell].map(c=>{c.classList.add('fp-wrong');return fpMark(c,false);});
+        fpTimer(()=>{marks.forEach(m=>m.remove());[left,cell].forEach(c=>c.classList.remove('fp-wrong'));FP.busy=false;},850);
+      }
+    }
+    function fpPageDone(){
+      fpSound('done');
+      const nx=document.getElementById('fpNext');nx.disabled=false;nx.classList.add('fp-ready');
+    }
+    function fpStart(){FP.errors=0;fpLoad(0);}
+    function fpNext(){
+      const nx=document.getElementById('fpNext');if(nx.disabled)return;
+      try{playFiluMapClick();}catch(e){}
+      if(FP.page<FP_PAGES.length-1){fpLoad(FP.page+1);}
+      else{fpClearTimers();showScreen('funhGameIntro');}
+    }
+    function fpBack(){
+      try{playFiluMapClick();}catch(e){}
+      fpClearTimers();showScreen('funhGallery');
     }
     function openRamtuchiFromFunhGame(){
       playFiluMapClick();
@@ -4265,7 +4287,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     buildFunhGallery();
 
     function handleFunhFrutosTap(button) {
-      if(!saltaCompleted && funhStage!=='unlocked'){playActivityMapLockedSound();animateActivityMapTile(button,false);return;}
       applyFunhState();
       if(funhStage==='unlocked'){playActivityMapTileSound(button);showScreen('funhWelcome');return;}
       if(funhStage==='playing'||funhStage==='axe')return;
@@ -6080,7 +6101,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
         beginNewenRecovery(screenId);
         return;
       }
-      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); resetCuboxOnExit(); resetSaltaOnExit(); }
+      if (screenId !== 'activityMap') { stopActivityMapTxegul(); resetFunhCeremonyOnExit(); resetCuboxOnExit(); }
       if(screenId !== 'funhGallery' && 'speechSynthesis' in window)window.speechSynthesis.cancel();
       if(screenId !== 'funhGallery')funhPauseGallery();
       if (screenId !== 'newenRecovery') {
@@ -6107,7 +6128,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       if (target) target.classList.add("active");
       if (screenId === 'funhGallery')requestAnimationFrame(funhResumeGallery);
       // Los Txegül solo se activarán mediante un disparador explícito posterior.
-      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); applyCuboxState(); applySaltaState(); }
+      if (screenId === 'activityMap') { stopActivityMapTxegul(); applyFunhState(); applyCuboxState(); }
       const filuMapBack = document.getElementById('filuMapBack');
       if (filuMapBack) filuMapBack.hidden = !(screenId === 'filu' && filuOpenedFromMap);
       if (screenId === 'filu') fitFiluBoard();
@@ -6613,7 +6634,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     try{SN.best=+localStorage.getItem('snBest')||0;}catch(e){}
     for(const k in SN_IMG){const i=new Image();i.src=SN_IMG[k];SN.img[k]=i;}
     const snEl=id=>document.getElementById(id);
-    // La miniatura del mapa usa los PNG oficiales de Salta el Número.
+    snEl('snTileArt').src=SN_IMG.a;
     function snSize(){const c=snEl('snCanvas'),r=c.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2);
       SN.w=Math.max(200,r.width);SN.h=Math.max(200,r.height);c.width=Math.round(SN.w*d);c.height=Math.round(SN.h*d);c.getContext('2d').setTransform(d,0,0,d,0,0);}
     function snHud(){snEl('snFill').style.width=(100*SN.done/40)+'%';snEl('snTxt').textContent='Número '+SN.done+' de 40 · Plata '+SN.coinCount+' · Récord '+SN.best;snEl('snCoinMini').textContent=SN.coinCount;}
@@ -6716,8 +6737,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     }
     let snResultTimers=[];
     function snClearResultTimers(){snResultTimers.forEach(clearTimeout);snResultTimers=[];}
-    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();
-      saltaCompleted=true;try{localStorage.setItem(SALTA_COMPLETE_KEY,'1');}catch(e){console.warn('Progreso Salta:',e);}applyFunhState();try{cvSound('win');}catch(e){}
+    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();try{cvSound('win');}catch(e){}
       const ov=snEl('snOv');ov.classList.add('sn-result-mode');ov.hidden=false;
       ov.innerHTML='<div class="sn-result-sheet"><img src="./resultado_salta_numero.png" alt="¡Küme zugu! Salta el número completado. Resumen de nueve estadísticas">'+
         ['Name','Rank','Silver','Jumps','Correct','Errors','Accuracy','Record','Retries'].map((key,i)=>
@@ -6815,10 +6835,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       for(const q of SN.pops){c.globalAlpha=Math.min(1,q.life*2);c.font='900 '+Math.round(h*.07)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.fillStyle=q.c;c.fillText(q.t,w*.5,h*.22-(1.6-q.life)*14);c.globalAlpha=1;}
       if(SN.st==='crash'){c.font='900 '+Math.round(h*.08)+'px sans-serif';c.textAlign='center';c.lineWidth=5;c.strokeStyle='#fff';c.strokeText('¡Ay fotxü!',w*.5,h*.4);c.fillStyle='#c4622d';c.fillText('¡Ay fotxü!',w*.5,h*.4);}}
     function snExit(){try{playFiluMapClick();}catch(e){}snStop();showScreen('activityMap');}
-    function openSaltaFromMap(button){
-      if(saltaStage==='locked'){animateActivityMapTile(button,false);playFunhBell();saltaStage='axe';applySaltaState();return;}
-      if(saltaStage!=='unlocked')return;
-      if(button&&button.dataset.opening==='1')return;
+    function openSaltaFromMap(button){if(button&&button.dataset.opening==='1')return;
       if(button){button.dataset.opening='1';animateActivityMapTile(button,true);}playFiluMapClick();
       setTimeout(()=>{if(button)delete button.dataset.opening;showScreen('saltaNum');requestAnimationFrame(()=>{snSize();snPick();});},450);}
     (function(){const c=snEl('snCanvas');c.addEventListener('pointerdown',e=>{e.preventDefault();snJump();});
