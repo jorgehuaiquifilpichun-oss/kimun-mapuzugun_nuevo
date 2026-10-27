@@ -1648,6 +1648,18 @@
     @keyframes fpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
     @media(prefers-reduced-motion:reduce){.fp-cell.fp-wrong,.fp-cell.fp-hint,.fp-mark i,.fp-next.fp-ready{animation:none}}
 
+
+/* Acceso Supabase: integrado sin modificar los recursos visuales de los juegos. */
+#kimunAuthOverlay{position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(9,26,20,.83);backdrop-filter:blur(7px);overflow:auto}
+#kimunAuthOverlay.open{display:flex}
+.kimun-auth-card{width:min(100%,370px);background:linear-gradient(155deg,#fff0d8,#ddba85);border:3px solid #9b7140;border-radius:18px;padding:22px;color:#322315;text-align:center;box-shadow:0 10px 28px #0008}
+.kimun-auth-card h2{margin:0 0 9px}.kimun-auth-card p{font-size:14px;line-height:1.4}
+.kimun-auth-card input{display:block;width:100%;min-height:44px;margin:9px 0;padding:10px;border:2px solid #957042;border-radius:10px;background:#fff;color:#183f31;font-size:16px}
+.kimun-auth-card button{min-height:43px;margin:5px 2px;padding:10px 14px;border:0;border-radius:10px;background:#246e38;color:white;font-weight:800;cursor:pointer}
+.kimun-auth-card button.secondary{background:#705131}.kimun-auth-card button:disabled{opacity:.55}
+#kimunAuthMessage{min-height:20px;overflow-wrap:anywhere}
+#kimunAccountButton{position:fixed;z-index:80;top:max(8px,env(safe-area-inset-top));right:max(8px,calc((100vw - 480px)/2 + 8px));display:none;padding:7px 11px;background:#205c38;color:white;border:1px solid #dbcc9a;border-radius:999px;font:700 12px Arial,sans-serif}
+
   </style>
 <style id="czCss">
 #coloresAz{background:#f7eddc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24'%3E%3Cpath d='M24 2l20 10-20 10L4 12z' fill='none' stroke='%23b8863b' stroke-opacity='.18' stroke-width='2'/%3E%3C/svg%3E")}
@@ -2866,6 +2878,21 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     </form>
   </div>
 
+
+<button id="kimunAccountButton" type="button">Mi cuenta / Salir</button>
+<div id="kimunAuthOverlay" role="dialog" aria-modal="true" aria-label="Cuenta de estudiante">
+  <form class="kimun-auth-card" id="kimunAuthForm">
+    <h2>Kimün Mapuzungun</h2><p id="kimunAuthHeading">Crea tu cuenta para conservar tu aprendizaje.</p>
+    <input id="kimunAuthName" type="text" maxlength="28" autocomplete="name" placeholder="Nombre del estudiante" required>
+    <input id="kimunAuthEmail" type="email" autocomplete="email" placeholder="Correo electrónico" required>
+    <input id="kimunAuthPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Contraseña (mínimo 6 caracteres)" required>
+    <button id="kimunAuthSubmit" type="submit">Crear cuenta</button>
+    <button id="kimunAuthToggle" class="secondary" type="button">Ya tengo cuenta</button>
+    <button id="kimunAuthClose" class="secondary" type="button">Volver</button>
+    <p id="kimunAuthMessage" role="status" aria-live="polite"></p>
+  </form>
+</div>
+
   <script>
     "use strict";
 
@@ -3440,6 +3467,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       });
     }
     function requestNewGame() {
+      if(window.kimunBeginLogin){window.kimunBeginLogin();return;}
       // Abrir o cancelar el formulario no borra la partida vigente.
       const overlay=document.getElementById('playerEntry');
       const input=document.getElementById('playerEntryName');
@@ -7020,5 +7048,112 @@ window.openColoresFromMap=function(btn){if(btn&&btn.dataset.opening==='1')return
 const _ss=window.showScreen;window.showScreen=function(id){if(id!=='coloresAz')stop();return _ss.apply(this,arguments)};
 })();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function(){
+'use strict';
+const URL='https://llvpqdjjomalaphyzpiu.supabase.co';
+const PUBLIC_KEY='sb_publishable_8dvpUjZhujZ-YECBci5kHA_Lnj0sL26';
+const overlay=document.getElementById('kimunAuthOverlay'),form=document.getElementById('kimunAuthForm');
+const el=id=>document.getElementById(id);
+const message=txt=>{el('kimunAuthMessage').textContent=txt||''};
+let db=null,user=null,mode='register',saving=false,dirty=false,revision=0,restoring=false,lastSaved='',activeSession=null;
+const storeKeys=['kimun_mapuzugun_vidas_v1','kimun_mapuzugun_ciclo_recuperacion_v1','kimun_funh_frutos_unlocked_v1','kimun_funh_cubox_ready_v1','kimun_funh_cubox_unlocked_v1','cvSliceFunh','cvFunhRecord','snBest','czP2','kvx3d_progress_v1'];
+function snapshot(){
+ const saved={};for(const k of storeKeys){saved[k]=localStorage.getItem(k)}
+ return {version:1,keys:saved,lives:newenLives,recoveryCycle:newenRecoveryCycle,funh:funhStage,cubox:cuboxStage,
+ stats:{correct:LEVEL_STATS.correct,wrong:LEVEL_STATS.wrong,recoveries:LEVEL_STATS.recoveries,completed:[...LEVEL_STATS.completed]},
+ fruits:{done:CV.done,res:CV.res,errors:CV.errors,retries:CV.retries,totalTime:CV.totalTime},
+ filuCount:typeof filuCompletedCount==='number'?filuCompletedCount:null};
+}
+function clearLocal(){for(const k of storeKeys)localStorage.removeItem(k)}
+function applySaved(payload){
+ restoring=true;
+ try{
+  resetEntireGame();clearLocal();
+  if(payload&&payload.keys){for(const [k,v] of Object.entries(payload.keys))if(storeKeys.includes(k)&&typeof v==='string')localStorage.setItem(k,v)}
+  newenLives=Math.max(0,Math.min(NEWEN_MAX_LIVES,Number(payload?.lives??NEWEN_MAX_LIVES)));
+  newenRecoveryCycle=Math.max(0,Math.min(2,Number(payload?.recoveryCycle??0)));
+  funhStage=payload?.funh==='unlocked'?'unlocked':'locked';
+  cuboxStage=['locked','ready','unlocked'].includes(payload?.cubox)?payload.cubox:'locked';
+  const st=payload?.stats||{};LEVEL_STATS.correct=Number(st.correct)||0;LEVEL_STATS.wrong=Number(st.wrong)||0;
+  LEVEL_STATS.recoveries=Number(st.recoveries)||0;LEVEL_STATS.completed=new Set(Array.isArray(st.completed)?st.completed:[]);
+  const fruits=payload?.fruits||{};
+  if(Array.isArray(fruits.done)&&fruits.done.length===3)CV.done=fruits.done.map(Boolean);
+  if(Array.isArray(fruits.res)&&fruits.res.length===3)CV.res=fruits.res;
+  CV.errors=Number(fruits.errors)||0;CV.retries=Number(fruits.retries)||0;CV.totalTime=Number(fruits.totalTime)||0;
+  LEVEL_STATS.name=user?.user_metadata?.nombre||el('kimunAuthName').value.trim()||'Estudiante';
+  saveNewenLives();saveNewenRecoveryCycle();renderNewenGameMeter();applyFunhState();applyCuboxState();cvNextState();
+ }finally{restoring=false}
+}
+async function saveCloud(force=false){
+ if(!db||!user||restoring)return;
+ const value=snapshot(),string=JSON.stringify(value);
+ if(!force&&string===lastSaved)return;
+ if(saving){dirty=true;return}
+ saving=true;
+ try{
+  const {error}=await db.from('progreso_aprendizaje').upsert({estudiante_id:user.id,desbloqueos:{funh:value.funh,cubox:value.cubox},estado:value},{onConflict:'estudiante_id'});
+  if(error)throw error;lastSaved=string;
+ }catch(err){console.warn('Kimün: no se pudo guardar avance en Supabase',err);}
+ finally{saving=false;if(dirty){dirty=false;saveCloud()}}
+}
+async function loadAccount(nextUser){
+ user=nextUser;
+ try{
+  const {data,error}=await db.from('progreso_aprendizaje').select('estado').eq('estudiante_id',user.id).maybeSingle();
+  if(error)throw error;
+  applySaved(data?.estado||null);
+  el('kimunAccountButton').style.display='block';overlay.classList.remove('open');
+  el('playerEntry').classList.remove('open');
+  el('kimunAccountButton').textContent='Salir: '+LEVEL_STATS.name;
+  lastSaved=JSON.stringify(snapshot());
+  if(!data)await saveCloud(true);
+ }catch(err){user=null;message('No se pudo cargar tu progreso. Revisa la conexión e intenta ingresar otra vez.');console.warn(err)}
+}
+function setMode(next){mode=next;const register=mode==='register';el('kimunAuthName').hidden=!register;el('kimunAuthName').required=register;
+ el('kimunAuthPassword').autocomplete=register?'new-password':'current-password';
+ el('kimunAuthHeading').textContent=register?'Crea tu cuenta para guardar tus avances.':'Ingresa para recuperar tu aprendizaje.';
+ el('kimunAuthSubmit').textContent=register?'Crear cuenta':'Iniciar sesión';
+ el('kimunAuthToggle').textContent=register?'Ya tengo cuenta':'Crear cuenta nueva';message('');}
+window.kimunBeginLogin=function(){if(!db){alert('No se pudo cargar Supabase. Comprueba tu conexión a Internet.');return;}
+ if(user){startIntroVideo();return}
+ setMode('register');overlay.classList.add('open');};
+el('kimunAuthToggle').onclick=()=>setMode(mode==='register'?'login':'register');
+el('kimunAuthClose').onclick=()=>overlay.classList.remove('open');
+el('kimunAccountButton').onclick=async()=>{
+ if(!db||!user)return;await saveCloud(true);const {error}=await db.auth.signOut();if(error){alert('No se pudo cerrar sesión: '+error.message);return}
+ user=null;clearLocal();resetEntireGame();el('kimunAccountButton').style.display='none';showScreen('home');
+};
+form.addEventListener('submit',async e=>{
+ e.preventDefault();if(!db)return;
+ const button=el('kimunAuthSubmit');button.disabled=true;message('Conectando con Supabase...');
+ const email=el('kimunAuthEmail').value.trim(),password=el('kimunAuthPassword').value;
+ try{
+  if(mode==='register'){
+   const nombre=el('kimunAuthName').value.trim();if(!nombre)throw Error('Ingresa tu nombre.');
+   const {data,error}=await db.auth.signUp({email,password,options:{data:{nombre},emailRedirectTo:'https://jorgehuaiquifilpichun-oss.github.io/kimun-mapuzugun_nuevo/'}});
+   if(error)throw error;
+   if(data.session&&data.user){await loadAccount(data.user);await db.from('estudiantes').upsert({id:data.user.id,nombre},{onConflict:'id'});startIntroVideo();}
+   else{message('Revisa tu correo y confirma la cuenta. Después vuelve aquí e inicia sesión.');setMode('login');message('Revisa tu correo y confirma la cuenta. Después vuelve aquí e inicia sesión.');}
+  }else{
+   const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;
+   await loadAccount(data.user);if(user){const nombre=user.user_metadata?.nombre||'Estudiante';await db.from('estudiantes').upsert({id:user.id,nombre},{onConflict:'id'});startIntroVideo();}
+  }
+ }catch(err){message(err.message||'No se pudo conectar. Intenta nuevamente.')}finally{button.disabled=false}
+});
+async function init(){
+ if(!window.supabase?.createClient){console.warn('No se cargó supabase-js');return}
+ db=window.supabase.createClient(URL,PUBLIC_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ const {data}=await db.auth.getSession();if(data?.session?.user)await loadAccount(data.session.user);
+ db.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){user=null;el('kimunAccountButton').style.display='none'}});
+}
+setInterval(()=>{if(user)saveCloud()},3000);
+window.addEventListener('pagehide',()=>{if(user)saveCloud(true)});
+init();
+})();
+</script>
+
 </body>
 </html>
