@@ -838,6 +838,11 @@
     .player-entry-card label{font-size:.92rem;text-align:left;margin:11px 0 5px;}
     .player-entry-card input{height:44px;font-size:1rem;text-align:left;}
     .register-tabs{display:flex;gap:8px;margin:12px 0 13px;}
+    #kimunAuthFields[hidden],#kimunNameField[hidden]{display:none!important;}
+    #kimunAuthFields:not([hidden]){display:flex;flex-direction:column;}
+    #kimunAuthChoices button{min-height:54px;}
+    #kimunAuthChoices button:not(.selected){animation:kimunRegisterPulse 2.3s ease-in-out infinite;}
+    @media(prefers-reduced-motion:reduce){#kimunAuthChoices button{animation:none!important;}}
     .player-entry-card .register-tabs button{flex:1;width:auto;margin:0;padding:10px 5px;border:2px solid #9d7545;border-radius:12px;background:#fff4df;color:#3d2917;font-size:.89rem;}
     .player-entry-card .register-tabs button.selected{background:#27683d;border-color:#194c2c;color:#fff;}
     .player-entry-card .register-primary{border:2px solid #b8e69b;border-radius:999px;background:linear-gradient(#37984d,#17612f);box-shadow:0 0 0 0 rgba(43,151,72,.48);animation:kimunRegisterPulse 1.8s ease-in-out infinite;}
@@ -1667,6 +1672,13 @@
     @keyframes fpPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
     @media(prefers-reduced-motion:reduce){.fp-cell.fp-wrong,.fp-cell.fp-hint,.fp-mark i,.fp-next.fp-ready{animation:none}}
 
+
+    #kimunAdminTrigger:not([hidden]){position:fixed;right:12px;bottom:12px;z-index:240;border:2px solid #d7e9b0;border-radius:30px;padding:10px 14px;background:#205f3b;color:white;font-weight:bold;cursor:pointer}
+    #kimunAdminPanel:not([hidden]){position:fixed;inset:0;z-index:300;overflow:auto;padding:18px;max-width:700px;margin:auto;background:#f7f0df;color:#263b2b;font:15px/1.45 Arial,sans-serif}
+    .kimun-admin-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .kimun-admin-head h2{font-size:1.2rem}.kimun-admin-head button{padding:10px;border:0;border-radius:8px;background:#285f35;color:white}
+    .kimun-admin-student{margin:10px 0;padding:12px;border:1px solid #a7ad99;border-radius:10px;overflow-wrap:anywhere}
+    .kimun-admin-student summary{font-weight:bold;cursor:pointer}
   </style>
 <style id="czCss">
 #coloresAz{background:#f7eddc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24'%3E%3Cpath d='M24 2l20 10-20 10L4 12z' fill='none' stroke='%23b8863b' stroke-opacity='.18' stroke-width='2'/%3E%3C/svg%3E")}
@@ -2879,24 +2891,33 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       </svg>
       <h2 id="playerEntryLabel" class="register-heading">¡Sé colaborador de Kimün Mapuzungun!</h2>
       <p class="register-copy">Registra tu participación y guarda tu progreso de aprendizaje.</p>
-      <div class="register-tabs" role="group" aria-label="Acceso a Kimün">
-        <button type="button" id="registerTab" class="selected" onclick="setKimunAuthMode('signup')">Crear cuenta</button>
-        <button type="button" id="loginTab" onclick="setKimunAuthMode('login')">Ya tengo cuenta</button>
+      <div class="register-tabs" id="kimunAuthChoices" role="group" aria-label="Acceso a Kimün">
+        <button type="button" id="registerTab" onclick="setKimunAuthMode('signup')">Crear cuenta nueva</button>
+        <button type="button" id="loginTab" onclick="setKimunAuthMode('login')">Ya estoy registrado</button>
       </div>
+      <div id="kimunAuthFields" hidden>
+      <div id="kimunNameField">
       <label for="playerEntryName">Tu nombre</label>
       <input id="playerEntryName" name="player" type="text" maxlength="28" autocomplete="name" autocapitalize="words" required oninput="validatePlayerName()">
       <div id="playerEntrySuggest" class="pe-suggest" role="group" aria-label="Apellidos mapuche sugeridos" onmousedown="event.preventDefault()"></div>
+      </div>
       <label for="kimunEmail">Correo electrónico</label>
       <input id="kimunEmail" type="email" autocomplete="email" inputmode="email" required oninput="validatePlayerName()" placeholder="nombre@correo.cl">
       <label for="kimunPassword">Contraseña</label>
       <input id="kimunPassword" type="password" autocomplete="current-password" minlength="6" required oninput="validatePlayerName()" placeholder="Mínimo 6 caracteres">
       <button id="playerEntryStart" class="register-primary" type="submit" disabled>Registrarme como colaborador</button>
       <p class="register-help" id="registerHelp">Al crear tu cuenta, revisa tu correo y confirma el registro mediante el enlace que recibirás.</p>
+      </div>
       <p id="kimunAuthMessage" class="register-message" role="status" aria-live="polite"></p>
       <div class="pe-band pe-band-bottom" aria-hidden="true"></div>
     </form>
   </div>
 
+  <button id="kimunAdminTrigger" type="button" hidden onclick="kimunOpenAdmin()" aria-label="Abrir panel de administración">Administración</button>
+  <section id="kimunAdminPanel" hidden role="dialog" aria-modal="true" aria-label="Panel de administración de Kimün">
+    <div class="kimun-admin-head"><h2>Administración · Kimün Mapuzungun</h2><button type="button" onclick="kimunCloseAdmin()">Cerrar</button></div>
+    <div id="kimunAdminContent" aria-live="polite"></div>
+  </section>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     "use strict";
@@ -3347,10 +3368,14 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     const KIMUN_SUPABASE_URL='https://llvpqdjjomalaphyzpiu.supabase.co';
     const KIMUN_SUPABASE_KEY='sb_publishable_8dvpUjZhujZ-YECBci5kHA_Lnj0sL26';
     const kimunDb=window.supabase?.createClient(KIMUN_SUPABASE_URL,KIMUN_SUPABASE_KEY);
-    let kimunAuthMode='signup',kimunCurrentUser=null,kimunSyncBusy=false;
+    let kimunAuthMode=null,kimunCurrentUser=null,kimunSyncBusy=false;
     const KIMUN_PROGRESS_KEYS=['kimun_mapuzugun_vidas_v1','kimun_mapuzugun_ciclo_recuperacion_v1','kimun_funh_frutos_unlocked_v1','kimun_funh_cubox_ready_v1','kimun_funh_cubox_unlocked_v1','cvSliceFunh','cvFunhRecord','snBest','czP2','kvx3d_progress_v1'];
     function setKimunAuthMode(mode){
       kimunAuthMode=mode;
+      document.getElementById('kimunAuthFields').hidden=false;
+      document.getElementById('kimunNameField').hidden=mode==='login';
+      document.getElementById('playerEntryName').required=mode==='signup';
+      document.getElementById('kimunPassword').autocomplete=mode==='signup'?'new-password':'current-password';
       document.getElementById('registerTab').classList.toggle('selected',mode==='signup');
       document.getElementById('loginTab').classList.toggle('selected',mode==='login');
       document.getElementById('playerEntryStart').textContent=mode==='signup'?'Registrarme como colaborador':'Ingresar a Kimün';
@@ -3361,24 +3386,114 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const name=document.getElementById('playerEntryName').value.trim();
       const email=document.getElementById('kimunEmail');
       const pass=document.getElementById('kimunPassword');
-      document.getElementById('playerEntryStart').disabled=!(name&&email.validity.valid&&pass.value.length>=6);
+      document.getElementById('playerEntryStart').disabled=!(kimunAuthMode&&(kimunAuthMode==='login'||name)&&email.validity.valid&&pass.value.length>=6);
       updateSurnameSuggestions();
     }
     function kimunProgressSnapshot(){const data={};for(const key of KIMUN_PROGRESS_KEYS){const v=localStorage.getItem(key);if(v!==null)data[key]=v;}return data;}
+    // Guardado por cuenta: la nube utiliza las tablas reales de Supabase.
+    let kimunProgressReady=false;
+    let kimunSaveQueued=false;
+    let kimunLastSnapshot='';
+    function kimunLocalOwnerKey(){return 'kimun_local_owner_v1';}
+    function kimunSeparateLocalProgress(userId){
+      const previous=localStorage.getItem(kimunLocalOwnerKey());
+      if(previous!==userId){
+        for(const key of KIMUN_PROGRESS_KEYS)localStorage.removeItem(key);
+        localStorage.setItem(kimunLocalOwnerKey(),userId);
+      }
+    }
     async function kimunSaveProgress(){
-      if(!kimunDb||!kimunCurrentUser||kimunSyncBusy)return;
+      if(!kimunDb||!kimunCurrentUser||!kimunProgressReady)return;
+      if(kimunSyncBusy){kimunSaveQueued=true;return;}
+      const snapshot=kimunProgressSnapshot();
+      const serialized=JSON.stringify(snapshot);
+      if(serialized===kimunLastSnapshot)return;
       kimunSyncBusy=true;
-      try{const {error}=await kimunDb.from('learning_progress').upsert({user_id:kimunCurrentUser.id,progress:kimunProgressSnapshot(),updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)console.warn('Kimün: no se pudo guardar progreso en nube:',error.message);}
-      catch(e){console.warn('Kimün: sincronización pendiente',e);}finally{kimunSyncBusy=false;}
+      try{
+        const {error}=await kimunDb.from('progreso_aprendizaje').upsert({
+          estudiante_id:kimunCurrentUser.id,
+          estado:snapshot,
+          desbloqueos:Object.fromEntries(Object.entries(snapshot).filter(([k])=>k.includes('unlocked')||k.includes('ready'))),
+          actualizado_en:new Date().toISOString()
+        },{onConflict:'estudiante_id'});
+        if(error)throw error;
+        kimunLastSnapshot=serialized;
+      }catch(e){console.warn('Kimün: guardado pendiente:',e.message||e);}
+      finally{
+        kimunSyncBusy=false;
+        if(kimunSaveQueued){kimunSaveQueued=false;void kimunSaveProgress();}
+      }
     }
     async function kimunRestoreProgress(){
       if(!kimunDb||!kimunCurrentUser)return;
-      const {data,error}=await kimunDb.from('learning_progress').select('progress').eq('user_id',kimunCurrentUser.id).maybeSingle();
-      if(error){console.warn('Kimün: no se pudo recuperar progreso:',error.message);return;}
-      if(data?.progress){for(const [key,value] of Object.entries(data.progress)){if(KIMUN_PROGRESS_KEYS.includes(key)&&typeof value==='string')localStorage.setItem(key,value);}}
+      kimunProgressReady=false;
+      kimunSeparateLocalProgress(kimunCurrentUser.id);
+      const {data,error}=await kimunDb.from('progreso_aprendizaje').select('estado').eq('estudiante_id',kimunCurrentUser.id).maybeSingle();
+      if(error){console.warn('Kimün: recuperación fallida:',error.message);throw error;}
+      if(data?.estado&&typeof data.estado==='object'){
+        for(const [key,value] of Object.entries(data.estado)){
+          if(KIMUN_PROGRESS_KEYS.includes(key)&&typeof value==='string')localStorage.setItem(key,value);
+        }
+      }
+      kimunLastSnapshot=JSON.stringify(kimunProgressSnapshot());
+      kimunProgressReady=true;
     }
-    window.addEventListener('pagehide',()=>{if(kimunCurrentUser)kimunSaveProgress();});
-    setInterval(()=>{if(kimunCurrentUser)kimunSaveProgress();},20000);
+    async function kimunEnsureProfile(name){
+      if(!kimunDb||!kimunCurrentUser)return;
+      const displayName=(name||kimunCurrentUser.user_metadata?.display_name||kimunCurrentUser.email?.split('@')[0]||'Estudiante').trim();
+      const {error}=await kimunDb.from('estudiantes').upsert({id:kimunCurrentUser.id,nombre:displayName},{onConflict:'id'});
+      if(error)console.warn('Kimün: perfil pendiente:',error.message);
+    }
+    async function kimunSaveResult(activity,result){
+      if(!kimunDb||!kimunCurrentUser||!kimunProgressReady)return;
+      const {error}=await kimunDb.from('resultados_finales').insert({
+        estudiante_id:kimunCurrentUser.id,actividad:activity,resultado:result,completado_en:new Date().toISOString()
+      });
+      if(error)console.warn('Kimün: resultado pendiente:',error.message);
+    }
+    window.addEventListener('pagehide',()=>{if(kimunCurrentUser)void kimunSaveProgress();});
+    setInterval(()=>{if(kimunCurrentUser)void kimunSaveProgress();},20000);
+    async function kimunCheckAdmin(){
+      const trigger=document.getElementById('kimunAdminTrigger');
+      trigger.hidden=true;
+      if(!kimunDb||!kimunCurrentUser)return;
+      const {data,error}=await kimunDb.rpc('es_administrador');
+      if(!error&&data===true)trigger.hidden=false;
+    }
+    function kimunCloseAdmin(){document.getElementById('kimunAdminPanel').hidden=true;}
+    function kimunAdminNode(tag,txt){const e=document.createElement(tag);e.textContent=String(txt??'');return e;}
+    async function kimunOpenAdmin(){
+      const panel=document.getElementById('kimunAdminPanel'),body=document.getElementById('kimunAdminContent');
+      panel.hidden=false;body.replaceChildren(kimunAdminNode('p','Cargando datos de estudiantes…'));
+      if(!kimunDb||!kimunCurrentUser){body.textContent='Inicia sesión para continuar.';return;}
+      const check=await kimunDb.rpc('es_administrador');
+      if(check.error||check.data!==true){body.textContent='Acceso exclusivo para administradores.';return;}
+      const [students,progress,results]=await Promise.all([
+        kimunDb.from('estudiantes').select('id,nombre,creado_en').order('creado_en',{ascending:false}).limit(1000),
+        kimunDb.from('progreso_aprendizaje').select('estudiante_id,estado,desbloqueos,actualizado_en').limit(1000),
+        kimunDb.from('resultados_finales').select('estudiante_id,actividad,resultado,completado_en').order('completado_en',{ascending:false}).limit(1000)
+      ]);
+      const err=students.error||progress.error||results.error;
+      if(err){body.textContent='No se pudieron cargar los datos: '+err.message;return;}
+      const pMap=new Map(progress.data.map(p=>[p.estudiante_id,p]));
+      const rMap=new Map();for(const r of results.data){if(!rMap.has(r.estudiante_id))rMap.set(r.estudiante_id,[]);rMap.get(r.estudiante_id).push(r);}
+      const now=Date.now(),days=n=>n*86400000;
+      const recent=ms=>results.data.filter(r=>Date.parse(r.completado_en)>=now-ms).length;
+      body.replaceChildren();
+      body.append(kimunAdminNode('p',`Estudiantes: ${students.data.length} · Resultados: ${results.data.length} · Últimos 7 días: ${recent(days(7))} · Últimos 30 días: ${recent(days(30))}`));
+      body.append(kimunAdminNode('p','La actividad semanal y mensual se calcula con resultados registrados, no con sesiones de acceso. Máximo 1000 registros por categoría.'));
+      for(const st of students.data){
+        const box=document.createElement('details');box.className='kimun-admin-student';
+        const sum=kimunAdminNode('summary',st.nombre||'Sin nombre');box.append(sum);
+        const pr=pMap.get(st.id),rs=rMap.get(st.id)||[];
+        box.append(kimunAdminNode('p','Registro: '+(st.creado_en?new Date(st.creado_en).toLocaleDateString('es-CL'):'Sin fecha')));
+        box.append(kimunAdminNode('p','Última actualización: '+(pr?.actualizado_en?new Date(pr.actualizado_en).toLocaleString('es-CL'):'Sin progreso guardado')));
+        box.append(kimunAdminNode('p','Desbloqueos: '+(pr?.desbloqueos?Object.entries(pr.desbloqueos).filter(([,v])=>v==='true'||v===true).map(([k])=>k).join(', ')||'Ninguno':'Ninguno')));
+        box.append(kimunAdminNode('p','Resultados registrados: '+rs.length));
+        for(const r of rs.slice(0,20))box.append(kimunAdminNode('p',`${r.actividad} · ${new Date(r.completado_en).toLocaleDateString('es-CL')} · ${JSON.stringify(r.resultado)}`));
+        body.append(box);
+      }
+    }
     /* Sugerencias de apellidos mapuche: la lista está en apellidos_mapuche.json y se descarga
        solo al tocar el recuadro del nombre, así que no pesa en el index.html.
        Se sugiere a partir de la segunda palabra que se escribe (los apellidos). */
@@ -3505,9 +3620,15 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Abrir o cancelar el formulario no borra la partida vigente.
       const overlay=document.getElementById('playerEntry');
       const input=document.getElementById('playerEntryName');
-      input.value='';validatePlayerName();
+      input.value='';
+      kimunAuthMode=null;
+      document.getElementById('kimunAuthFields').hidden=true;
+      document.getElementById('registerTab').classList.remove('selected');
+      document.getElementById('loginTab').classList.remove('selected');
+      document.getElementById('kimunAuthMessage').textContent='';
+      validatePlayerName();
       overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');
-      input.focus();
+      document.getElementById('registerTab').focus();
     }
     async function confirmNewGame(event) {
       event.preventDefault();
@@ -3516,7 +3637,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const password=document.getElementById('kimunPassword').value;
       const message=document.getElementById('kimunAuthMessage');
       const button=document.getElementById('playerEntryStart');
-      if(!name||!email||password.length<6)return;
+      if(!kimunAuthMode||(kimunAuthMode==='signup'&&!name)||!email||password.length<6)return;
       if(!kimunDb){message.textContent='No se pudo conectar con el servicio de registro. Revisa tu conexión.';return;}
       button.disabled=true;message.textContent='Conectando…';
       try{
@@ -3531,7 +3652,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
           kimunCurrentUser=data.user;
         }
         await kimunRestoreProgress();
-        LEVEL_STATS.name=name;
+        await kimunEnsureProfile(kimunAuthMode==='signup'?name:null);
+        await kimunCheckAdmin();
+        LEVEL_STATS.name=kimunAuthMode==='signup'?name:(kimunCurrentUser?.user_metadata?.display_name||email.split('@')[0]);
         document.getElementById('playerEntry').classList.remove('open');
         document.getElementById('playerEntry').setAttribute('aria-hidden','true');
         startIntroVideo();
@@ -6596,6 +6719,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
       const precision=hits+errors?Math.round(100*hits/(hits+errors)):0;
       let record=score;
       try{record=Math.max(score,Number(localStorage.getItem('cvFunhRecord')||0));localStorage.setItem('cvFunhRecord',String(record));}catch(e){}
+      void kimunSaveResult('Fünh Frutos',{puntos:score,aciertos:hits,errores:errors,precision,tiempo:Math.round(CV.totalTime),rango:precision>=90?'Experto':precision>=70?'Avanzado':'Explorador'});
       const rank=precision>=90?'Experto':precision>=70?'Avanzado':'Explorador';
       const data={cvFinalName:LEVEL_STATS.name||'Jugador',cvFinalRank:rank,cvFinalPoints:score.toLocaleString('es-CL'),cvFinalTime:Math.round(CV.totalTime)+' s',cvFinalHits:hits,cvFinalErrors:errors,cvFinalPrecision:precision+'%',cvFinalRecord:record.toLocaleString('es-CL'),cvFinalRetries:CV.retries};
       const resultsStage=document.querySelector('#funhResults .cv-results-stage');
@@ -6879,7 +7003,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     }
     let snResultTimers=[];
     function snClearResultTimers(){snResultTimers.forEach(clearTimeout);snResultTimers=[];}
-    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();try{cvSound('win');}catch(e){}
+    function snWin(){snStop();snClearResultTimers();snAwardRankTwo();void kimunSaveResult('Salta el número',{aciertos:SN.done,errores:SN.errors,saltos:SN.jumps,monedas:SN.coinCount,record:SN.best});try{cvSound('win');}catch(e){}
       const ov=snEl('snOv');ov.classList.add('sn-result-mode');ov.hidden=false;
       ov.innerHTML='<div class="sn-result-sheet"><img src="./resultado_salta_numero.png" alt="¡Küme zugu! Salta el número completado. Resumen de nueve estadísticas">'+
         ['Name','Rank','Silver','Jumps','Correct','Errors','Accuracy','Record','Retries'].map((key,i)=>
