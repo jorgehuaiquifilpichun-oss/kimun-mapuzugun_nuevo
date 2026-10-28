@@ -10,15 +10,19 @@
 
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; width: 100%; min-height: 100%; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; }
     body { font-family: Arial, Helvetica, sans-serif; background: #183f31; }
 
     #app {
       width: 100%;
       max-width: 480px;
-      min-height: 100dvh;
+      height: 100dvh;
+      min-height: 0;
       margin: 0 auto;
+      position: relative;
       overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
       background: #183f31;
     }
 
@@ -7170,6 +7174,13 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 .cz-node:active{box-shadow:0 2px 0 var(--edge)}
 .cz-node.d{background:var(--grain),radial-gradient(circle at 35% 30%,#ffe08a,#d9a21f);box-shadow:0 8px 0 #7a5a0a}
 .cz-node.l{background:var(--grain),radial-gradient(circle at 35% 30%,#c9bda8,#8b8372);box-shadow:0 8px 0 #5d5646}
+</style>
+<style id="czFixCss">
+/* Pantalla fija: ancho máximo 480 px y alto exacto de la pantalla visible; sin mover la página */
+.cz{max-width:480px}
+.cz-ls,.cz-res{top:0;left:0;right:0;bottom:auto;height:100dvh;max-width:480px;margin:0 auto;overflow:hidden;overscroll-behavior:none}
+.cz-bd{min-height:0;overscroll-behavior:contain}
+.cz-res{overflow-y:auto;overscroll-behavior:contain;justify-content:center;justify-content:safe center}
 </style>
 <style id="czTxCss">
 .cz-tx{width:min(30vw,112px);aspect-ratio:264/394;display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
