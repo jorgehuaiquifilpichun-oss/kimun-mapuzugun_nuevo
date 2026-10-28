@@ -7171,6 +7171,11 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 .cz-node.d{background:var(--grain),radial-gradient(circle at 35% 30%,#ffe08a,#d9a21f);box-shadow:0 8px 0 #7a5a0a}
 .cz-node.l{background:var(--grain),radial-gradient(circle at 35% 30%,#c9bda8,#8b8372);box-shadow:0 8px 0 #5d5646}
 </style>
+<style id="czTxCss">
+.cz-tx{width:min(30vw,112px);aspect-ratio:264/394;display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
+.cz-tx .cz-mas.big{width:100%;height:auto}
+.cz-txc{display:block;width:100%;height:100%;cursor:pointer;-webkit-tap-highlight-color:transparent}
+</style>
 <script id="czJs">
 (function(){
 const C=[['Liq','Blanco','#ffffff','☁️','liq'],['Kelü','Rojo','#d62828','🌺','kelu'],['Kelüchoz','Naranjo','#f77f00','🍊','keluchoz'],['Choz','Amarillo','#ffd60a','🌻','choz'],['Karü','Verde','#2a9d3f','🌲','karu'],['Kolü','Café','#7b4a1e','🪵','kolu'],['Kallfü','Azul','#1d4ed8','💧','kallfu'],['Awawe','Morado','#8e44ad','🍇','awawe'],['Kurü','Negro','#161616','🌑','kuru'],['Palaw kolü','Rosado','#f472b6','🌸','palawkolu'],['Kazü','Gris','#8a8a8a','🪨','kazu'],['Payne','Celeste','#4cc9f0','🌤️','payne'],['Milla','Dorado','#d4a017','✨','milla'],['Liqen','Plateado','#c0c0c8','🥈','liqen']].map(a=>({n:a[0],es:a[1],h:a[2],e:a[3],s:a[4]}));
@@ -7191,6 +7196,24 @@ win:()=>[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,i*.12,.32,'triang
 function say(c){try{speechSynthesis.cancel()}catch(e){}const a=new Audio('./color_audio_'+c.s+'.mp3');let f=0;const fb=()=>{if(f++)return;try{const u=new SpeechSynthesisUtterance(c.n);u.lang='es-CL';u.rate=.75;speechSynthesis.speak(u)}catch(e){}};a.onerror=fb;const p=a.play();if(p&&p.catch)p.catch(fb)}
 function confetti(){const w=document.createElement('div');w.className='cz-conf';const pal=C.filter(c=>c.h!=='#ffffff'&&c.h!=='#161616');for(let i=0;i<54;i++){const p=document.createElement('i');p.style.cssText='left:'+Math.random()*100+'%;background:'+R(pal).h+';--dx:'+(Math.random()-.5)*180+'px;animation-delay:'+Math.random()*.4+'s;animation-duration:'+(1.4+Math.random())+'s';w.appendChild(p)}document.body.appendChild(w);tm(()=>w.remove(),3000)}
 const MAS='<img class="cz-mas" src="./overlay_nhewen_txegul_v1.png" alt="" onerror="this.outerHTML=\'<span class=cz-mas>🐦</span>\'">';
+/* Animación de Txegül al terminar cada lección: video pequeño con fondo verde quitado en Canvas */
+let TXV=null;
+function txPrep(){if(TXV)return;try{const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.src='./txegul_tambor_colores.mp4';v.load();TXV=v}catch(e){}}
+function txPlay(box){
+ if(!box||(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches))return;
+ txPrep();const v=TXV;if(!v)return;
+ const W=264,H=394,cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+ cv.width=W;cv.height=H;cv.className='cz-txc';cv.setAttribute('role','img');cv.setAttribute('aria-label','Txegül celebra tocando el kultrun');
+ let id=0,shown=0,fail=0;
+ const draw=()=>{if(v.readyState<2||fail)return;try{cx.clearRect(0,0,W,H);cx.drawImage(v,0,0,W,H);const f=cx.getImageData(0,0,W,H),a=f.data;
+  for(let i=0;i<a.length;i+=4){const r=a[i],g=a[i+1],b=a[i+2],m=r>b?r:b,ex=g-m;
+   if(ex>18&&g>r*1.1){const q=ex>=55?1:(ex-18)/37;a[i+3]=Math.round(255*(1-q));if(q<1)a[i+1]=Math.round(m+ex*(1-q)*.4)}}
+  cx.putImageData(f,0,0);if(!shown){shown=1;box.replaceChildren(cv)}}catch(e){fail=1}};
+ const loop=n=>{if(n!==id||fail||v.error)return;if(!box.isConnected){v.pause();return}draw();if(v.ended)return;
+  if(v.requestVideoFrameCallback)v.requestVideoFrameCallback(()=>loop(n));else requestAnimationFrame(()=>loop(n))};
+ const run=()=>{id++;try{v.currentTime=0}catch(e){}const p=v.play();if(p&&p.catch)p.catch(()=>{});loop(id)};
+ v.onended=()=>{if(box.isConnected)draw()};
+ cv.onclick=run;run()}
 function stop(){T.forEach(t=>{clearTimeout(t);clearInterval(t)});T=[];try{faStopAudio();faStopFx()}catch(e){}document.querySelectorAll('.cz-ls,.cz-res,.cz-conf').forEach(e=>e.remove());inLs=0;try{speechSynthesis.cancel()}catch(e){}}
 window.czStop=stop;
 function head(t,s){$('czT').textContent=t;$('czS').textContent=s}
@@ -7205,7 +7228,7 @@ function build(k){const learned=k===LS.length-1?C:C.slice(0,k*3+3),cs=k===LS.len
  const ex=[];(k===LS.length-1?S(C):cs).forEach((c,i)=>{ex.push({t:ty[i%4],c});ex.push({t:R(ty),c})});if(k===LS.length-1)ex.length=10;
  const pr=S(learned.length>=4?learned:learned.concat(S(C.filter(x=>!learned.includes(x))))).slice(0,4);ex.push({t:'pairs',cs:pr});if(k===LS.length-1)ex.push({t:'pairs',cs:S(C).slice(0,4)});
  return{Q:Q.concat(S(ex.filter(e=>e.t!=='pairs')),ex.filter(e=>e.t==='pairs')),pool:learned}}
-function lesson(k){stop();inLs=1;const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=3,combo=0,xp=0,errs=0,cur=null;
+function lesson(k){stop();inLs=1;txPrep();const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=3,combo=0,xp=0,errs=0,cur=null;
  const d=document.createElement('div');d.className='cz-ls';d.innerHTML='<div class="cz-lt"><button class="cz-x" aria-label="Salir">✕</button><div class="cz-pg"><i id="pgi"></i></div><span class="cz-hr" id="hr"></span></div><div class="cz-bd" id="bd"></div><div class="cz-bar2" id="bar"></div>';document.body.appendChild(d);
  const hud=()=>{$('hr').textContent='❤️ '+hearts;$('pgi').style.width=Math.min(100,done/total*100)+'%'};
  d.querySelector('.cz-x').onclick=hub;
@@ -7242,7 +7265,7 @@ function lesson(k){stop();inLs=1;const B=build(k);let Q=B.Q,pool=B.pool,total=Q.
   $('go').onclick=()=>{fx.pop();nx()}}
  function fin(){const st=errs<=1?3:errs<=3?2:1,td=new Date().toISOString().slice(0,10),y=new Date(Date.now()-864e5).toISOString().slice(0,10);
   if(P.last!==td){P.streak=P.last===y?P.streak+1:1;P.last=td}P.xp+=xp;P.done[k]=Math.max(P.done[k]||0,st);save();confetti();fx.win();vib([40,30,40,30,120]);
-  const r=document.createElement('div');r.className='cz-res';r.innerHTML=MAS.replace('cz-mas','cz-mas big')+'<h3>¡Lección completa!</h3><div class="st">'+'★'.repeat(st)+'<u>'+'★'.repeat(3-st)+'</u></div><div class="cz-kp"><div>⭐ '+xp+'<small>XP</small></div><div>🔥 '+P.streak+'<small>RACHA</small></div><div>❤️ '+hearts+'<small>VIDAS</small></div></div><div style="width:100%;max-width:340px"><button class="cz-go" id="rm">Continuar</button></div>';document.body.appendChild(r);$('rm').onclick=hub}
+  const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div class="cz-tx">'+MAS.replace('cz-mas','cz-mas big')+'</div><h3>¡Lección completa!</h3><div class="st">'+'★'.repeat(st)+'<u>'+'★'.repeat(3-st)+'</u></div><div class="cz-kp"><div>⭐ '+xp+'<small>XP</small></div><div>🔥 '+P.streak+'<small>RACHA</small></div><div>❤️ '+hearts+'<small>VIDAS</small></div></div><div style="width:100%;max-width:340px"><button class="cz-go" id="rm">Continuar</button></div>';document.body.appendChild(r);$('rm').onclick=hub;txPlay(r.querySelector('.cz-tx'))}
  function fail(){fx.lose();const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div style="font-size:80px">💔</div><h3>Te quedaste sin vidas</h3><p>¡No pasa nada! Repasa y vuelve a intentarlo.</p><div style="width:100%;max-width:340px"><button class="cz-go" id="rr">Intentar de nuevo</button><br><br><button class="cz-go b" id="rx">Salir</button></div>';document.body.appendChild(r);$('rr').onclick=()=>lesson(k);$('rx').onclick=hub}
  hud();nx()}
 
