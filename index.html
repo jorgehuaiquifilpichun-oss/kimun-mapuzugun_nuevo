@@ -1673,7 +1673,7 @@
     @media(prefers-reduced-motion:reduce){.fp-cell.fp-wrong,.fp-cell.fp-hint,.fp-mark i,.fp-next.fp-ready{animation:none}}
 
 
-    #kimunAdminTrigger:not([hidden]){position:fixed;right:12px;bottom:12px;z-index:240;border:2px solid #d7e9b0;border-radius:30px;padding:10px 14px;background:#205f3b;color:white;font-weight:bold;cursor:pointer}
+    #kimunAdminTrigger[hidden]{display:none!important}
     #kimunAdminPanel:not([hidden]){position:fixed;inset:0;z-index:300;overflow:auto;padding:18px;max-width:700px;margin:auto;background:#f7f0df;color:#263b2b;font:15px/1.45 Arial,sans-serif}
     .kimun-admin-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
     .kimun-admin-head h2{font-size:1.2rem}.kimun-admin-head button{padding:10px;border:0;border-radius:8px;background:#285f35;color:white}
@@ -2844,6 +2844,7 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
           <a class="consult-option" href="./diccionario_mapuche.pdf" target="_blank" rel="noopener">Diccionario Mapuche</a>
           <button class="consult-option" type="button" onclick="openGrammarFromConsult()">Apoyo — Guías de Gramática</button>
           <button class="consult-option" type="button" onclick="openRakinNumbers()">Números del 1–40</button>
+          <button id="kimunAdminTrigger" class="consult-option" type="button" hidden onclick="kimunOpenAdmin()" aria-label="Abrir panel de administración">Administración</button>
         </div>
         <button class="consult-back consult-back-image" type="button" onclick="showScreen(consultOrigin)" aria-label="Wiñotxekage — Volver atrás">
           <img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás">
@@ -2920,7 +2921,6 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     </form>
   </div>
 
-  <button id="kimunAdminTrigger" type="button" hidden onclick="kimunOpenAdmin()" aria-label="Abrir panel de administración">Administración</button>
   <section id="kimunAdminPanel" hidden role="dialog" aria-modal="true" aria-label="Panel de administración de Kimün">
     <div class="kimun-admin-head"><h2>Administración · Kimün Mapuzungun</h2><button type="button" onclick="kimunCloseAdmin()">Cerrar</button></div>
     <div id="kimunAdminContent" aria-live="polite"></div>
@@ -7125,6 +7125,52 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
     <img src="./tregul.png" alt="¡Küme zugu!">
   </div>
 
+<style id="czWood">
+/* TEMA MADERA — variables ajustables (ver modelo_ejercicios.html) */
+.cz-ls,.cz-res,#coloresAz{
+--w-a:#f3dcb0;--w-b:#e2b878;--h-a:#a8541c;--h-b:#6e3210;--edge:#3b1d0a;
+--btn-a:#f7d9a0;--btn-b:#e6b56a;--btn-ink:#4a210a;--fill-a:#f7c862;--fill-b:#d98d2b;--glow:#ffc83a;
+--bar-h:11px;--btn-h:56px;--gap:19px;--ink:#3b2310;
+--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.38' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .42 0 0 0 0 .22 0 0 0 0 .06 1.6 0 0 0 -.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+--planks:repeating-linear-gradient(180deg,transparent 0 118px,rgba(90,45,12,.28) 118px 120px);}
+.cz-ls,.cz-res,#coloresAz{background:var(--grain),var(--planks),linear-gradient(var(--w-a),var(--w-b));background-size:360px 360px,auto,auto;color:var(--ink)}
+.cz-lt{background:var(--grain),linear-gradient(var(--h-a),var(--h-b));border-bottom:4px solid var(--edge);box-shadow:0 4px 0 #0003;padding:10px 14px;color:#fff3d6}
+.cz-x{width:40px;height:40px;padding:0;line-height:1;border-radius:50%;border:3px solid var(--edge);background:var(--grain),radial-gradient(circle at 35% 30%,#f2b36a,#b8651f);color:var(--edge);font-size:18px;font-weight:900;box-shadow:0 3px 0 #0006}
+.cz-pg{height:calc(var(--bar-h) + 6px);background:linear-gradient(#2a1306,#4a230c);border:3px solid #2a1306;border-radius:6px;box-shadow:inset 0 3px 6px #000a,0 1px 0 #e0b25a88}
+.cz-pg i{border-radius:2px;border-right:3px solid #7a3a12;background:repeating-linear-gradient(135deg,rgba(255,240,200,.3) 0 7px,transparent 7px 14px),linear-gradient(var(--fill-a),var(--fill-b));box-shadow:inset 0 2px 0 #fff6,inset 0 -3px 0 #0003}
+.cz-pg i:after{display:none}
+.cz-hr{background:rgba(0,0,0,.3);border:2px solid #e0b25a;border-radius:12px;padding:3px 10px;color:#ffe3d6}
+.cz-bd h3{color:var(--ink);text-shadow:0 1px 0 #fff7}
+.cz-big{display:block;margin:10px auto;width:min(78%,300px);filter:drop-shadow(0 8px 6px #0004);animation:czin .5s}.cz-big.sm{width:min(52%,200px)}
+.cz-nm{display:block;margin:6px auto;width:min(66%,260px);filter:drop-shadow(0 5px 4px #0003)}
+.cz-op,.cz-pr{gap:var(--gap)}.cz-pr{gap:var(--gap) 14px}
+.cz-op button.nm{background-color:transparent;background-repeat:no-repeat;background-position:center;background-size:contain;border:0;border-radius:0;padding:0;min-height:0;aspect-ratio:8/3;font-size:0;color:transparent;-webkit-tap-highlight-color:transparent;transition:transform .1s,filter .12s}
+.cz-op button.nm:active{transform:scale(.97)}
+.cz-op button.sw.sel,.cz-op button.nm.sel,.cz-pr button.sw.sel,.cz-pr button.nm.sel{background-color:transparent;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px var(--glow))}
+.cz-op button.nm.ok{border:0;box-shadow:none;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px #2a9d3f)}
+.cz-op button.nm.no{border:0;filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px #d62828)}
+.cz-op button.sw.ok{filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px #2a9d3f)}
+.cz-op button.sw.no{filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 10px #d62828)}
+.cz-aud{border:4px solid var(--edge);background:var(--grain),radial-gradient(circle at 35% 30%,#f2a24e,#b8561a);box-shadow:0 6px 0 #5a2a0c}.cz-aud:active{box-shadow:0 2px 0 #5a2a0c}
+.cz-ans{background:rgba(60,28,8,.12);border-radius:10px;border-bottom:4px solid #7a3a12}
+.cz-t{border:3px solid #5a2a0c;border-bottom-width:7px;border-radius:10px;color:#4a210a;text-shadow:0 1px 0 #ffe5b8aa,0 -1px 0 #0003;background:var(--grain),repeating-linear-gradient(90deg,transparent 0 9px,rgba(90,45,12,.10) 9px 10px),linear-gradient(#e9b878,#c98a45);box-shadow:inset 0 2px 0 #fff6,inset 0 -3px 0 #0002,0 2px 0 #0004}.cz-t:active{transform:translateY(3px);border-bottom-width:4px}
+.cz-bar2{background:var(--grain),linear-gradient(var(--h-a),var(--h-b));border-top:5px solid var(--edge);box-shadow:inset 0 3px 0 #e0a25a88}
+.cz-bar2.g{background:var(--grain),linear-gradient(#5aa04a,#2f6f2a)}.cz-bar2.b{background:var(--grain),linear-gradient(#c44a3a,#8a2418)}
+.cz-bar2.g .cz-fb,.cz-bar2.b .cz-fb{color:#fff7e0;text-shadow:0 1px 0 #0006}
+.cz-go{height:var(--btn-h);border:3px solid var(--edge);border-radius:14px;background:var(--grain),linear-gradient(var(--btn-a),var(--btn-b));color:var(--btn-ink);text-shadow:0 1px 0 #fff8;box-shadow:0 5px 0 #2a1306}
+.cz-go:disabled{background:linear-gradient(#a58a64,#8a7048);color:#5a4630;box-shadow:0 5px 0 #2a1306;opacity:.9}
+.cz-go:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #2a1306}
+.cz-go.b{background:var(--grain),linear-gradient(#ffc2b3,#ea7a63);color:#4a0d05;box-shadow:0 5px 0 #2a1306}
+.cz-res .st u{color:#a58a64}
+.cz-kp div{border:3px solid #7a3a12;background:var(--grain),linear-gradient(var(--btn-a),var(--btn-b))}
+.cz-top{background:var(--grain),linear-gradient(var(--h-a),var(--h-b))}
+.cz-stats span{background:var(--grain),linear-gradient(var(--btn-a),var(--btn-b))}
+.cz-unit{background:var(--grain),linear-gradient(var(--h-a),var(--h-b));border:3px solid #e0b25a;box-shadow:0 5px 0 var(--edge)}
+.cz-node{border:4px solid var(--edge);background:var(--grain),radial-gradient(circle at 35% 30%,#f2a24e,#b8561a);box-shadow:0 8px 0 var(--edge)}
+.cz-node:active{box-shadow:0 2px 0 var(--edge)}
+.cz-node.d{background:var(--grain),radial-gradient(circle at 35% 30%,#ffe08a,#d9a21f);box-shadow:0 8px 0 #7a5a0a}
+.cz-node.l{background:var(--grain),radial-gradient(circle at 35% 30%,#c9bda8,#8b8372);box-shadow:0 8px 0 #5d5646}
+</style>
 <script id="czJs">
 (function(){
 const C=[['Liq','Blanco','#ffffff','☁️','liq'],['Kelü','Rojo','#d62828','🌺','kelu'],['Kelüchoz','Naranjo','#f77f00','🍊','keluchoz'],['Choz','Amarillo','#ffd60a','🌻','choz'],['Karü','Verde','#2a9d3f','🌲','karu'],['Kolü','Café','#7b4a1e','🪵','kolu'],['Kallfü','Azul','#1d4ed8','💧','kallfu'],['Awawe','Morado','#8e44ad','🍇','awawe'],['Kurü','Negro','#161616','🌑','kuru'],['Palaw kolü','Rosado','#f472b6','🌸','palawkolu'],['Kazü','Gris','#8a8a8a','🪨','kazu'],['Payne','Celeste','#4cc9f0','🌤️','payne'],['Milla','Dorado','#d4a017','✨','milla'],['Liqen','Plateado','#c0c0c8','🥈','liqen']].map(a=>({n:a[0],es:a[1],h:a[2],e:a[3],s:a[4]}));
@@ -7157,25 +7203,25 @@ function hub(){stop();head('Fillke Az','Los colores en mapuzungun');const dn=k=>
 function build(k){const learned=k===LS.length-1?C:C.slice(0,k*3+3),cs=k===LS.length-1?C:C.slice(k*3,k*3+3),Q=[],ty=['l2s','n2s','s2n','let'];
  if(k<4)cs.forEach(c=>Q.push({t:'intro',c}));
  const ex=[];(k===LS.length-1?S(C):cs).forEach((c,i)=>{ex.push({t:ty[i%4],c});ex.push({t:R(ty),c})});if(k===LS.length-1)ex.length=10;
- const pr=S(learned).slice(0,k===0?3:4);ex.push({t:'pairs',cs:pr});if(k===LS.length-1)ex.push({t:'pairs',cs:S(C).slice(0,4)});
+ const pr=S(learned.length>=4?learned:learned.concat(S(C.filter(x=>!learned.includes(x))))).slice(0,4);ex.push({t:'pairs',cs:pr});if(k===LS.length-1)ex.push({t:'pairs',cs:S(C).slice(0,4)});
  return{Q:Q.concat(S(ex.filter(e=>e.t!=='pairs')),ex.filter(e=>e.t==='pairs')),pool:learned}}
 function lesson(k){stop();inLs=1;const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=3,combo=0,xp=0,errs=0,cur=null;
  const d=document.createElement('div');d.className='cz-ls';d.innerHTML='<div class="cz-lt"><button class="cz-x" aria-label="Salir">✕</button><div class="cz-pg"><i id="pgi"></i></div><span class="cz-hr" id="hr"></span></div><div class="cz-bd" id="bd"></div><div class="cz-bar2" id="bar"></div>';document.body.appendChild(d);
  const hud=()=>{$('hr').textContent='❤️ '+hearts;$('pgi').style.width=Math.min(100,done/total*100)+'%'};
  d.querySelector('.cz-x').onclick=hub;
- const opts=c=>S([c,...S(pool.filter(x=>x!==c)).slice(0,Math.min(3,pool.length-1))]);
+ const opts=c=>S([c,...S(pool.filter(x=>x!==c)).concat(S(C.filter(x=>x!==c&&!pool.includes(x)))).slice(0,3)]);
  const shk=el=>{el.classList.remove('cz-shake');void el.offsetWidth;el.classList.add('cz-shake')};
- function choice(prompt,list,right,sw){const b=$('bd');b.innerHTML=prompt+'<div class="cz-op">'+list.map(c=>'<button data-n="'+c.n+'"'+(sw?' class="sw" style="background-image:url(./color_'+c.s+'.png)" aria-label="color"':'')+'>'+(sw?'':c.es)+'</button>').join('')+'</div>';let sel=null;
+ function choice(prompt,list,right,sw){const b=$('bd');b.innerHTML=prompt+'<div class="cz-op">'+list.map(c=>'<button data-n="'+c.n+'"'+(sw===1?' class="sw" style="background-image:url(./color_'+c.s+'.png)" aria-label="color"':sw===2?' class="nm" style="background-image:url(./letrero_'+c.s+'.png)" aria-label="'+c.n+'"':'')+'>'+(sw===1?'':sw===2?c.n:c.es)+'</button>').join('')+'</div>';let sel=null;
   b.querySelectorAll('.cz-op button').forEach(x=>x.onclick=()=>{b.querySelectorAll('.sel').forEach(y=>y.classList.remove('sel'));x.classList.add('sel');sel=x;fx.tap();$('ck').disabled=false});
   cur={ok:()=>sel&&sel.dataset.n===right.n,mark:g=>{b.querySelectorAll('.cz-op button').forEach(x=>{if(x.dataset.n===right.n)x.classList.add('ok');else if(x===sel&&!g)x.classList.add('no')})},ans:right.n+' = '+right.es,chk:1}}
  const R_={
- intro(e){const c=e.c;$('bd').innerHTML='<h3>Nuevo color</h3><div class="cz-sp" style="background:'+c.h+'">'+c.e+'</div><div class="cz-w">'+c.n+'</div><div style="font-size:20px;opacity:.8">'+c.es+'</div><button class="cz-aud" aria-label="Escuchar">🔊</button>';
+ intro(e){const c=e.c;$('bd').innerHTML='<h3>Nuevo color</h3><img class="cz-big" src="./color_'+c.s+'.png" alt="'+c.es+'"><img class="cz-nm" src="./letrero_'+c.s+'.png" alt="'+c.n+'"><div style="font-size:20px;opacity:.85">'+c.e+' '+c.es+'</div><button class="cz-aud" aria-label="Escuchar">🔊</button>';
   const p=()=>say(c);$('bd').querySelector('.cz-aud').onclick=p;tm(p,350);cur={intro:1}},
  l2s(e){choice('<h3>Toca el color que escuchas</h3><button class="cz-aud" aria-label="Escuchar">🔊</button>',opts(e.c),e.c,1);const p=()=>say(e.c);$('bd').querySelector('.cz-aud').onclick=p;tm(p,300)},
- n2s(e){choice('<h3>¿Cuál es <span style="color:#a8541c">'+e.c.n+'</span>?</h3>',opts(e.c),e.c,1)},
- s2n(e){const c=e.c;choice('<h3>¿Cómo se dice este color?</h3><div class="cz-sp" style="background:'+c.h+'"></div>',opts(c),c,0);$('bd').querySelectorAll('.cz-op button').forEach(x=>x.textContent=x.dataset.n)},
+ n2s(e){choice('<h3>¿Cuál es <span style="color:#7a2e08">'+e.c.n+'</span>?</h3>',opts(e.c),e.c,1)},
+ s2n(e){const c=e.c;choice('<h3>¿Cómo se dice este color?</h3><img class="cz-big" src="./color_'+c.s+'.png" alt="color">',opts(c),c,2)},
  let(e){const c=e.c,L=[...c.n.replace(/ /g,'')],ex=[...'aeiouüñkrlnpdmsfgwchz'].filter(x=>!L.includes(x)),tl=S([...L,...S(ex).slice(0,2)].map((ch,i)=>({ch,i}))),an=[];
-  $('bd').innerHTML='<h3>Escribe «'+c.es+'» en mapuzungun</h3><div class="cz-sp" style="width:90px;height:90px;font-size:38px;background:'+c.h+'">'+c.e+'</div><div class="cz-ans" id="an"></div><div class="cz-tl" id="tl"></div>';
+  $('bd').innerHTML='<h3>Escribe «'+c.es+'» en mapuzungun</h3><img class="cz-big sm" src="./color_'+c.s+'.png" alt="'+c.es+'"><div class="cz-ans" id="an"></div><div class="cz-tl" id="tl"></div>';
   const dr=()=>{$('an').innerHTML=an.map((t,j)=>'<button class="cz-t" data-j="'+j+'">'+t.ch+'</button>').join('');$('tl').innerHTML=tl.map(t=>'<button class="cz-t'+(an.includes(t)?' u':'')+'" data-i="'+t.i+'">'+t.ch+'</button>').join('');$('ck').disabled=!an.length;
    $('an').querySelectorAll('button').forEach(b=>b.onclick=()=>{an.splice(+b.dataset.j,1);fx.tap();dr()});$('tl').querySelectorAll('button').forEach(b=>b.onclick=()=>{const t=tl.find(x=>x.i===+b.dataset.i);if(an.includes(t))return;an.push(t);fx.tap();dr()})};dr();
   cur={ok:()=>an.map(t=>t.ch).join('').toLowerCase()===c.n.replace(/ /g,'').toLowerCase(),mark:()=>{},ans:c.n,chk:1}},
@@ -7219,7 +7265,7 @@ function explore(){document.querySelectorAll('.fa-ls').forEach(e=>e.remove());fa
   hit+='<polygon class="fa-z" data-i="'+i+'" points="'+z.p+'" role="button" aria-label="'+z.n+'"/>'});
  const d=document.createElement('div');d.className='cz-ls fa-ls';
  d.innerHTML='<div class="fa-main"><div class="fa-stage"><img src="./fillke_az_colores_v2.png" alt="Txegül soplando los colores" draggable="false"><svg viewBox="0 0 941 1672" preserveAspectRatio="xMidYMid meet"><defs>'+df+'</defs>'+fx+hit+'</svg></div></div><div class="fa-bar"><button class="cz-back" type="button" aria-label="Wiñotxekage, volver"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="cz-go" type="button">Continuar</button></div>';
- const adm=document.getElementById('kimunAdminTrigger');if(adm&&!adm.hidden)d.classList.add('fa-adm');
+
  document.body.appendChild(d);
  d.querySelectorAll('.fa-z').forEach(p=>p.addEventListener('pointerdown',e=>{e.preventDefault();faPlay(+p.dataset.i)}));
  d.querySelector('.cz-back').onclick=()=>{faStopAudio();showScreen('activityMap')};
