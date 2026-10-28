@@ -1716,6 +1716,12 @@
 .cz-op button.sel{border-color:#1d9bf0;background:#e3f3ff}.cz-op button.ok{border-color:#2a9d3f;box-shadow:0 0 0 4px #2a9d3f55}.cz-op button.no{border-color:#d62828;animation:czs .35s}
 .cz-op button.sw{border-color:#3b2310}.cz-op button.sw.sel{outline:5px solid #1d9bf0}
 .cz-pr{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin-top:10px}.cz-pr button{min-height:64px;border:3px solid #cfc3aa;border-bottom-width:6px;border-radius:14px;background:#fff;font:900 18px Arial;cursor:pointer;color:#3b2310}.cz-pr button.sel{border-color:#1d9bf0;background:#e3f3ff}.cz-pr button.m{opacity:.45;pointer-events:none}.cz-pr button.sw{border-color:#3b2310}
+/* Botones con marco de madera (letreros y colores) */
+.cz-op button.sw,.cz-pr button.sw,.cz-pr button.nm{background-color:transparent;background-repeat:no-repeat;background-position:center;background-size:contain;border:0;border-radius:0;padding:0;min-height:0;aspect-ratio:8/3;font-size:0;color:transparent;-webkit-tap-highlight-color:transparent;transition:transform .1s,filter .12s}
+.cz-op button.sw:active,.cz-pr button.sw:active,.cz-pr button.nm:active{transform:scale(.97)}
+.cz-op button.sw.sel,.cz-pr button.sw.sel,.cz-pr button.nm.sel{background-color:transparent;outline:0;filter:drop-shadow(0 0 3px #1d9bf0) drop-shadow(0 0 9px #1d9bf0)}
+.cz-op button.sw.ok{box-shadow:none;filter:drop-shadow(0 0 3px #2a9d3f) drop-shadow(0 0 9px #2a9d3f)}
+.cz-op button.sw.no{filter:drop-shadow(0 0 3px #d62828) drop-shadow(0 0 9px #d62828)}
 .cz-ans{min-height:64px;border-bottom:3px solid #cfc3aa;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:8px;margin:12px 0}.cz-tl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .cz-t{min-width:48px;height:52px;border:3px solid #cfc3aa;border-bottom-width:6px;border-radius:12px;background:#fff;font:900 24px Arial;cursor:pointer;color:#3b2310;animation:czin .25s}.cz-t.u{visibility:hidden}
 .cz-bar2{padding:14px 18px 22px;border-top:2px solid #e8dcc3;transition:background .25s}.cz-bar2.g{background:#d9f7dc}.cz-bar2.b{background:#fde0de}
@@ -7123,6 +7129,7 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 (function(){
 const C=[['Liq','Blanco','#ffffff','☁️','liq'],['Kelü','Rojo','#d62828','🌺','kelu'],['Kelüchoz','Naranjo','#f77f00','🍊','keluchoz'],['Choz','Amarillo','#ffd60a','🌻','choz'],['Karü','Verde','#2a9d3f','🌲','karu'],['Kolü','Café','#7b4a1e','🪵','kolu'],['Kallfü','Azul','#1d4ed8','💧','kallfu'],['Awawe','Morado','#8e44ad','🍇','awawe'],['Kurü','Negro','#161616','🌑','kuru'],['Palaw kolü','Rosado','#f472b6','🌸','palawkolu'],['Kazü','Gris','#8a8a8a','🪨','kazu'],['Payne','Celeste','#4cc9f0','🌤️','payne'],['Milla','Dorado','#d4a017','✨','milla'],['Liqen','Plateado','#c0c0c8','🥈','liqen']].map(a=>({n:a[0],es:a[1],h:a[2],e:a[3],s:a[4]}));
 const LS=[['Primeros colores','Liq · Kelü · Kelüchoz','🎨'],['Sol y bosque','Choz · Karü · Kolü','🌲'],['Cielo y noche','Kallfü · Awawe · Kurü','🌌'],['Flor y piedra','Palaw kolü · Kazü · Payne','🌸'],['Metales','Milla · Liqen','✨'],['Gran repaso','Los 14 colores','🏆']];
+C.forEach(c=>{['color_','letrero_'].forEach(p=>{const i=new Image();i.src='./'+p+c.s+'.png'})});
 const $=id=>document.getElementById(id),R=a=>a[Math.floor(Math.random()*a.length)],S=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
 const ink=h=>{const v=parseInt(h.slice(1),16);return(((v>>16)*299+((v>>8)&255)*587+(v&255)*114)/1000)>150?'#2a1608':'#fff'};
 const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
@@ -7158,7 +7165,7 @@ function lesson(k){stop();inLs=1;const B=build(k);let Q=B.Q,pool=B.pool,total=Q.
  d.querySelector('.cz-x').onclick=hub;
  const opts=c=>S([c,...S(pool.filter(x=>x!==c)).slice(0,Math.min(3,pool.length-1))]);
  const shk=el=>{el.classList.remove('cz-shake');void el.offsetWidth;el.classList.add('cz-shake')};
- function choice(prompt,list,right,sw){const b=$('bd');b.innerHTML=prompt+'<div class="cz-op">'+list.map(c=>'<button data-n="'+c.n+'"'+(sw?' class="sw" style="background:'+c.h+'" aria-label="color"':'')+'>'+(sw?'':c.es)+'</button>').join('')+'</div>';let sel=null;
+ function choice(prompt,list,right,sw){const b=$('bd');b.innerHTML=prompt+'<div class="cz-op">'+list.map(c=>'<button data-n="'+c.n+'"'+(sw?' class="sw" style="background-image:url(./color_'+c.s+'.png)" aria-label="color"':'')+'>'+(sw?'':c.es)+'</button>').join('')+'</div>';let sel=null;
   b.querySelectorAll('.cz-op button').forEach(x=>x.onclick=()=>{b.querySelectorAll('.sel').forEach(y=>y.classList.remove('sel'));x.classList.add('sel');sel=x;fx.tap();$('ck').disabled=false});
   cur={ok:()=>sel&&sel.dataset.n===right.n,mark:g=>{b.querySelectorAll('.cz-op button').forEach(x=>{if(x.dataset.n===right.n)x.classList.add('ok');else if(x===sel&&!g)x.classList.add('no')})},ans:right.n+' = '+right.es,chk:1}}
  const R_={
@@ -7173,7 +7180,7 @@ function lesson(k){stop();inLs=1;const B=build(k);let Q=B.Q,pool=B.pool,total=Q.
    $('an').querySelectorAll('button').forEach(b=>b.onclick=()=>{an.splice(+b.dataset.j,1);fx.tap();dr()});$('tl').querySelectorAll('button').forEach(b=>b.onclick=()=>{const t=tl.find(x=>x.i===+b.dataset.i);if(an.includes(t))return;an.push(t);fx.tap();dr()})};dr();
   cur={ok:()=>an.map(t=>t.ch).join('').toLowerCase()===c.n.replace(/ /g,'').toLowerCase(),mark:()=>{},ans:c.n,chk:1}},
  pairs(e){const cs=e.cs,ln=S(cs),rs=S(cs);let a=null,left=cs.length;
-  $('bd').innerHTML='<h3>Une cada nombre con su color</h3><div class="cz-pr">'+ln.map((c,i)=>'<button data-s="n" data-k="'+c.n+'">'+c.n+'</button><button class="sw" data-s="c" data-k="'+rs[i].n+'" style="background:'+rs[i].h+'" aria-label="color"></button>').join('')+'</div>';
+  $('bd').innerHTML='<h3>Une cada nombre con su color</h3><div class="cz-pr">'+ln.map((c,i)=>'<button class="nm" data-s="n" data-k="'+c.n+'" style="background-image:url(./letrero_'+c.s+'.png)" aria-label="'+c.n+'">'+c.n+'</button><button class="sw" data-s="c" data-k="'+rs[i].n+'" style="background-image:url(./color_'+rs[i].s+'.png)" aria-label="color"></button>').join('')+'</div>';
   const bs=[...$('bd').querySelectorAll('.cz-pr button')];bs.forEach(b=>b.onclick=()=>{if(b.classList.contains('m'))return;fx.tap();
    if(!a||a.dataset.s===b.dataset.s){bs.filter(x=>x.dataset.s===b.dataset.s).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');a=b;return}
    if(a.dataset.k===b.dataset.k){[a,b].forEach(x=>{x.classList.remove('sel');x.classList.add('m')});a=null;fx.ok(1);if(--left===0)tm(()=>grade(true,'',1),350)}
