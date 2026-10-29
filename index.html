@@ -7241,9 +7241,10 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 /* Pantalla de exploración a pantalla completa */
 .cz-ls.fa-ls{background:#cfe3d8}
 .fa-top{align-self:stretch;flex:none;padding:8px 12px 0}
-.cz-ls.fa-ls .fa-main{container-type:size;min-height:0}
-.cz-ls.fa-ls .fa-stage{width:min(100cqw,calc(100cqh*941/1672))}
-.cz-ls.fa-ls .cz-bar2{background:transparent;border:0;box-shadow:none}
+.cz-ls.fa-ls .fa-main{position:absolute;inset:0;container-type:size;overflow:hidden;display:block}
+.cz-ls.fa-ls .fa-stage{position:absolute;top:50%;transform:translateY(-50%);width:max(100cqw,calc(100cqh*941/1672));left:calc((100cqw - max(100cqw,calc(100cqh*941/1672)))*.3)}
+.cz-ls.fa-ls .fa-top{position:absolute;top:0;left:0;right:0;z-index:6;padding-top:max(8px,env(safe-area-inset-top,0px))}
+.cz-ls.fa-ls .cz-bar2{position:absolute;left:0;right:0;bottom:0;z-index:6;background:transparent;border:0;box-shadow:none}
 </style>
 <script id="czJs">
 (function(){
