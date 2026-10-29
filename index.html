@@ -7182,6 +7182,17 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 .cz-bd{min-height:0;overscroll-behavior:contain}
 .cz-res{overflow-y:auto;overscroll-behavior:contain;justify-content:center;justify-content:safe center}
 </style>
+<style id="czKmCss">
+/* Barra Newen dentro de las capas de la actividad (misma imagen y esferas del resto del juego) */
+.cz-nm{position:absolute;z-index:4;right:5px;top:72px;width:clamp(35px,10vw,51px);aspect-ratio:1/5.2;pointer-events:none;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.55))}
+/* Küme zugu: resumen final sobre la plantilla (941 x 1672) */
+.cz-km{position:fixed;top:0;left:0;right:0;height:100dvh;max-width:480px;margin:0 auto;z-index:62;background:#183f31;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cz-km-st{position:relative;width:min(100%,calc(100dvh*941/1672));aspect-ratio:941/1672;container-type:inline-size;user-select:none;-webkit-user-select:none}
+.cz-km-st>img{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+.cz-kv{position:absolute;display:flex;align-items:center;justify-content:center;font:900 22px/1 Arial,Helvetica,sans-serif;font-size:5.8cqw;color:#4a2a12;white-space:nowrap;pointer-events:none}
+.cz-kb{position:absolute;left:12.96%;top:79.07%;width:73.96%;height:7.54%;border:0;border-radius:999px;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cz-kb:active{background:rgba(255,255,255,.18)}
+</style>
 <style id="czTxCss">
 .cz-tx{width:min(30vw,112px);aspect-ratio:264/394;display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
 .cz-tx .cz-mas.big{width:100%;height:auto}
@@ -7225,7 +7236,30 @@ function txPlay(box){
  const run=()=>{id++;try{v.currentTime=0}catch(e){}const p=v.play();if(p&&p.catch)p.catch(()=>{});loop(id)};
  v.onended=()=>{if(box.isConnected)draw()};
  cv.onclick=run;run()}
-function stop(){T.forEach(t=>{clearTimeout(t);clearInterval(t)});T=[];try{faStopAudio();faStopFx()}catch(e){}document.querySelectorAll('.cz-ls,.cz-res,.cz-conf').forEach(e=>e.remove());inLs=0;try{speechSynthesis.cancel()}catch(e){}}
+/* Newen: las vidas de las lecciones son las 10 vidas generales del juego. Sin vidas, el baile de los Txegül (video_final.mp4) las devuelve */
+function nvHas(){return typeof newenLives==='number'}
+function nvLose(h){if(!nvHas())return h-1;newenLives=Math.max(0,newenLives-1);try{saveNewenLives()}catch(e){}return newenLives}
+function nvRecover(){try{hub()}catch(e){}if(!nvHas()||typeof openNewenRecovery!=='function')return;try{newenResumeScreen='coloresAz';openNewenRecovery('coloresAz')}catch(e){}}
+/* Barra Newen en la actividad: primera etapa = colores descubiertos; lecciones = vidas */
+const NMH='<img class="newen-meter-image" src="./nhewen_10_vidas.png" alt=""><div class="newen-meter-orbs" id="czNmO" aria-hidden="true"></div><span class="newen-meter-value" id="czNmV">0</span>';
+function nmSet(n,lbl){try{fillNewenMeter('czNmO',n)}catch(e){}const v=$('czNmV');if(v)v.textContent=lbl!=null?lbl:n;const m=document.querySelector('.cz-nm');if(m)m.setAttribute('aria-label','Newen: '+(lbl!=null?lbl:n))}
+function nmAdd(d,n,lbl){const m=document.createElement('div');m.className='cz-nm';m.setAttribute('role','img');m.innerHTML=NMH;d.appendChild(m);try{buildNewenMeterOrbs('czNmO')}catch(e){}nmSet(n,lbl)}
+function discv(i){const a=P.disc||(P.disc=[]);if(a.indexOf(i)<0){a.push(i);save()}nmSet(Math.ceil(a.length/FZ.length*10),a.length)}
+/* Estadísticas de la actividad y pantalla final Küme zugu */
+let lt0=0;
+const SS=()=>P.s||(P.s={ok:0,er:0,ms:0,rt:0,best:0,tr:{}});
+function flushT(){if(lt0){SS().ms+=Math.min(Date.now()-lt0,1800000);lt0=0;save()}}
+function fmtT(ms){const t=Math.round(ms/1000),h=Math.floor(t/3600),m=Math.floor(t%3600/60),q=t%60;return h?h+' h '+String(m).padStart(2,'0')+' m':m+':'+String(q).padStart(2,'0')}
+const KB=[[92,774,325,838],[368,774,587,838],[629,774,854,838],[92,974,325,1039],[368,974,587,1039],[628,974,853,1039],[92,1176,325,1241],[368,1176,587,1241],[628,1176,853,1241]];
+function kume(){stop();const s=SS(),tot=s.ok+s.er,L=new Set();
+ for(let k=0;k<5;k++)if(P.done[k])C.slice(k*3,k*3+3).forEach(c=>L.add(c.n));
+ if(P.done[5])C.forEach(c=>L.add(c.n));
+ const Dn=new Set(L);(P.disc||[]).forEach(i=>{if(FZ[i])Dn.add(FZ[i].n)});
+ const V=[L.size+'/'+C.length,P.xp,s.ok,fmtT(s.ms),s.er,tot?Math.round(s.ok*100/tot)+'%':'—',Dn.size+'/'+C.length,s.best||0,s.rt];
+ const d=document.createElement('div');d.className='cz-km';
+ d.innerHTML='<div class="cz-km-st"><img src="./kume_zugu_colores.jpg" alt="Küme zugu · Colores — Actividad completada" draggable="false">'+KB.map((b,i)=>'<div class="cz-kv" style="left:'+(b[0]/9.41)+'%;top:'+(b[1]/16.72)+'%;width:'+((b[2]-b[0])/9.41)+'%;height:'+((b[3]-b[1])/16.72)+'%">'+V[i]+'</div>').join('')+'<button class="cz-kb" type="button" aria-label="Volver atrás"></button></div>';
+ document.body.appendChild(d);d.querySelector('.cz-kb').onclick=()=>{fx.pop();hub()};confetti()}
+function stop(){flushT();T.forEach(t=>{clearTimeout(t);clearInterval(t)});T=[];try{faStopAudio();faStopFx()}catch(e){}document.querySelectorAll('.cz-ls,.cz-res,.cz-km,.cz-conf').forEach(e=>e.remove());inLs=0;try{speechSynthesis.cancel()}catch(e){}}
 window.czStop=stop;
 function head(t,s){$('czT').textContent=t;$('czS').textContent=s}
 function hub(){stop();head('Fillke Az','Los colores en mapuzungun');const dn=k=>P.done[k]||0,cur=LS.findIndex((_,k)=>!dn(k)),n=Object.keys(P.done).filter(k=>P.done[k]).length;
@@ -7239,9 +7273,9 @@ function build(k){const learned=k===LS.length-1?C:C.slice(0,k*3+3),cs=k===LS.len
  const ex=[];(k===LS.length-1?S(C):cs).forEach((c,i)=>{ex.push({t:ty[i%4],c});ex.push({t:R(ty),c})});if(k===LS.length-1)ex.length=10;
  const pr=S(learned.length>=4?learned:learned.concat(S(C.filter(x=>!learned.includes(x))))).slice(0,4);ex.push({t:'pairs',cs:pr});if(k===LS.length-1)ex.push({t:'pairs',cs:S(C).slice(0,4)});
  return{Q:Q.concat(S(ex.filter(e=>e.t!=='pairs')),ex.filter(e=>e.t==='pairs')),pool:learned}}
-function lesson(k){stop();inLs=1;txPrep();const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=3,combo=0,xp=0,errs=0,cur=null;
- const d=document.createElement('div');d.className='cz-ls';d.innerHTML='<div class="cz-lt"><button class="cz-x" aria-label="Salir">✕</button><div class="cz-pg"><i id="pgi"></i></div><span class="cz-hr" id="hr"></span></div><div class="cz-bd" id="bd"></div><div class="cz-bar2" id="bar"></div>';document.body.appendChild(d);
- const hud=()=>{$('hr').textContent='❤️ '+hearts;$('pgi').style.width=Math.min(100,done/total*100)+'%'};
+function lesson(k){stop();inLs=1;txPrep();lt0=Date.now();{const S0=SS();S0.tr[k]=(S0.tr[k]||0)+1;if(S0.tr[k]>1)S0.rt++;save()}const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=nvHas()?newenLives:3,combo=0,xp=0,errs=0,cur=null;
+ const d=document.createElement('div');d.className='cz-ls';d.innerHTML='<div class="cz-lt"><button class="cz-x" aria-label="Salir">✕</button><div class="cz-pg"><i id="pgi"></i></div><span class="cz-hr" id="hr"></span></div><div class="cz-bd" id="bd"></div><div class="cz-bar2" id="bar"></div>';document.body.appendChild(d);nmAdd(d,hearts);
+ const hud=()=>{$('hr').textContent='❤️ '+hearts;$('pgi').style.width=Math.min(100,done/total*100)+'%';nmSet(hearts)};
  d.querySelector('.cz-x').onclick=hub;
  const opts=c=>S([c,...S(pool.filter(x=>x!==c)).concat(S(C.filter(x=>x!==c&&!pool.includes(x)))).slice(0,3)]);
  const shk=el=>{el.classList.remove('cz-shake');void el.offsetWidth;el.classList.add('cz-shake')};
@@ -7264,20 +7298,20 @@ function lesson(k){stop();inLs=1;txPrep();const B=build(k);let Q=B.Q,pool=B.pool
   const bs=[...$('bd').querySelectorAll('.cz-pr button')];bs.forEach(b=>b.onclick=()=>{if(b.classList.contains('m'))return;fx.tap();
    if(!a||a.dataset.s===b.dataset.s){bs.filter(x=>x.dataset.s===b.dataset.s).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');a=b;return}
    if(a.dataset.k===b.dataset.k){[a,b].forEach(x=>{x.classList.remove('sel');x.classList.add('m')});a=null;fx.ok(1);if(--left===0)tm(()=>grade(true,'',1),350)}
-   else{a.classList.remove('sel');shk(a);shk(b);a=null;fx.bad();vib(50);hearts--;errs++;hud();if(hearts<=0)tm(fail,500)}});cur={auto:1}}};
+   else{a.classList.remove('sel');shk(a);shk(b);a=null;fx.bad();vib(50);hearts=nvLose(hearts);errs++;SS().er++;hud();if(hearts<=0)tm(fail,500)}});cur={auto:1}}};
  function bar(h){$('bar').className='cz-bar2';$('bar').innerHTML=h}
  function nx(){if(hearts<=0)return fail();if(!Q.length)return fin();const e=Q.shift();bar(e.t==='intro'?'<button class="cz-go" id="go">Continuar</button>':'<button class="cz-go" id="ck" disabled>Comprobar</button>');R_[e.t](e);hud();cur.e=e;
   if(cur.intro)$('go').onclick=()=>{done++;fx.pop();nx()};
   else if(cur.chk)$('ck').onclick=()=>{const g=cur.ok();cur.mark(g);grade(g,cur.ans)};
   else bar('')}
- function grade(g,ans,auto){const e=cur.e;if(g){combo++;done++;xp+=10+(combo>2?5:0);fx.ok(combo);vib(20)}else{combo=0;hearts--;errs++;fx.bad();vib([60,40,60]);if(e.t!=='pairs'&&(e.r||0)<2){const alt=R(['l2s','n2s','s2n','let'].filter(t=>t!==e.t));Q.push({t:alt,c:e.c,r:(e.r||0)+1});total++}}
+ function grade(g,ans,auto){const e=cur.e;if(g){SS().ok++;combo++;done++;xp+=10+(combo>2?5:0);fx.ok(combo);vib(20)}else{combo=0;hearts=nvLose(hearts);errs++;SS().er++;fx.bad();vib([60,40,60]);if(e.t!=='pairs'&&(e.r||0)<2){const alt=R(['l2s','n2s','s2n','let'].filter(t=>t!==e.t));Q.push({t:alt,c:e.c,r:(e.r||0)+1});total++}}
   hud();$('bar').className='cz-bar2 '+(g?'g':'b');
   $('bar').innerHTML='<div class="cz-fb">'+MAS+'<div><b>'+(g?R(['¡Küme zugu!','¡Excelente!','¡Muy bien!','¡Perfecto!']):'Respuesta correcta:')+'</b><br>'+(g?(combo>1?'🔥 Racha de '+combo+' aciertos':'+10 XP'):ans)+'</div></div><button class="cz-go '+(g?'':'b')+'" id="go">Continuar</button>';
   $('go').onclick=()=>{fx.pop();nx()}}
  function fin(){const st=errs<=1?3:errs<=3?2:1,td=new Date().toISOString().slice(0,10),y=new Date(Date.now()-864e5).toISOString().slice(0,10);
-  if(P.last!==td){P.streak=P.last===y?P.streak+1:1;P.last=td}P.xp+=xp;P.done[k]=Math.max(P.done[k]||0,st);save();confetti();fx.win();vib([40,30,40,30,120]);
-  const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div class="cz-tx">'+MAS.replace('cz-mas','cz-mas big')+'</div><h3>¡Lección completa!</h3><div class="st">'+'★'.repeat(st)+'<u>'+'★'.repeat(3-st)+'</u></div><div class="cz-kp"><div>⭐ '+xp+'<small>XP</small></div><div>🔥 '+P.streak+'<small>RACHA</small></div><div>❤️ '+hearts+'<small>VIDAS</small></div></div><div style="width:100%;max-width:340px"><button class="cz-go" id="rm">Continuar</button></div>';document.body.appendChild(r);$('rm').onclick=hub;txPlay(r.querySelector('.cz-tx'))}
- function fail(){fx.lose();const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div style="font-size:80px">💔</div><h3>Te quedaste sin vidas</h3><p>¡No pasa nada! Repasa y vuelve a intentarlo.</p><div style="width:100%;max-width:340px"><button class="cz-go" id="rr">Intentar de nuevo</button><br><br><button class="cz-go b" id="rx">Salir</button></div>';document.body.appendChild(r);$('rr').onclick=()=>lesson(k);$('rx').onclick=hub}
+  if(P.last!==td){P.streak=P.last===y?P.streak+1:1;P.last=td}P.xp+=xp;P.done[k]=Math.max(P.done[k]||0,st);SS().best=Math.max(SS().best||0,xp);flushT();save();confetti();fx.win();vib([40,30,40,30,120]);
+  const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div class="cz-tx">'+MAS.replace('cz-mas','cz-mas big')+'</div><h3>¡Lección completa!</h3><div class="st">'+'★'.repeat(st)+'<u>'+'★'.repeat(3-st)+'</u></div><div class="cz-kp"><div>⭐ '+xp+'<small>XP</small></div><div>🔥 '+P.streak+'<small>RACHA</small></div><div>❤️ '+hearts+'<small>VIDAS</small></div></div><div style="width:100%;max-width:340px"><button class="cz-go" id="rm">Continuar</button></div>';document.body.appendChild(r);$('rm').onclick=()=>{if(k===LS.length-1&&LS.every((_,j)=>P.done[j]))kume();else hub()};txPlay(r.querySelector('.cz-tx'))}
+ function fail(){flushT();fx.lose();const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div style="font-size:80px">💔</div><h3>Te quedaste sin vidas</h3><p>¡No pasa nada! Los Txegül bailarán para devolverte tu Newen y podrás volver a intentarlo.</p><div style="width:100%;max-width:340px"><button class="cz-go" id="rr">💃 Recuperar mi Newen</button><br><br><button class="cz-go b" id="rx">Salir</button></div>';document.body.appendChild(r);$('rr').onclick=()=>nvHas()?nvRecover():lesson(k);$('rx').onclick=hub}
  hud();nx()}
 
 /* ===== FILLKE AZ — exploración inicial (Txegül sopla nueve corrientes) ===== */
@@ -7301,7 +7335,8 @@ function explore(){document.querySelectorAll('.fa-ls').forEach(e=>e.remove());fa
  d.innerHTML='<div class="fa-main"><div class="fa-stage"><img src="./fillke_az_colores_v2.png" alt="Txegül soplando los colores" draggable="false"><svg viewBox="0 0 941 1672" preserveAspectRatio="xMidYMid meet"><defs>'+df+'</defs>'+fx+hit+'</svg></div></div><div class="fa-bar"><button class="cz-back" type="button" aria-label="Wiñotxekage, volver"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="cz-go" type="button">Continuar</button></div>';
 
  document.body.appendChild(d);
- d.querySelectorAll('.fa-z').forEach(p=>p.addEventListener('pointerdown',e=>{e.preventDefault();faPlay(+p.dataset.i)}));
+ const nd=(P.disc||[]).length;nmAdd(d,Math.ceil(nd/FZ.length*10),nd);
+ d.querySelectorAll('.fa-z').forEach(p=>p.addEventListener('pointerdown',e=>{e.preventDefault();faPlay(+p.dataset.i);discv(+p.dataset.i)}));
  d.querySelector('.cz-back').onclick=()=>{faStopAudio();showScreen('activityMap')};
  d.querySelector('.cz-go').onclick=()=>{faStopAudio();hub()}}
 window.czExplore=explore;
