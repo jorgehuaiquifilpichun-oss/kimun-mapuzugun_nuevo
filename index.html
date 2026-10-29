@@ -7204,6 +7204,47 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 .cz-tx .cz-mas.big{width:100%;height:auto}
 .cz-txc{display:block;width:100%;height:100%;cursor:pointer;-webkit-tap-highlight-color:transparent}
 </style>
+<style id="czNav">
+/* Navegación uniforme: Wiñotxekage arriba, Ramtuchi abajo al centro, botón verde latente al costado */
+.cz-wn{border:0;padding:0;margin:0;background:transparent;width:clamp(112px,31vw,150px);flex:none;cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 3px 4px rgba(0,0,0,.45))}
+.cz-wn img{display:block;width:100%;height:auto;pointer-events:none;-webkit-user-drag:none}
+.cz-wn:active{transform:scale(.96)}
+.cz-ls .cz-lt{gap:10px;padding:8px 12px}
+.cz-ls .cz-nmeter{top:calc(var(--lt-h,72px) + 6px)}
+.cz-bar2{padding:10px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.cz-bar2.g,.cz-bar2.b{background:var(--grain),linear-gradient(var(--h-a),var(--h-b))}
+.cz-ctl{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.cz-ctl>i{display:block}
+.cz-ram{justify-self:center;border:0;padding:0;margin:0;background:transparent;width:clamp(128px,40vw,190px);cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+.cz-ram img{display:block;width:100%;height:auto;pointer-events:none}
+.cz-ram:active{transform:scale(.96)}
+.cz-rt{justify-self:end;width:100%;max-width:150px;min-height:50px;display:flex;align-items:center}
+.cz-rt .cz-go{width:100%;height:50px;padding:0 4px;font-size:13px;letter-spacing:.5px}
+.cz-fbw:empty{display:none}.cz-fbw{margin-bottom:10px}
+.cz-fb{margin-bottom:0;padding:8px 14px;border-radius:14px;border:3px solid var(--edge);color:#fff7e0;text-shadow:0 1px 0 #0006}
+.cz-fb.ok{background:linear-gradient(#5aa04a,#2f6f2a)}.cz-fb.no{background:linear-gradient(#c44a3a,#8a2418)}
+.cz-ls.lk .cz-bd{pointer-events:none}
+/* Botones de avanzar: verde y latente */
+.cz-go:not(.b):not(:disabled){background:linear-gradient(#8be05a,#2f9e2f);border-color:#14501a;color:#fff;text-shadow:0 1px 0 #0a3d10aa;box-shadow:0 5px 0 #14501a,0 0 0 0 rgba(139,224,90,.7);animation:czPulse 1.4s ease-in-out infinite}
+.cz-go:not(.b):not(:disabled):active{animation:none;transform:translateY(4px);box-shadow:0 1px 0 #14501a}
+@keyframes czPulse{0%,100%{transform:scale(1);box-shadow:0 5px 0 #14501a,0 0 0 0 rgba(139,224,90,.65)}50%{transform:scale(1.05);box-shadow:0 5px 0 #14501a,0 0 0 12px rgba(139,224,90,0)}}
+@media (prefers-reduced-motion:reduce){.cz-go{animation:none!important}}
+/* Respuestas uniformes: mismo tamaño y anclaje inferior en todos los ejercicios */
+.cz-op button.sw,.cz-op button.nm,.cz-pr button.sw,.cz-pr button.nm{background-size:100% 100%;width:100%}
+.cz-op,.cz-pr{align-items:start}
+.cz-ls .cz-bd{padding-bottom:clamp(14px,4dvh,36px)}
+.cz-ls .cz-bd::after{display:none}
+.cz-ls .cz-bd>.cz-op,.cz-ls .cz-bd>.cz-pr{margin-top:auto;padding-top:14px}
+.cz-ls .cz-bd>.cz-tl{margin-top:auto}
+.cz-ls .cz-bd>:last-child:not(.cz-op):not(.cz-pr):not(.cz-tl){margin-bottom:auto}
+.cz-ls .cz-aud{align-self:center}
+/* Pantalla de exploración a pantalla completa */
+.cz-ls.fa-ls{background:#cfe3d8}
+.fa-top{align-self:stretch;flex:none;padding:8px 12px 0}
+.cz-ls.fa-ls .fa-main{container-type:size;min-height:0}
+.cz-ls.fa-ls .fa-stage{width:min(100cqw,calc(100cqh*941/1672))}
+.cz-ls.fa-ls .cz-bar2{background:transparent;border:0;box-shadow:none}
+</style>
 <script id="czJs">
 (function(){
 const C=[['Liq','Blanco','#ffffff','☁️','liq'],['Kelü','Rojo','#d62828','🌺','kelu'],['Kelüchoz','Naranjo','#f77f00','🍊','keluchoz'],['Choz','Amarillo','#ffd60a','🌻','choz'],['Karü','Verde','#2a9d3f','🌲','karu'],['Kolü','Café','#7b4a1e','🪵','kolu'],['Kallfü','Azul','#1d4ed8','💧','kallfu'],['Awawe','Morado','#8e44ad','🍇','awawe'],['Kurü','Negro','#161616','🌑','kuru'],['Palaw kolü','Rosado','#f472b6','🌸','palawkolu'],['Kazü','Gris','#8a8a8a','🪨','kazu'],['Payne','Celeste','#4cc9f0','🌤️','payne'],['Milla','Dorado','#d4a017','✨','milla'],['Liqen','Plateado','#c0c0c8','🥈','liqen']].map(a=>({n:a[0],es:a[1],h:a[2],e:a[3],s:a[4]}));
@@ -7271,7 +7312,7 @@ function head(t,s){$('czT').textContent=t;$('czS').textContent=s}
 function hub(){stop();head('Fillke Az','Los colores en mapuzungun');const dn=k=>P.done[k]||0,cur=LS.findIndex((_,k)=>!dn(k)),n=Object.keys(P.done).filter(k=>P.done[k]).length;
  let h='<div class="cz-stats"><span>🔥 '+P.streak+'</span><span>⭐ '+P.xp+' XP</span><span>🏅 '+n+'/'+LS.length+'</span></div><div class="cz-unit"><b>UNIDAD 1</b><div>Fillke Az · Los colores</div></div><div class="cz-path">';
  LS.forEach((l,k)=>{const d=dn(k),lock=k>0&&!dn(k-1),st=lock?'l':d?'d':'',off=[0,-54,0,54,0,-54][k];
-  h+='<div style="position:relative;margin-left:'+off*1.5+'px"><button class="cz-node '+st+(k===cur?' cur':'')+'" data-k="'+k+'">'+(lock?'🔒':d?'✓':l[2])+'<small>'+(d?'★'.repeat(d)+'☆'.repeat(3-d):lock?'':'LECCIÓN '+(k+1))+'</small></button>'+(k===cur?'<div class="cz-bub">¡EMPIEZA!</div>':'')+'<div class="cz-lbl'+(off>0?' r':'')+'">'+l[0]+'<small>'+l[1]+'</small></div></div>'});
+  h+='<div style="position:relative;margin-left:'+off*1.5+'px"><button class="cz-node '+st+(k===cur?' cur':'')+'" data-k="'+k+'">'+(lock?'🔒':d?'✓':l[2])+'<small>'+(d?'★'.repeat(d)+'☆'.repeat(3-d):lock?'':'LECCIÓN '+(k+1))+'</small></button>'+(k===cur?'<div class="cz-bub">'+(P.res&&P.res.k===k?'¡SIGUE!':'¡EMPIEZA!')+'</div>':'')+'<div class="cz-lbl'+(off>0?' r':'')+'">'+l[0]+'<small>'+l[1]+'</small></div></div>'});
  $('czBody').innerHTML=h+'</div>';
  $('czBody').querySelectorAll('.cz-node').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;if(k>0&&!dn(k-1)){b.classList.remove('cz-shake');void b.offsetWidth;b.classList.add('cz-shake');fx.bad();return}fx.pop();lesson(k)})}
 function build(k){const learned=k===LS.length-1?C:C.slice(0,k*3+3),cs=k===LS.length-1?C:C.slice(k*3,k*3+3),Q=[],ty=['l2s','n2s','s2n','let'];
@@ -7279,10 +7320,16 @@ function build(k){const learned=k===LS.length-1?C:C.slice(0,k*3+3),cs=k===LS.len
  const ex=[];(k===LS.length-1?S(C):cs).forEach((c,i)=>{ex.push({t:ty[i%4],c});ex.push({t:R(ty),c})});if(k===LS.length-1)ex.length=10;
  const pr=S(learned.length>=4?learned:learned.concat(S(C.filter(x=>!learned.includes(x))))).slice(0,4);ex.push({t:'pairs',cs:pr});if(k===LS.length-1)ex.push({t:'pairs',cs:S(C).slice(0,4)});
  return{Q:Q.concat(S(ex.filter(e=>e.t!=='pairs')),ex.filter(e=>e.t==='pairs')),pool:learned}}
-function lesson(k){stop();inLs=1;txPrep();lt0=Date.now();{const S0=SS();S0.tr[k]=(S0.tr[k]||0)+1;if(S0.tr[k]>1)S0.rt++;save()}const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=nvHas()?newenLives:3,combo=0,xp=0,errs=0,cur=null;
- const d=document.createElement('div');d.className='cz-ls';d.innerHTML='<div class="cz-lt"><button class="cz-x" aria-label="Salir">✕</button><div class="cz-pg"><i id="pgi"></i></div><span class="cz-hr" id="hr"></span></div><div class="cz-bd" id="bd"></div><div class="cz-bar2" id="bar"></div>';document.body.appendChild(d);nmAdd(d,hearts);
- const hud=()=>{$('hr').textContent='❤️ '+hearts;$('pgi').style.width=Math.min(100,done/total*100)+'%';nmSet(hearts)};
- d.querySelector('.cz-x').onclick=hub;
+function lesson(k){stop();inLs=1;txPrep();lt0=Date.now();if(!(P.res&&P.res.k===k)){const S0=SS();S0.tr[k]=(S0.tr[k]||0)+1;if(S0.tr[k]>1)S0.rt++;save()}const B=build(k);let Q=B.Q,pool=B.pool,total=Q.length,done=0,hearts=nvHas()?newenLives:3,combo=0,xp=0,errs=0,cur=null,lock=0;
+ const rs=(P.res&&P.res.k===k&&P.res.q&&P.res.q.length)?P.res:null;
+ if(rs){const fd=s=>C.find(c=>c.s===s);Q=rs.q.map(o=>{const e={t:o.t,r:o.r||0};if(o.s)e.c=fd(o.s);if(o.ss)e.cs=o.ss.map(fd);return e});total=rs.total;done=rs.done;xp=rs.xp;errs=rs.errs;combo=rs.combo}
+ const sv=items=>{if(!items.length)return;P.res={k,q:items.map(e=>({t:e.t,s:e.c&&e.c.s,ss:e.cs&&e.cs.map(c=>c.s),r:e.r||0})),total,done,xp,errs,combo};save()};
+ const snap=()=>sv(!lock&&cur&&cur.e?[cur.e].concat(Q):Q);
+ const d=document.createElement('div');d.className='cz-ls';d.innerHTML='<div class="cz-lt"><button class="cz-wn" type="button" aria-label="Wiñotxekage, volver al Camino del Sabio"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><div class="cz-pg"><i id="pgi"></i></div><span class="cz-hr" id="hr"></span></div><div class="cz-bd" id="bd"></div><div class="cz-bar2" id="bar"><div class="cz-fbw" id="fbw"></div><div class="cz-ctl"><i></i><button class="cz-ram" id="ram" type="button" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button><div class="cz-rt" id="rt"></div></div></div>';document.body.appendChild(d);nmAdd(d,hearts);
+ const hud=()=>{d.style.setProperty('--lt-h',d.querySelector('.cz-lt').offsetHeight+'px');$('hr').textContent='❤️ '+hearts;$('pgi').style.width=Math.min(100,done/total*100)+'%';nmSet(hearts)};
+ d.querySelector('.cz-wn').onclick=()=>{fx.pop();snap();flushT();showScreen('activityMap')};
+ d.querySelector('.cz-wn img').addEventListener('load',()=>hud());
+ $('ram').onclick=()=>{fx.pop();snap();window.czRet={k};try{consultOrigin='coloresAz'}catch(e){}showScreen('consult')};
  const opts=c=>S([c,...S(pool.filter(x=>x!==c)).concat(S(C.filter(x=>x!==c&&!pool.includes(x)))).slice(0,3)]);
  const shk=el=>{el.classList.remove('cz-shake');void el.offsetWidth;el.classList.add('cz-shake')};
  function choice(prompt,list,right,sw){const b=$('bd');b.innerHTML=prompt+'<div class="cz-op">'+list.map(c=>'<button data-n="'+c.n+'"'+(sw===1?' class="sw" style="background-image:url(./color_'+c.s+'.png)" aria-label="color"':sw===2?' class="nm" style="background-image:url(./letrero_'+c.s+'.png)" aria-label="'+c.n+'"':'')+'>'+(sw===1?'':sw===2?c.n:c.es)+'</button>').join('')+'</div>';let sel=null;
@@ -7305,19 +7352,21 @@ function lesson(k){stop();inLs=1;txPrep();lt0=Date.now();{const S0=SS();S0.tr[k]
    if(!a||a.dataset.s===b.dataset.s){bs.filter(x=>x.dataset.s===b.dataset.s).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');a=b;return}
    if(a.dataset.k===b.dataset.k){[a,b].forEach(x=>{x.classList.remove('sel');x.classList.add('m')});a=null;fx.ok(1);if(--left===0)tm(()=>grade(true,'',1),350)}
    else{a.classList.remove('sel');shk(a);shk(b);a=null;fx.bad();vib(50);hearts=nvLose(hearts);errs++;SS().er++;hud();if(hearts<=0)tm(fail,500)}});cur={auto:1}}};
- function bar(h){$('bar').className='cz-bar2';$('bar').innerHTML=h}
- function nx(){if(hearts<=0)return fail();if(!Q.length)return fin();const e=Q.shift();bar(e.t==='intro'?'<button class="cz-go" id="go">Continuar</button>':'<button class="cz-go" id="ck" disabled>Comprobar</button>');R_[e.t](e);hud();cur.e=e;
+ function bar(h){$('bar').className='cz-bar2';$('fbw').innerHTML='';$('rt').innerHTML=h}
+ function nx(){lock=0;d.classList.remove('lk');if(hearts<=0)return fail();if(!Q.length)return fin();const e=Q.shift();bar(e.t==='intro'?'<button class="cz-go" id="go">Continuar</button>':'<button class="cz-go" id="ck" disabled>Comprobar</button>');R_[e.t](e);hud();cur.e=e;sv([e].concat(Q));
   if(cur.intro)$('go').onclick=()=>{done++;fx.pop();nx()};
   else if(cur.chk)$('ck').onclick=()=>{const g=cur.ok();cur.mark(g);grade(g,cur.ans)};
   else bar('')}
  function grade(g,ans,auto){const e=cur.e;if(g){SS().ok++;combo++;done++;xp+=10+(combo>2?5:0);fx.ok(combo);vib(20)}else{combo=0;hearts=nvLose(hearts);errs++;SS().er++;fx.bad();vib([60,40,60]);if(e.t!=='pairs'&&(e.r||0)<2){const alt=R(['l2s','n2s','s2n','let'].filter(t=>t!==e.t));Q.push({t:alt,c:e.c,r:(e.r||0)+1});total++}}
-  hud();$('bar').className='cz-bar2 '+(g?'g':'b');
-  $('bar').innerHTML='<div class="cz-fb">'+MAS+'<div><b>'+(g?R(['¡Küme zugu!','¡Excelente!','¡Muy bien!','¡Perfecto!']):'Respuesta correcta:')+'</b><br>'+(g?(combo>1?'🔥 Racha de '+combo+' aciertos':'+10 XP'):ans)+'</div></div><button class="cz-go '+(g?'':'b')+'" id="go">Continuar</button>';
-  $('go').onclick=()=>{fx.pop();nx()}}
- function fin(){const st=errs<=1?3:errs<=3?2:1,td=new Date().toISOString().slice(0,10),y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  lock=1;d.classList.add('lk');hud();$('bar').className='cz-bar2 '+(g?'g':'b');
+  $('fbw').innerHTML='<div class="cz-fb '+(g?'ok':'no')+'">'+MAS+'<div><b>'+(g?R(['¡Küme zugu!','¡Excelente!','¡Muy bien!','¡Perfecto!']):'Respuesta correcta:')+'</b><br>'+(g?(combo>1?'🔥 Racha de '+combo+' aciertos':'+10 XP'):ans)+'</div></div>';
+  $('rt').innerHTML='<button class="cz-go" id="go">Continuar</button>';sv(Q);
+  const nt=tm(()=>nx(),g?1300:4000);
+  $('go').onclick=()=>{clearTimeout(nt);fx.pop();nx()}}
+ function fin(){P.res=null;const st=errs<=1?3:errs<=3?2:1,td=new Date().toISOString().slice(0,10),y=new Date(Date.now()-864e5).toISOString().slice(0,10);
   if(P.last!==td){P.streak=P.last===y?P.streak+1:1;P.last=td}P.xp+=xp;P.done[k]=Math.max(P.done[k]||0,st);SS().best=Math.max(SS().best||0,xp);flushT();save();confetti();fx.win();vib([40,30,40,30,120]);
   const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div class="cz-tx">'+MAS.replace('cz-mas','cz-mas big')+'</div><h3>¡Lección completa!</h3><div class="st">'+'★'.repeat(st)+'<u>'+'★'.repeat(3-st)+'</u></div><div class="cz-kp"><div>⭐ '+xp+'<small>XP</small></div><div>🔥 '+P.streak+'<small>RACHA</small></div><div>❤️ '+hearts+'<small>VIDAS</small></div></div><div style="width:100%;max-width:340px"><button class="cz-go" id="rm">Continuar</button></div>';document.body.appendChild(r);$('rm').onclick=()=>{if(k===LS.length-1&&LS.every((_,j)=>P.done[j]))kume();else hub()};txPlay(r.querySelector('.cz-tx'))}
- function fail(){flushT();fx.lose();const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div style="font-size:80px">💔</div><h3>Te quedaste sin vidas</h3><p>¡No pasa nada! Los Txegül bailarán para devolverte tu Newen y podrás volver a intentarlo.</p><div style="width:100%;max-width:340px"><button class="cz-go" id="rr">💃 Recuperar mi Newen</button><br><br><button class="cz-go b" id="rx">Salir</button></div>';document.body.appendChild(r);$('rr').onclick=()=>nvHas()?nvRecover():lesson(k);$('rx').onclick=hub}
+ function fail(){P.res=null;save();flushT();fx.lose();const r=document.createElement('div');r.className='cz-res';r.innerHTML='<div style="font-size:80px">💔</div><h3>Te quedaste sin vidas</h3><p>¡No pasa nada! Los Txegül bailarán para devolverte tu Newen y podrás volver a intentarlo.</p><div style="width:100%;max-width:340px"><button class="cz-go" id="rr">💃 Recuperar mi Newen</button><br><br><button class="cz-go b" id="rx">Salir</button></div>';document.body.appendChild(r);$('rr').onclick=()=>nvHas()?nvRecover():lesson(k);$('rx').onclick=hub}
  hud();nx()}
 
 /* ===== FILLKE AZ — exploración inicial (Txegül sopla nueve corrientes) ===== */
@@ -7338,18 +7387,18 @@ function explore(){document.querySelectorAll('.fa-ls').forEach(e=>e.remove());fa
   fx+='<g class="fa-fx" id="faF'+i+'" opacity="0"><polygon points="'+z.p+'" fill="none" stroke="'+z.g+'" stroke-width="10" opacity=".8" filter="url(#faH)"/><g clip-path="url(#faC'+i+')"><polygon points="'+z.p+'" fill="'+z.g+'" opacity=".5" filter="url(#faB)"/><rect class="fa-sh" x="'+Math.round(x0-150)+'" y="'+Math.round(y0-10)+'" width="150" height="'+Math.round(y1-y0+20)+'" fill="url(#faL'+i+')" style="transform-box:fill-box;transform-origin:center"/></g></g>';
   hit+='<polygon class="fa-z" data-i="'+i+'" points="'+z.p+'" role="button" aria-label="'+z.n+'"/>'});
  const d=document.createElement('div');d.className='cz-ls fa-ls';
- d.innerHTML='<div class="fa-main"><div class="fa-stage"><img src="./fillke_az_colores_v2.png" alt="Txegül soplando los colores" draggable="false"><svg viewBox="0 0 941 1672" preserveAspectRatio="xMidYMid meet"><defs>'+df+'</defs>'+fx+hit+'</svg></div></div><div class="fa-bar"><button class="cz-back" type="button" aria-label="Wiñotxekage, volver"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button><button class="cz-go" type="button">Continuar</button></div>';
+ d.innerHTML='<div class="fa-top"><button class="cz-wn" type="button" aria-label="Wiñotxekage, volver al Camino del Sabio"><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button></div><div class="fa-main"><div class="fa-stage"><img src="./fillke_az_colores_v2.png" alt="Txegül soplando los colores" draggable="false"><svg viewBox="0 0 941 1672" preserveAspectRatio="xMidYMid meet"><defs>'+df+'</defs>'+fx+hit+'</svg></div></div><div class="cz-bar2 fa-bar2"><div class="cz-ctl"><i></i><button class="cz-ram" type="button" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi — Consultar"></button><div class="cz-rt"><button class="cz-go" type="button">Continuar</button></div></div></div>';
 
  document.body.appendChild(d);
- const nd=(P.disc||[]).length;nmAdd(d,Math.ceil(nd/FZ.length*10),nd);
+ const nd=(P.disc||[]).length;nmAdd(d,Math.ceil(nd/FZ.length*10),nd);{const tp=d.querySelector('.fa-top'),sh=()=>d.style.setProperty('--lt-h',tp.offsetHeight+'px');sh();d.querySelector('.cz-wn img').addEventListener('load',sh)}
  d.querySelectorAll('.fa-z').forEach(p=>p.addEventListener('pointerdown',e=>{e.preventDefault();faPlay(+p.dataset.i);discv(+p.dataset.i)}));
- d.querySelector('.cz-back').onclick=()=>{faStopAudio();showScreen('activityMap')};
+ d.querySelector('.cz-wn').onclick=()=>{faStopAudio();showScreen('activityMap')};d.querySelector('.cz-ram').onclick=()=>{faStopAudio();window.czRet={ex:1};try{consultOrigin='coloresAz'}catch(e){}showScreen('consult')};
  d.querySelector('.cz-go').onclick=()=>{faStopAudio();hub()}}
 window.czExplore=explore;
 window.czHub=hub;window.czBack=function(){if(inLs)hub();else showScreen('activityMap')};
 window.openColoresFromMap=function(btn){if(btn&&btn.dataset.opening==='1')return;if(btn){btn.dataset.opening='1';try{animateActivityMapTile(btn,true)}catch(e){}}try{playFiluMapClick()}catch(e){}
- setTimeout(()=>{if(btn)delete btn.dataset.opening;showScreen('coloresAz');hub();explore()},450)};
-const _ss=window.showScreen;window.showScreen=function(id){if(id!=='coloresAz')stop();return _ss.apply(this,arguments)};
+ setTimeout(()=>{window.czRet=null;if(btn)delete btn.dataset.opening;showScreen('coloresAz');hub();explore()},450)};
+const _ss=window.showScreen;window.showScreen=function(id){if(id!=='coloresAz')stop();const r=_ss.apply(this,arguments);if(id==='coloresAz'&&window.czRet){const q=window.czRet;window.czRet=null;if(q.ex)explore();else{hub();lesson(q.k)}}return r};
 })();
 </script>
 </body>
