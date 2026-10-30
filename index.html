@@ -7258,6 +7258,17 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 /* === Pantalla de exploración: Wiñotxekage centrado arriba, mismo porte que Ramtuchi === */
 .cz-ls.fa-ls .fa-top{display:flex;justify-content:center;align-items:flex-start}
 .cz-ls.fa-ls .fa-top .cz-wn{width:clamp(128px,40vw,190px)}
+/* PRUEBA ESCRITURA FILLKE AZ — medidas elegidas en el simulador.
+   Solo afecta ejercicios que contienen letras, no los otros cuatro tipos. */
+.cz-ls .cz-bd:has(.cz-tl){padding-left:12px;padding-right:12px}
+.cz-ls .cz-bd:has(.cz-tl) .cz-ans,
+.cz-ls .cz-bd:has(.cz-tl) .cz-tl{gap:5px;position:relative;top:-10px;align-content:center}
+.cz-ls .cz-bd:has(.cz-tl) .cz-ans{min-height:39px;padding:5px;margin:12px 0}
+.cz-ls .cz-bd:has(.cz-tl) .cz-t{
+  box-sizing:border-box;width:29px;min-width:29px;height:29px;min-height:29px;
+  padding:0;border-width:2px;border-bottom-width:4px;border-radius:6px;
+  font:900 17px/1 Arial,Helvetica,sans-serif;flex:0 0 29px;
+}
 </style>
 <script id="czJs">
 (function(){
