@@ -7245,6 +7245,19 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
 .cz-ls.fa-ls .fa-stage{position:absolute;top:50%;transform:translateY(-50%);width:max(100cqw,calc(100cqh*941/1672));left:calc((100cqw - max(100cqw,calc(100cqh*941/1672)))*.3)}
 .cz-ls.fa-ls .fa-top{position:absolute;top:0;left:0;right:0;z-index:6;padding-top:max(8px,env(safe-area-inset-top,0px))}
 .cz-ls.fa-ls .cz-bar2{position:absolute;left:0;right:0;bottom:0;z-index:6;background:transparent;border:0;box-shadow:none}
+/* === Ajuste de espaciado · ejercicios de colores === */
+.cz-ls .cz-bd{justify-content:flex-start;padding-top:33.5dvh}
+.cz-ls .cz-bd>:first-child{margin-top:0}
+.cz-ls .cz-bd>:last-child:not(.cz-op):not(.cz-pr):not(.cz-tl){margin-bottom:0}
+.cz-ls .cz-bd h3{margin:0 0 25px}
+.cz-ls .cz-bd>.cz-big,.cz-ls .cz-bd>.cz-aud{margin:0 auto}
+.cz-ls .cz-bd>.cz-op,.cz-ls .cz-bd>.cz-pr{margin-top:0;padding-top:0}
+.cz-ls .cz-bd>.cz-big+.cz-op,.cz-ls .cz-bd>.cz-aud+.cz-op{margin-top:28px}
+.cz-op{gap:7px}
+.cz-pr{gap:7px 14px}
+/* === Pantalla de exploración: Wiñotxekage centrado arriba, mismo porte que Ramtuchi === */
+.cz-ls.fa-ls .fa-top{display:flex;justify-content:center;align-items:flex-start}
+.cz-ls.fa-ls .fa-top .cz-wn{width:clamp(128px,40vw,190px)}
 </style>
 <script id="czJs">
 (function(){
