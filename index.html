@@ -7270,6 +7270,15 @@ function exitKimunVoxel(){try{playFiluMapClick();}catch(e){}KV.leave();showScree
   font:900 17px/1 Arial,Helvetica,sans-serif;flex:0 0 29px;
 }
 </style>
+<style id="czTablero">
+/* TABLERO DE MADERA — solo para los ejercicios de colores (.cz-ls). No afecta la exploración (.fa-ls), el mapa de lecciones ni los resultados. */
+.cz-ls:not(.fa-ls){background:#8a5a22 url("./fondo_ejercicios_colores.png") center/cover no-repeat}
+.cz-ls:not(.fa-ls) .cz-lt{background:transparent;border-bottom:0;box-shadow:none}
+.cz-ls:not(.fa-ls) .cz-bar2:not(.g):not(.b){background:transparent;border-top:0;box-shadow:none}
+.cz-ls:not(.fa-ls) .cz-hr{background:#fff8e8;color:#b3261e;padding:2px 9px;border-radius:99px;box-shadow:0 2px 0 #0004}
+.cz-ls:not(.fa-ls) .cz-bd h3{color:#fff6dc;text-shadow:0 2px 0 #4a2a0c,0 0 7px #4a2a0c}
+.cz-ls:not(.fa-ls) .cz-bd h3 span{color:#ffe08a!important}
+</style>
 <script id="czJs">
 (function(){
 const C=[['Liq','Blanco','#ffffff','☁️','liq'],['Kelü','Rojo','#d62828','🌺','kelu'],['Kelüchoz','Naranjo','#f77f00','🍊','keluchoz'],['Choz','Amarillo','#ffd60a','🌻','choz'],['Karü','Verde','#2a9d3f','🌲','karu'],['Kolü','Café','#7b4a1e','🪵','kolu'],['Kallfü','Azul','#1d4ed8','💧','kallfu'],['Awawe','Morado','#8e44ad','🍇','awawe'],['Kurü','Negro','#161616','🌑','kuru'],['Palaw kolü','Rosado','#f472b6','🌸','palawkolu'],['Kazü','Gris','#8a8a8a','🪨','kazu'],['Payne','Celeste','#4cc9f0','🌤️','payne'],['Milla','Dorado','#d4a017','✨','milla'],['Liqen','Plateado','#c0c0c8','🥈','liqen']].map(a=>({n:a[0],es:a[1],h:a[2],e:a[3],s:a[4]}));
