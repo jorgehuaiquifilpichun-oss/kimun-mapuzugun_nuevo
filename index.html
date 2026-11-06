@@ -362,6 +362,30 @@
       box-shadow: inset 0 0 0 2px rgba(64, 145, 78, 0.55);
     }
 
+    /* FILU INICIAL: salida opcional al completar Nhewen y controles de repaso.
+       No afecta la copia independiente del Camino del Sabio. */
+    .filu-abandon[hidden], .filu-revisit-nav[hidden] { display:none !important; }
+    .filu-abandon {
+      flex:0 0 auto; width:clamp(69px,19vw,88px); height:clamp(69px,19vw,88px);
+      margin:3px auto 0; border:3px solid #b9ef8d; border-radius:50%;
+      background:radial-gradient(circle at 35% 24%,#64c96d,#2d8a43 58%,#15552f);
+      box-shadow:0 2px 7px #0008,0 0 0 0 #4ebe62a0;
+      color:#fff; font:800 clamp(11px,3vw,14px) Arial,sans-serif;
+      cursor:pointer; animation:filuAbandonPulse 1.9s ease-in-out infinite;
+    }
+    @keyframes filuAbandonPulse {
+      0%,100% {transform:scale(1);box-shadow:0 2px 7px #0008,0 0 0 0 #4ebe62a0;}
+      50% {transform:scale(1.06);box-shadow:0 2px 7px #0008,0 0 0 9px #4ebe6200;}
+    }
+    .filu-revisit-nav {
+      flex:0 0 auto; width:100%; min-height:clamp(50px,9dvh,72px);
+      display:flex; align-items:center; justify-content:space-around; gap:2%;
+      padding:0 4%;
+    }
+    .filu-revisit-nav button {width:30%;max-width:122px;border:0;padding:0;background:transparent;cursor:pointer;}
+    .filu-revisit-nav img {display:block;width:100%;max-height:clamp(45px,8dvh,65px);object-fit:contain;}
+    @media(prefers-reduced-motion:reduce){.filu-abandon{animation:none;}}
+
     /* FILU — celebración al completar 1–20 */
     .filu-celebration {
       position: absolute; inset: 0; z-index: 12; display: none;
@@ -1805,6 +1829,12 @@
           <div id="nhewenProgress" class="nhewen-progress" aria-label="Progreso de Nhewen"></div>
           <div id="filuNhewenComplete" class="filu-nhewen-complete" aria-hidden="true">NHEWEN</div>
         </div>
+        <button id="filuAbandon" class="filu-abandon" type="button" onclick="showFiluCelebration()" hidden>Abandonar</button>
+        <nav id="filuRevisitNav" class="filu-revisit-nav" aria-label="Controles de repaso de Filu" hidden>
+          <button type="button" onclick="showScreen('acknowledgements')" aria-label="Wiñotxekage, volver atrás"><img src="./boton_volver_atras.png" alt="Wiñotxekage"></button>
+          <button type="button" onclick="showScreen('pairs01')" aria-label="Amulepe, seguir"><img src="./boton_seguir.png" alt="Amulepe"></button>
+          <button type="button" onclick="openRamtuchiFromFilu()" aria-label="Ramtuchi, consultar"><img src="./boton_consultar.png" alt="Ramtuchi"></button>
+        </nav>
         <button id="filuMapBack" class="filu-map-back" type="button" onclick="returnFiluToMap()" aria-label="Wiñotxekage, volver al Camino del Sabio" hidden><img src="./boton_volver_atras.png" alt="Wiñotxekage — Volver atrás"></button>
         <div id="filuCelebration" class="filu-celebration" aria-hidden="true">
           <div class="confetti-layer" id="filuConfetti"></div>
@@ -5065,13 +5095,20 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       const sign = screen && screen.querySelector('.filu-word-sign');
       if (!screen || !board || !img || !sign || !img.naturalWidth || !img.naturalHeight) return;
       const css = getComputedStyle(screen);
+      const footer = document.getElementById('filuRevisitNav');
+      const abandon = document.getElementById('filuAbandon');
+      const footerHeight = footer && !footer.hidden ? footer.getBoundingClientRect().height : 0;
+      const abandonHeight = abandon && !abandon.hidden
+        ? abandon.getBoundingClientRect().height + parseFloat(getComputedStyle(abandon).marginTop) : 0;
       const available = screen.clientHeight - parseFloat(css.paddingTop) - parseFloat(css.paddingBottom)
-        - sign.getBoundingClientRect().height - parseFloat(getComputedStyle(sign).marginBottom) - 3;
+        - sign.getBoundingClientRect().height - parseFloat(getComputedStyle(sign).marginBottom)
+        - footerHeight - abandonHeight - 3;
       const aspect = img.naturalWidth / img.naturalHeight;
       board.style.width = Math.max(1, Math.min(screen.clientWidth, available * aspect)) + 'px';
     }
 
     let filuExpectedNumber = 1;
+    let filuNumbersCompleted = false;
     let filuNumberAudio = null;
 
     function buildNhewenProgress() {
@@ -5121,8 +5158,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
     }
 
     function playFiluNumber(number, button) {
-      // Avance estrictamente correlativo: 1, 2, 3 ... 20.
-      if (number !== filuExpectedNumber) return;
+      // Primera vuelta correlativa; después de completar Nhewen, repaso libre.
+      if (!filuNumbersCompleted && number !== filuExpectedNumber) return;
       const src = FILU_NUMBER_AUDIO[number];
       if (!src) return;
 
@@ -5135,8 +5172,8 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       // Marcar solamente el número correcto que acaba de pulsarse.
       if (button) button.classList.add("pressed");
 
-      // Cada número correcto aporta una unidad de fuerza a la barra Nhewen.
-      updateNhewenProgress(number);
+      // En el repaso se conserva el Nhewen completo, sin volver a sumar fuerza.
+      if (!filuNumbersCompleted) updateNhewenProgress(number);
 
       // Crear un reproductor nuevo para evitar que un audio anterior bloquee el siguiente.
       filuNumberAudio = new Audio();
@@ -5149,16 +5186,21 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
         playback.catch((error) => console.warn(`No se pudo reproducir el número ${number}:`, src, error));
       }
 
-      if (filuExpectedNumber < 20) {
-        filuExpectedNumber += 1;
-      } else {
-        window.setTimeout(showFiluCelebration, 450);
+      if (!filuNumbersCompleted) {
+        if (filuExpectedNumber < 20) {
+          filuExpectedNumber += 1;
+        } else {
+          filuNumbersCompleted = true;
+          document.getElementById('filuAbandon').hidden = false;
+          fitFiluBoard();
+        }
       }
     }
 
     function showFiluCelebration() {
       const overlay = document.getElementById("filuCelebration");
-      if (!overlay || overlay.classList.contains("active") ||
+      if (!filuNumbersCompleted || document.getElementById('filuAbandon').hidden ||
+          !overlay || overlay.classList.contains("active") ||
           !document.getElementById('filu').classList.contains('active')) return;
       overlay.classList.add("active");
       overlay.setAttribute("aria-hidden", "false");
@@ -5185,6 +5227,9 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
 
     function resetFiluActivity() {
       filuExpectedNumber = 1;
+      filuNumbersCompleted = false;
+      document.getElementById('filuAbandon').hidden = true;
+      document.getElementById('filuRevisitNav').hidden = true;
       updateFiluWord(0);
       if (filuNumberAudio) {
         try { filuNumberAudio.pause(); filuNumberAudio.currentTime = 0; } catch (_) {}
@@ -5195,11 +5240,18 @@ window.addEventListener(&#x27;message&#x27;,ev=&gt;{if(ev.source===parent&amp;&a
       if (overlay) { overlay.classList.remove("active"); overlay.setAttribute("aria-hidden", "true"); }
       const layer = document.getElementById("filuConfetti");
       if (layer) layer.replaceChildren();
+      fitFiluBoard();
     }
 
     function advanceFromFilu() {
-      if (filuExpectedNumber !== 20 ||
+      if (!filuNumbersCompleted ||
           !document.getElementById('filuCelebration').classList.contains('active')) return;
+      // Tras la primera salida, Filu permanece completada y habilitada para repasar.
+      const overlay = document.getElementById('filuCelebration');
+      overlay.classList.remove('active');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.getElementById('filuAbandon').hidden = true;
+      document.getElementById('filuRevisitNav').hidden = false;
       // FILU completado: el Newen inicial queda lleno y comienza pares 1–5.
       newenLives = NEWEN_MAX_LIVES;
       saveNewenLives();
